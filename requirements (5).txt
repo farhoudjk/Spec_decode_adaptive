@@ -1,0 +1,18 @@
+# specloop — simulator-backed harness for control-loop interference in
+# speculative LLM serving.  Python >= 3.9.
+#
+# Everything else used by the harness is stdlib (dataclasses, itertools,
+# concurrent.futures, argparse).  No GPU, CUDA, or vLLM dependency: the
+# simulator is pure CPU, and the controller classes are backend-agnostic.
+
+numpy>=1.24          # cost model, FFT-based oscillation metrics, RNG
+pandas>=2.0          # tidy per-run result frames, CSV output
+matplotlib>=3.7      # figures (Agg backend, no display required)
+
+# --- optional -------------------------------------------------------------
+# Uncomment when wiring the same controllers to a real serving backend for
+# the hardware-validation stage.  Pin to the vLLM version you benchmark on;
+# the speculative-decoding scheduler API is not stable across releases.
+# vllm>=0.8.4
+# torch>=2.4
+# transformers>=4.44
