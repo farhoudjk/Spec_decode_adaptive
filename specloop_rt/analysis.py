@@ -114,16 +114,16 @@ def stability_metrics(run: Dict, t_event: Optional[float] = None, warmup_frac=0.
     t = s.t_wall.values - run["steps"].t_wall.min()
     dt = float(np.mean(np.diff(t))) if len(t) > 1 else 0.01
     out = {}
-    out.update(oscillation(s.act_gamma.fillna(method="ffill").values, dt, "gamma_"))
+    out.update(oscillation(s.act_gamma.ffill().values, dt, "gamma_"))
     out.update(oscillation(s.num_running.values, dt, "batch_"))
-    g = _detrend(s.act_gamma.fillna(method="ffill").values)
+    g = _detrend(s.act_gamma.ffill().values)
     b = _detrend(s.num_running.values.astype(float))
     if g.std() > 1e-9 and b.std() > 1e-9:
         out["gamma_batch_corr"] = float(np.corrcoef(g, b)[0, 1])
     else:
         out["gamma_batch_corr"] = 0.0
     if t_event is not None:
-        out.update(settling(s.act_gamma.fillna(method="ffill").values, t, t_event, prefix="gamma_"))
+        out.update(settling(s.act_gamma.ffill().values, t, t_event, prefix="gamma_"))
     return out
 
 
