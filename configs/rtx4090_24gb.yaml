@@ -1,0 +1,29 @@
+# 1x RTX 4090 / 3090 (24 GB). 8B fp16 target is tight with a draft + KV, so the
+# safe default here is a 7B target + 0.5B draft. On 40-48GB (A6000/L40S) use
+# configs/a100_48gb.yaml instead.
+model:
+  target_model: Qwen/Qwen2.5-7B-Instruct
+  draft_model:  Qwen/Qwen2.5-0.5B-Instruct
+  spec_method: draft_model
+  eagle_model: null
+  tp: 1
+  gpu_mem_util: 0.92
+  max_model_len: 4096
+  dtype: float16
+  enforce_eager: false
+
+runtime:
+  gamma_init: 4
+  max_num_seqs_init: 64
+  tpot_slo_s: 0.040
+  ttft_slo_s: 2.0
+  temperature: 0.0
+  ignore_eos: true      # honour trace max_tokens exactly for reproducibility
+
+controller:
+  spec: closed-loop
+  admit: slack
+  coordination: naive
+  spec_kw:  {threshold: 0.45, gain: 0.5, period: 4, gamma_min: 0, gamma_max: 8, gamma_init: 4}
+  admit_kw: {target_util: 0.85, gain: 0.5, period: 4, batch_max: 256, init: 64}
+  coord_kw: {}
