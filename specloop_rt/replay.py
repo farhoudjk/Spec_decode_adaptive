@@ -163,11 +163,25 @@ def main(argv=None):
     p.add_argument("--real-corpus", action="store_true",
                    help="draw prompts from ShareGPT/HumanEval/SQuAD/CNN-DailyMail "
                         "instead of synthetic templates (see specloop_rt.real_corpus)")
+    p.add_argument("--force-output-tokens", type=int, default=None,
+                   help="override the per-rtype lognormal output length with a fixed "
+                        "value -- for the bound-edness sweep (rate x length -> "
+                        "admission-bound vs decode-bound); pair with ignore_eos: true "
+                        "in the config so generations run the full length")
+    p.add_argument("--rtype", default=None,
+                   help="restrict to a single rtype (rag/code/chat/reason) -- only "
+                        "meaningful with --trace homogeneous/bursty_homogeneous; "
+                        "for the axis-2 workload-type sweep")
     a = p.parse_args(argv)
     with open(a.config) as f:
         cfg = yaml.safe_load(f)
     builder = TRACE_BUILDERS[a.trace]
-    kw = dict(rate=a.rate, seed=a.seed, use_real_corpus=a.real_corpus)
+    kw = dict(rate=a.rate, seed=a.seed, use_real_corpus=a.real_corpus,
+              force_output_tokens=a.force_output_tokens)
+    if a.rtype is not None:
+        if "homogeneous" not in a.trace:
+            raise SystemExit("--rtype requires --trace homogeneous or bursty_homogeneous")
+        kw["rtype"] = a.rtype
     if a.trace in ("step", "bursty_step"):
         kw.update(warmup=a.duration / 3, post=2 * a.duration / 3)
     else:

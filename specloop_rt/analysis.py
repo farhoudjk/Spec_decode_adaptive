@@ -44,10 +44,20 @@ def end_metrics(run: Dict, tpot_slo: float, ttft_slo: float) -> Dict[str, float]
     slo_ok = ((done.ttft_s <= ttft_slo) & (done.tpot_s <= tpot_slo)).mean()
     dur = s.t_wall.max() - s.t_wall.min() if len(s) else 1.0
     out_tok = done.output_tokens.sum()
+    mean_out_tok = float(done.output_tokens.mean())
+    ttft_p99 = float(np.percentile(ttft, 99))
+    tpot_p99 = float(np.percentile(tpot, 99))
+    # bound-edness ratio: P99 TTFT / (P99 TPOT x mean output length). >>1 means
+    # end-to-end time is dominated by queueing/admission wait (TTFT), so k
+    # cannot move goodput regardless of controller; near/below 1 means decode
+    # time dominates and speculation has something to act on. See the regime
+    # map design in the multi-turn cost-gain investigation.
+    decode_time_est = tpot_p99 * max(1.0, mean_out_tok)
+    bound_ratio = ttft_p99 / decode_time_est if decode_time_est > 0 else float("inf")
     return {
         "n_finished": len(done),
-        "ttft_p50": float(np.percentile(ttft, 50)), "ttft_p99": float(np.percentile(ttft, 99)),
-        "tpot_p50": float(np.percentile(tpot, 50)), "tpot_p99": float(np.percentile(tpot, 99)),
+        "ttft_p50": float(np.percentile(ttft, 50)), "ttft_p99": ttft_p99,
+        "tpot_p50": float(np.percentile(tpot, 50)), "tpot_p99": tpot_p99,
         "e2e_p95": float(np.percentile(e2e, 95)),
         "slo_attainment": float(slo_ok),
         "goodput_tok_s": float(out_tok / dur),
@@ -55,6 +65,10 @@ def end_metrics(run: Dict, tpot_slo: float, ttft_slo: float) -> Dict[str, float]
         "mean_accept_rate": float(s.accept_rate_ema.mean()),
         "mean_running": float(s.num_running.mean()),
         "mean_kv_frac": float((s.kv_used_blocks / s.kv_total_blocks.clip(lower=1)).mean()),
+        "mean_output_tokens": mean_out_tok,
+        "bound_ratio": float(bound_ratio),
+        "regime": "admission_bound" if bound_ratio > 1.5 else
+                 ("decode_bound" if bound_ratio < 0.67 else "mixed"),
     }
 
 
@@ -124,6 +138,14 @@ def stability_metrics(run: Dict, t_event: Optional[float] = None, warmup_frac=0.
         out["gamma_batch_corr"] = 0.0
     if t_event is not None:
         out.update(settling(s.act_gamma.ffill().values, t, t_event, prefix="gamma_"))
+    # acceptance-signal noise: the input the closed-loop controller reacts to,
+    # not just gamma (its output). A high accept_rate_cv with a low-magnitude
+    # gamma response would still mean the controller is being driven by a
+    # noisy signal -- this is the number the sensing-noise sub-experiment
+    # sweeps against (EMA window / min-sample gate vs. this CV).
+    acc = s.accept_rate_ema.dropna().values
+    out["accept_rate_mean"] = float(acc.mean()) if acc.size else float("nan")
+    out["accept_rate_cv"] = float(acc.std() / acc.mean()) if acc.size and acc.mean() > 1e-9 else 0.0
     return out
 
 
