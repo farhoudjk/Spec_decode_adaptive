@@ -47,13 +47,23 @@ def end_metrics(run: Dict, tpot_slo: float, ttft_slo: float) -> Dict[str, float]
     mean_out_tok = float(done.output_tokens.mean())
     ttft_p99 = float(np.percentile(ttft, 99))
     tpot_p99 = float(np.percentile(tpot, 99))
-    # bound-edness ratio: P99 TTFT / (P99 TPOT x mean output length). >>1 means
-    # end-to-end time is dominated by queueing/admission wait (TTFT), so k
-    # cannot move goodput regardless of controller; near/below 1 means decode
-    # time dominates and speculation has something to act on. See the regime
-    # map design in the multi-turn cost-gain investigation.
-    decode_time_est = tpot_p99 * max(1.0, mean_out_tok)
-    bound_ratio = ttft_p99 / decode_time_est if decode_time_est > 0 else float("inf")
+    # bound-edness: compare each P99 directly to its own SLO rather than a
+    # ratio of the two (a ratio can be fooled by output length -- a genuine
+    # queueing blowup, e.g. ttft_p99=13s at rate=4/len=1024 with slo_attainment
+    # 0.55, still came out "decode_bound" under P99_ttft/(P99_tpot*mean_len)
+    # because dividing by 1024 washed out the numerator; confirmed on real
+    # GPU data in the axis-1 sweep before switching to this formulation).
+    # "breach" = this SLO alone would fail attainment at this load.
+    ttft_breach = ttft_p99 > ttft_slo
+    tpot_breach = tpot_p99 > tpot_slo
+    if ttft_breach and tpot_breach:
+        regime = "both_bound"
+    elif ttft_breach:
+        regime = "admission_bound"
+    elif tpot_breach:
+        regime = "decode_bound"
+    else:
+        regime = "unconstrained"
     return {
         "n_finished": len(done),
         "ttft_p50": float(np.percentile(ttft, 50)), "ttft_p99": ttft_p99,
@@ -66,9 +76,9 @@ def end_metrics(run: Dict, tpot_slo: float, ttft_slo: float) -> Dict[str, float]
         "mean_running": float(s.num_running.mean()),
         "mean_kv_frac": float((s.kv_used_blocks / s.kv_total_blocks.clip(lower=1)).mean()),
         "mean_output_tokens": mean_out_tok,
-        "bound_ratio": float(bound_ratio),
-        "regime": "admission_bound" if bound_ratio > 1.5 else
-                 ("decode_bound" if bound_ratio < 0.67 else "mixed"),
+        "ttft_over_slo": float(ttft_p99 / ttft_slo) if ttft_slo > 0 else float("inf"),
+        "tpot_over_slo": float(tpot_p99 / tpot_slo) if tpot_slo > 0 else float("inf"),
+        "regime": regime,
     }
 
 

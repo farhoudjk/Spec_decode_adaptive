@@ -89,28 +89,38 @@ def main(argv=None):
     with open(os.path.join(a.out, "grid.json"), "w") as f:
         json.dump(grid, f, indent=2)
 
-    print("\n=== bound_ratio grid (rows=rate, cols=output_tokens) ===")
+    print("\n=== TTFT P99 / SLO grid (rows=rate, cols=output_tokens) ===")
     print("rate\\len  " + "  ".join(f"{ol:>8}" for ol in a.output_lens))
     for rate in a.rates:
         cells = []
         for ol in a.output_lens:
             g = grid.get(f"r{rate}_o{ol}", {})
-            r = g.get("bound_ratio")
+            r = g.get("ttft_over_slo")
             cells.append(f"{r:>8.2f}" if r is not None else "     n/a")
         print(f"{rate:>8}  " + "  ".join(cells))
 
-    print("\n=== regime grid ===")
-    print("rate\\len  " + "  ".join(f"{ol:>10}" for ol in a.output_lens))
+    print("\n=== TPOT P99 / SLO grid (rows=rate, cols=output_tokens) ===")
+    print("rate\\len  " + "  ".join(f"{ol:>8}" for ol in a.output_lens))
     for rate in a.rates:
         cells = []
         for ol in a.output_lens:
             g = grid.get(f"r{rate}_o{ol}", {})
-            cells.append(f"{g.get('regime', 'n/a'):>10}")
+            r = g.get("tpot_over_slo")
+            cells.append(f"{r:>8.2f}" if r is not None else "     n/a")
         print(f"{rate:>8}  " + "  ".join(cells))
 
-    n_decode = sum(1 for g in grid.values() if g.get("regime") == "decode_bound")
-    print(f"\n{n_decode}/{len(grid)} cells reached decode_bound "
-          f"(bound_ratio < 0.67).")
+    print("\n=== regime grid ===")
+    print("rate\\len  " + "  ".join(f"{ol:>13}" for ol in a.output_lens))
+    for rate in a.rates:
+        cells = []
+        for ol in a.output_lens:
+            g = grid.get(f"r{rate}_o{ol}", {})
+            cells.append(f"{g.get('regime', 'n/a'):>13}")
+        print(f"{rate:>8}  " + "  ".join(cells))
+
+    n_decode = sum(1 for g in grid.values() if g.get("regime") in ("decode_bound", "both_bound"))
+    print(f"\n{n_decode}/{len(grid)} cells have TPOT breaching its SLO "
+          f"(decode_bound or both_bound).")
     if n_decode == 0:
         print("No cell reached decode_bound at the swept rates/lengths. Per the "
               "regime-map plan: this IS the headline finding if it holds after "
