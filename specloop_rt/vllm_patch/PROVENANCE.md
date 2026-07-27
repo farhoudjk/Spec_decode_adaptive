@@ -10,6 +10,25 @@ to re-check.
 > `tests/test_patch_contract.py` against a stubbed scheduler first (no GPU
 > needed) to catch signature drift before launching the engine.
 
+## First real-hardware finding: pin `transformers`, not just `vllm`
+
+`pip install vllm==0.9.2` alone pulls the newest `transformers` (observed:
+5.14.1 in July 2026), because vLLM's own metadata puts no upper bound on it.
+That newer transformers already registers an `"aimv2"` AutoConfig entry;
+`vllm/transformers_utils/configs/ovis.py` tries to register the same key and
+raises `ValueError` at import time. That import sits underneath
+`vllm.v1.core.sched.scheduler.Scheduler`, so it takes down the scheduler
+import too -- caught by this file's `try/except`, so `SpecLoopScheduler` ends
+up subclassing plain `object` instead of the real `Scheduler`
+(`SpecLoopScheduler.__mro__` shows this directly; `_VLLM_OK` is `False`).
+`SpecLoopScheduler.__init__` does raise on this, so it fails loudly at engine
+construction rather than silently producing bad numbers -- but the fix is
+one level removed from the traceback you'll see, so it's worth having here.
+
+Fix: `pip install transformers==4.53.3` (or another version contemporary
+with vLLM 0.9.2, mid-2025) after installing vllm. See
+`specloop_rt/requirements.txt`.
+
 ## Registration
 
 vLLM v1 supports a pluggable scheduler class via `SchedulerConfig.scheduler_cls`
