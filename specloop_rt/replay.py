@@ -134,6 +134,8 @@ async def replay(cfg: dict, trace: List[W.TraceRequest], out_dir: str):
 TRACE_BUILDERS = {
     "step": W.step_perturbation, "mixed": W.mixed,
     "volatile": W.volatile, "homogeneous": W.homogeneous,
+    "bursty_step": W.bursty_step_perturbation, "bursty_mixed": W.bursty_mixed,
+    "bursty_volatile": W.bursty_volatile, "bursty_homogeneous": W.bursty_homogeneous,
 }
 
 
@@ -153,7 +155,7 @@ def main(argv=None):
         cfg = yaml.safe_load(f)
     builder = TRACE_BUILDERS[a.trace]
     kw = dict(rate=a.rate, seed=a.seed, use_real_corpus=a.real_corpus)
-    if a.trace == "step":
+    if a.trace in ("step", "bursty_step"):
         kw.update(warmup=a.duration / 3, post=2 * a.duration / 3)
     else:
         kw.update(duration=a.duration)
