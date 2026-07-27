@@ -36,12 +36,18 @@ from specloop_rt.analysis import summarize_run
 
 
 def run_cell(base_cfg: dict, gamma: int, rate: float, out_tokens: int,
-            duration: float, seed: int, out_dir: str, rtype: str) -> dict:
+            duration: float, seed: int, out_dir: str, rtype: str,
+            max_num_seqs: int) -> dict:
     cfg = copy.deepcopy(base_cfg)
+    # admission cap deliberately kept generous (see --max-num-seqs): axis 1
+    # asks whether DECODE degrades under load, not whether the admission
+    # queue backs up -- a low cap would re-trigger the same admission-bound
+    # confound the mechanics check (r=4/len=1024) already caught once.
+    cfg["runtime"]["max_num_seqs_init"] = max_num_seqs
     cfg["controller"] = {"spec": "static", "admit": "static",
                          "coordination": "naive",
                          "spec_kw": {"gamma": gamma},
-                         "admit_kw": {"max_num_seqs": cfg["runtime"].get("max_num_seqs_init", 64)}}
+                         "admit_kw": {"max_num_seqs": max_num_seqs}}
     cfg["runtime"]["ignore_eos"] = True
     cfg_path = os.path.join(out_dir, f"cfg_r{rate}_o{out_tokens}.yaml")
     with open(cfg_path, "w") as f:
@@ -68,6 +74,10 @@ def main(argv=None):
     p.add_argument("--duration", type=float, default=60.0)
     p.add_argument("--gamma", type=int, default=4)
     p.add_argument("--seed", type=int, default=0)
+    p.add_argument("--max-num-seqs", type=int, default=64,
+                   help="admission cap, held generous by default so the sweep "
+                        "tests decode degradation rather than re-triggering "
+                        "an admission-bound confound at high rate/length")
     p.add_argument("--out", default="results_gpu_sweep/boundedness")
     a = p.parse_args(argv)
 
@@ -80,7 +90,8 @@ def main(argv=None):
         for out_tokens in a.output_lens:
             key = f"r{rate}_o{out_tokens}"
             try:
-                m = run_cell(base_cfg, a.gamma, rate, out_tokens, a.duration, a.seed, a.out, rtype="chat")
+                m = run_cell(base_cfg, a.gamma, rate, out_tokens, a.duration, a.seed, a.out,
+                            rtype="chat", max_num_seqs=a.max_num_seqs)
                 grid[key] = {"rate": rate, "output_tokens": out_tokens, **m}
             except subprocess.CalledProcessError as e:
                 print(f"!! cell {key} FAILED: {e}", flush=True)
