@@ -64,6 +64,11 @@ def _build_engine(cfg: dict):
         dtype=m.get("dtype", "auto"),
         enforce_eager=m.get("enforce_eager", False),
         speculative_config=spec,
+        # multi-turn replay (specloop_rt.multiturn) resubmits the whole
+        # conversation-so-far each turn; prefix caching is what makes that
+        # cheap instead of recomputing shared history from scratch. Off by
+        # default so single-shot runs are unaffected unless a config opts in.
+        enable_prefix_caching=m.get("enable_prefix_caching", False),
         # the patched scheduler:
         scheduler_cls="specloop_rt.vllm_patch.SpecLoopScheduler",
         disable_log_stats=False,

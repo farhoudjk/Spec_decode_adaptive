@@ -1,0 +1,30 @@
+# 1x RTX A6000 (48GB), ngram speculation, multi-turn ShareGPT replay
+# (specloop_rt.multiturn). Matches the model/GPU pairing used for the
+# original single-shot 9-arm real-corpus comparison.
+model:
+  target_model: Qwen/Qwen2.5-7B-Instruct
+  draft_model: null
+  spec_method: ngram
+  eagle_model: null
+  tp: 1
+  gpu_mem_util: 0.90
+  max_model_len: 8192          # multi-turn history grows across turns
+  dtype: float16
+  enforce_eager: false
+  enable_prefix_caching: true  # required: multi-turn resubmits full history each turn
+
+runtime:
+  gamma_init: 4
+  max_num_seqs_init: 64
+  tpot_slo_s: 0.040
+  ttft_slo_s: 2.0
+  temperature: 0.0
+  ignore_eos: false            # let replies end naturally; they become next-turn context
+
+controller:
+  spec: closed-loop
+  admit: slack
+  coordination: naive
+  spec_kw:  {threshold: 0.45, gain: 0.5, period: 4, gamma_min: 0, gamma_max: 8, gamma_init: 4}
+  admit_kw: {target_util: 0.85, gain: 0.5, period: 4, batch_max: 256, init: 64}
+  coord_kw: {}

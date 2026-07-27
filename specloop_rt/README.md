@@ -39,7 +39,8 @@ touchpoint to its upstream `file:symbol` and documents the equivalent hard-fork
 edit sites if you prefer an in-place fork.
 
 Everything else (`controllers.py`, `interface.py`, `workload.py`,
-`analysis.py`) has **zero vLLM imports** and is portable across versions.
+`analysis.py`, `real_corpus.py`, `multiturn.py`) has **zero vLLM imports** and
+is portable across versions.
 
 ## Layout
 
@@ -51,10 +52,20 @@ specloop_rt/
   vllm_patch/         THE ONLY vllm-touching code (pinned v0.9.x v1)
     scheduler_patch.py
     PROVENANCE.md     upstream file:line for every touchpoint + first-run checklist
-  workload.py         reproducible arrival traces (step / mixed / volatile / homogeneous)
-  replay.py           async trace-replay client against AsyncLLM
-  analysis.py         end metrics + oscillation/settling from telemetry
-configs/              per-GPU runtime configs (24GB / 48GB)
+  real_corpus.py       ShareGPT / HumanEval / SQuAD / CNN-DailyMail loaders
+  workload.py          single-shot arrival traces (step / mixed / volatile /
+                       homogeneous, each with a bursty_* CV=2.5 counterpart);
+                       use_real_corpus=True draws from real_corpus.py instead
+                       of synthetic templates
+  multiturn.py         multi-turn ShareGPT conversation replay: sequential
+                       per-conversation turns with think-time gaps and a
+                       growing shared-prefix prompt (needs enable_prefix_caching)
+  replay.py            async single-shot trace-replay client against AsyncLLM
+  analysis.py           end metrics + oscillation/settling from telemetry
+                       (shared schema, works on either replay.py's or
+                       multiturn.py's requests.jsonl)
+configs/              per-GPU runtime configs (24GB / 48GB, single-shot /
+                      multiturn)
 scripts/              run_matrix.sh, mkconfig.py, analyze.py
 tests/                GPU-free contract test
 ```
@@ -72,12 +83,42 @@ This runs the core arms — `no_spec`, `static_spec`, `vllm_open_loop` (baseline
 mixed trace, then the coordination arms (`naive`/`timescale`/`hysteresis`) on the
 perturbation trace, and aggregates into `results_gpu/summary.txt`.
 
-Single run:
+Single run, synthetic prompts:
 
 ```bash
 python -m specloop_rt.replay --config configs/rtx4090_24gb.yaml \
     --trace step --rate 8 --duration 180 --seed 0 --out results_gpu/probe
 ```
+
+Single run, real prompts (ShareGPT/HumanEval/SQuAD/CNN-DailyMail) and/or
+bursty (CV=2.5) arrivals instead of Poisson:
+
+```bash
+python -m specloop_rt.replay --config configs/rtx4090_24gb.yaml \
+    --trace bursty_mixed --rate 8 --duration 180 --seed 0 \
+    --real-corpus --out results_gpu/probe_bursty_real
+```
+
+`--trace` accepts `step`/`mixed`/`volatile`/`homogeneous` (Poisson, CV=1) and
+their `bursty_*` counterparts (Gamma-distributed gaps, CV=2.5 by default —
+see `workload.BURSTY_CV`); `--real-corpus` swaps every rtype's prompt source
+from the synthetic templates to the matching real dataset
+(`rag`->SQuAD, `code`->HumanEval, `chat`->ShareGPT, `reason`->CNN-DailyMail).
+
+Multi-turn ShareGPT conversation replay — turns are submitted sequentially per
+conversation (think-time gap between turns, growing shared-prefix prompt),
+distinct from the independent-request model above:
+
+```bash
+python -m specloop_rt.multiturn --config configs/a6000_48gb_multiturn.yaml \
+    --n-conversations 100 --rate 1.0 --min-turns 2 --max-turns 6 \
+    --seed 0 --out results_gpu/multiturn_probe
+```
+
+The config passed to `multiturn` must set `model.enable_prefix_caching: true`
+(see `configs/a6000_48gb_multiturn.yaml`) — each turn resubmits the full
+conversation history, and prefix caching is what makes that cheap instead of
+recomputing the shared prefix from scratch every turn.
 
 ## Model pairs (runtime-selectable)
 
