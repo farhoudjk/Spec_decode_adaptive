@@ -246,25 +246,36 @@ class SpecLoopScheduler(_V1Scheduler):
 
     @staticmethod
     def _sl_extract_acceptance(mro, sout) -> tuple:
-        """Return (accepted, proposed) totals for this step. Best-effort."""
-        # shape 1: explicit counts
-        acc = getattr(mro, "num_accepted_tokens", None)
-        prop = getattr(mro, "num_spec_tokens", None)
-        if acc is not None and prop is not None:
-            try:
-                return int(sum(acc)) if hasattr(acc, "__iter__") else int(acc), \
-                       int(sum(prop)) if hasattr(prop, "__iter__") else int(prop)
-            except Exception:
-                pass
-        # shape 2: per-request accepted spec ids on the output
-        spec_ids = getattr(mro, "spec_token_ids", None)
-        if spec_ids is not None:
-            proposed = sum(len(x) for x in spec_ids)
-            # accepted inferred from scheduled spec tokens vs. re-proposed next
-            sched = getattr(sout, "scheduled_spec_decode_tokens", {}) or {}
-            proposed = proposed or sum(len(v) for v in sched.values())
-            # without a direct accepted count, fall back to 0 (telemetry still
-            # logs proposed); PROVENANCE.md#acceptance explains the exact field
-            # to wire for your version.
-            return 0, int(proposed)
+        """Return (accepted, proposed) totals for this step.
+
+        Confirmed against vllm==0.9.2's real v1.outputs.ModelRunnerOutput /
+        v1.core.sched.output.SchedulerOutput (no num_accepted_tokens /
+        num_spec_tokens field exists on either -- the earlier probe for that
+        shape always fell through to the zero-accepted fallback below, which
+        made accept_rate_ema report 0.0 all run; see PROVENANCE.md#acceptance).
+
+        Per-request accepted length = len(sampled_token_ids[i]) - 1: v1 always
+        samples one bonus/next token beyond however many draft tokens were
+        accepted (this is also the simulator's Q_tokens = gamma+1 convention
+        in specloop/workload.py's cost model docstring), so subtracting it
+        recovers exactly the accepted draft-token count for that request.
+        Proposed length per request = len(scheduled_spec_decode_tokens[rid])
+        from the SAME step's SchedulerOutput (this method receives the output
+        for the step that scheduled these proposals): requests with no spec
+        tokens scheduled are absent from that dict and contribute 0 to both
+        sides, matching a non-speculative decode step correctly.
+        """
+        req_ids = getattr(mro, "req_ids", None)
+        sampled = getattr(mro, "sampled_token_ids", None)
+        scheduled_spec = getattr(sout, "scheduled_spec_decode_tokens", None) or {}
+        if req_ids is not None and sampled is not None:
+            accepted = 0
+            proposed = 0
+            for rid, toks in zip(req_ids, sampled):
+                spec_toks = scheduled_spec.get(rid)
+                if not spec_toks:
+                    continue  # non-speculative step for this request
+                proposed += len(spec_toks)
+                accepted += max(0, len(toks) - 1)
+            return accepted, proposed
         return 0, 0

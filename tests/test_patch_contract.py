@@ -68,11 +68,12 @@ def _install_fake_vllm():
             want = min(self.scheduler_config.max_num_seqs, 8 + self._t % 5)
             self.running = list(range(want))
             self._t += 1
+            rids = [str(i) for i in range(want)]
             out = types.SimpleNamespace(
-                num_scheduled_tokens={i: 1 for i in range(want)},
+                num_scheduled_tokens={rid: 1 for rid in rids},
                 scheduled_spec_decode_tokens={
-                    i: list(range(self.vllm_config.speculative_config.num_speculative_tokens))
-                    for i in range(want)},
+                    rid: list(range(self.vllm_config.speculative_config.num_speculative_tokens))
+                    for rid in rids},
             )
             return out
 
@@ -96,13 +97,18 @@ def _install_fake_vllm():
 
 
 def _fake_model_output(n_running, k, accept_frac=0.6):
+    """Mimics real ModelRunnerOutput's actual v0.9.2 shape: req_ids +
+    sampled_token_ids (accepted length is len(tokens)-1, the bonus token is
+    always included), NOT the num_accepted_tokens/num_spec_tokens fields the
+    patch used to probe for -- those don't exist on the real dataclass (see
+    PROVENANCE.md#acceptance)."""
     import random
-    accepted = [min(k, int(round(k * accept_frac + random.uniform(-1, 1)))) for _ in range(n_running)]
-    accepted = [max(0, a) for a in accepted]
-    return types.SimpleNamespace(
-        num_accepted_tokens=accepted,
-        num_spec_tokens=[k] * n_running,
-    )
+    req_ids = [str(i) for i in range(n_running)]
+    sampled = []
+    for _ in range(n_running):
+        accepted = max(0, min(k, int(round(k * accept_frac + random.uniform(-1, 1)))))
+        sampled.append(list(range(accepted + 1)))  # +1 bonus token, always present
+    return types.SimpleNamespace(req_ids=req_ids, sampled_token_ids=sampled)
 
 
 def run():
