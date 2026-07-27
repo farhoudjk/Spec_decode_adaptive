@@ -47,7 +47,15 @@ def _build_engine(cfg: dict):
 
     m = cfg["model"]
     spec = None
-    if m.get("draft_model"):
+    if m.get("spec_method") == "ngram":
+        # prompt-lookup drafting: no separate draft model, so this must be
+        # checked before the draft_model/eagle_model branches below (which
+        # both require a model path and would otherwise leave spec=None).
+        spec = {"method": "ngram",
+                "num_speculative_tokens": cfg["runtime"].get("gamma_init", 4),
+                "prompt_lookup_max": m.get("prompt_lookup_max", 4),
+                "prompt_lookup_min": m.get("prompt_lookup_min", 2)}
+    elif m.get("draft_model"):
         spec = {"method": m.get("spec_method", "draft_model"),
                 "model": m["draft_model"],
                 "num_speculative_tokens": cfg["runtime"].get("gamma_init", 4)}
