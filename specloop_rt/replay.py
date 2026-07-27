@@ -145,11 +145,14 @@ def main(argv=None):
     p.add_argument("--duration", type=float, default=180.0)
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--out", default="results_gpu/run")
+    p.add_argument("--real-corpus", action="store_true",
+                   help="draw prompts from ShareGPT/HumanEval/SQuAD/CNN-DailyMail "
+                        "instead of synthetic templates (see specloop_rt.real_corpus)")
     a = p.parse_args(argv)
     with open(a.config) as f:
         cfg = yaml.safe_load(f)
     builder = TRACE_BUILDERS[a.trace]
-    kw = dict(rate=a.rate, seed=a.seed)
+    kw = dict(rate=a.rate, seed=a.seed, use_real_corpus=a.real_corpus)
     if a.trace == "step":
         kw.update(warmup=a.duration / 3, post=2 * a.duration / 3)
     else:

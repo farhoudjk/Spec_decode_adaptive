@@ -1,0 +1,7 @@
+# specloop_rt — real-vLLM harness. Install on the GPU box, on top of the
+# base repo's requirements.txt (numpy/pandas/matplotlib).
+pyyaml>=6.0
+vllm==0.9.2          # pinned: scheduler_patch.py targets the v0.9.x v1 engine
+torch>=2.4
+datasets>=2.19        # HumanEval, SQuAD, CNN-DailyMail (see real_corpus.py)
+huggingface_hub>=0.23  # ShareGPT file download (see real_corpus.py)

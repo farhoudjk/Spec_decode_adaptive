@@ -65,11 +65,41 @@ REQUEST_TYPES = {
 }
 
 
-def generate_trace(phases: List[tuple], seed: int = 0) -> List[TraceRequest]:
-    """phases: list of (duration_s, {rtype: weight}, rate_rps)."""
+class _RealCorpusPool:
+    """Lazily fetches and round-robins real prompts per rtype.
+
+    Fetched once per rtype per process (datasets/ShareGPT downloads are
+    seconds-to-minutes; every trace-generation call reuses the pool). Prompts
+    repeat via modulo once exhausted -- acceptable for the trace lengths this
+    harness runs (hundreds to low thousands of requests per rtype).
+    """
+
+    def __init__(self, seed: int = 0, pool_size: int = 2000):
+        self.seed = seed
+        self.pool_size = pool_size
+        self._pools: Dict[str, List[str]] = {}
+
+    def sample(self, rtype: str, rng: random.Random) -> str:
+        if rtype not in self._pools:
+            from . import real_corpus
+            self._pools[rtype] = real_corpus.build_corpus(rtype, self.pool_size, seed=self.seed)
+        pool = self._pools[rtype]
+        return pool[rng.randrange(len(pool))]
+
+
+def generate_trace(phases: List[tuple], seed: int = 0,
+                   use_real_corpus: bool = False) -> List[TraceRequest]:
+    """phases: list of (duration_s, {rtype: weight}, rate_rps).
+
+    ``use_real_corpus=True`` draws prompts from specloop_rt.real_corpus
+    (ShareGPT/HumanEval/SQuAD/CNN-DailyMail) instead of the synthetic
+    templates below. Requires network access on first call per rtype
+    (subsequent calls in the same process reuse the fetched pool).
+    """
     rng = random.Random(seed)
     nrng = np.random.default_rng(seed)
     reqs: List[TraceRequest] = []
+    pool = _RealCorpusPool(seed=seed) if use_real_corpus else None
     t, rid = 0.0, 0
     for dur, mix, rate in phases:
         names = list(mix)
@@ -80,9 +110,12 @@ def generate_trace(phases: List[tuple], seed: int = 0) -> List[TraceRequest]:
             if t >= t_end:
                 t = t_end; break
             rt = REQUEST_TYPES[names[nrng.choice(len(names), p=p)]]
-            nwords = max(8, int(nrng.normal(rt.prompt_words_mu, 0.2 * rt.prompt_words_mu)))
             olen = int(np.clip(nrng.lognormal(rt.output_mu, rt.output_sigma), 8, 1024))
-            prompt = _TEMPLATES[rt.name].format(ctx=_corpus_ctx(rt.name, rng, nwords))
+            if pool is not None:
+                prompt = pool.sample(rt.name, rng)
+            else:
+                nwords = max(8, int(nrng.normal(rt.prompt_words_mu, 0.2 * rt.prompt_words_mu)))
+                prompt = _TEMPLATES[rt.name].format(ctx=_corpus_ctx(rt.name, rng, nwords))
             reqs.append(TraceRequest(f"r{rid}", t, prompt, olen, rt.name))
             rid += 1
     reqs.sort(key=lambda r: r.arrival_s)
@@ -91,23 +124,25 @@ def generate_trace(phases: List[tuple], seed: int = 0) -> List[TraceRequest]:
 
 # ---- canned traces mirroring the simulator study -------------------------
 
-def step_perturbation(rate=8.0, warmup=60.0, post=120.0, seed=0):
+def step_perturbation(rate=8.0, warmup=60.0, post=120.0, seed=0, use_real_corpus=False):
     return generate_trace([(warmup, {"rag": 0.6, "code": 0.4}, rate),
-                           (post, {"chat": 0.6, "reason": 0.4}, rate)], seed)
+                           (post, {"chat": 0.6, "reason": 0.4}, rate)], seed,
+                          use_real_corpus=use_real_corpus)
 
-def mixed(rate=8.0, duration=180.0, seed=0):
-    return generate_trace([(duration, {"rag": 0.3, "code": 0.2, "chat": 0.35, "reason": 0.15}, rate)], seed)
+def mixed(rate=8.0, duration=180.0, seed=0, use_real_corpus=False):
+    return generate_trace([(duration, {"rag": 0.3, "code": 0.2, "chat": 0.35, "reason": 0.15}, rate)], seed,
+                          use_real_corpus=use_real_corpus)
 
-def volatile(rate=8.0, duration=180.0, switch=30.0, seed=0):
+def volatile(rate=8.0, duration=180.0, switch=30.0, seed=0, use_real_corpus=False):
     phases, t, i = [], 0.0, 0
     hi, lo = {"rag": 0.6, "code": 0.4}, {"chat": 0.6, "reason": 0.4}
     while t < duration:
         d = min(switch, duration - t)
         phases.append((d, hi if i % 2 == 0 else lo, rate)); t += d; i += 1
-    return generate_trace(phases, seed)
+    return generate_trace(phases, seed, use_real_corpus=use_real_corpus)
 
-def homogeneous(rtype="chat", rate=8.0, duration=120.0, seed=0):
-    return generate_trace([(duration, {rtype: 1.0}, rate)], seed)
+def homogeneous(rtype="chat", rate=8.0, duration=120.0, seed=0, use_real_corpus=False):
+    return generate_trace([(duration, {rtype: 1.0}, rate)], seed, use_real_corpus=use_real_corpus)
 
 
 def save_trace(reqs: List[TraceRequest], path: str):
