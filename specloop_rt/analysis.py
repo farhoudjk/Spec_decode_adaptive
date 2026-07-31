@@ -66,9 +66,14 @@ def end_metrics(run: Dict, tpot_slo: float, ttft_slo: float) -> Dict[str, float]
         regime = "unconstrained"
     return {
         "n_finished": len(done),
-        "ttft_p50": float(np.percentile(ttft, 50)), "ttft_p99": ttft_p99,
+        "ttft_p50": float(np.percentile(ttft, 50)),
+        "ttft_p95": float(np.percentile(ttft, 95)), "ttft_p99": ttft_p99,
+        # tpot_s is the per-request mean inter-token latency (ITL averaged
+        # over that request's decode steps) -- this IS the ITL metric; no
+        # separate field, to avoid two names for the same quantity.
         "tpot_p50": float(np.percentile(tpot, 50)), "tpot_p99": tpot_p99,
-        "e2e_p95": float(np.percentile(e2e, 95)),
+        "e2e_p50": float(np.percentile(e2e, 50)),
+        "e2e_p95": float(np.percentile(e2e, 95)), "e2e_p99": float(np.percentile(e2e, 99)),
         "slo_attainment": float(slo_ok),
         "goodput_tok_s": float(out_tok / dur),
         "mean_gamma": float(s.act_gamma.dropna().mean()) if "act_gamma" in s else float("nan"),

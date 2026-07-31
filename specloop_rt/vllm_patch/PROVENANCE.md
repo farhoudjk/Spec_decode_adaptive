@@ -68,6 +68,30 @@ overrides map to these in-place edit sites:
 - If all probes miss, we report `(0, 1)` (kv_used_frac≈0) — check here first if
   KV-pressure controllers behave oddly.
 
+## <a name="tpot"></a>TPOT proxy
+
+- **Second real-hardware finding**, found the same way as the acceptance-field
+  bug below: the original formula (`step_time_ema / (accepted_tokens_this_step
+  + num_running)`) computes aggregate batch throughput (tokens/sec across
+  every running request that step), not per-request TPOT (seconds between one
+  request's own consecutive tokens). It was silently wrong by 15-300x at every
+  concurrency actually tested (num_running 20-32 and 215-256; see
+  `results_gpu_sweep/axis3_validate*/grid.json`), and the error *grows* with
+  concurrency because the old denominator scaled with `num_running` while true
+  per-request TPOT does not.
+- Fix (current code): `tpot_ema` tracks `step_time_ema` directly. In v1's
+  continuous batching each running request advances by ~1 decode token per
+  scheduler step (barring preemption), so one step's wall time already
+  approximates one request's inter-token gap -- no division needed.
+- Consequence while this was wrong: `GatedSpec`'s decode-bound gate
+  (`specloop_rt/controllers.py`) compares `tpot_ema` to `tpot_slo_s` and
+  stayed closed even when the system was genuinely decode-bound by 6x its
+  SLO. `SlackAdmit` reads the same signal and was affected identically. If a
+  closed-loop controller looks unresponsive to real decode pressure, this is
+  the first thing to re-verify -- log true per-request TPOT (from
+  `requests.jsonl`, independent of this EMA) alongside `tpot_ema` for one run
+  and confirm they track.
+
 ## <a name="acceptance"></a>Acceptance counts
 
 - The load-bearing signal for every closed-loop spec controller.

@@ -1,0 +1,652 @@
+<title>Axis-3v: fixes validation — threshold, trend, rate=32</title>
+<style>
+  .viz-root {
+    color-scheme: light;
+    --plane:          #f9f9f7;
+    --surface-1:      #fcfcfb;
+    --surface-2:      #f3f2ee;
+    --text-primary:   #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted:     #898781;
+    --gridline:       #e1e0d9;
+    --baseline:       #c3c2b7;
+    --border:         rgba(11,11,11,0.10);
+    --accent:         #2a5a8c;
+    --accent-ink:     #1f4569;
+
+    /* categorical: fixed palette slots 1-5, arm order fixed */
+    --arm-lo:      #4a3aa7; /* slot7 violet: static-cap-lo, the floor */
+    --arm-hi:      #898781; /* muted gray: static-cap-hi, the baseline */
+    --arm-adap:    #2a78d6; /* slot1 blue: adaptive-cap-only */
+    --arm-kv:      #1baf7a; /* slot3 aqua: kv-aware-cap-only */
+    --arm-full:    #eb6834; /* slot2 orange: full controller */
+
+    --good:      #0ca30c;
+    --warning:   #fab219;
+    --serious:   #ec835a;
+    --critical:  #d03b3b;
+
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: var(--plane);
+    color: var(--text-primary);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) .viz-root {
+      color-scheme: dark;
+      --plane:          #0d0d0d;
+      --surface-1:      #1a1a19;
+      --surface-2:      #202020;
+      --text-primary:   #ffffff;
+      --text-secondary: #c3c2b7;
+      --text-muted:     #898781;
+      --gridline:       #2c2c2a;
+      --baseline:       #383835;
+      --border:         rgba(255,255,255,0.10);
+      --accent:         #6f9bd6;
+      --accent-ink:     #a9c6ea;
+      --arm-lo:      #9085e9;
+      --arm-hi:      #898781;
+      --arm-adap:    #3987e5;
+      --arm-kv:      #199e70;
+      --arm-full:    #d95926;
+      --good:      #0ca30c;
+      --warning:   #fab219;
+      --serious:   #ec835a;
+      --critical:  #e66767;
+    }
+  }
+  :root[data-theme="dark"] .viz-root {
+    color-scheme: dark;
+    --plane:          #0d0d0d;
+    --surface-1:      #1a1a19;
+    --surface-2:      #202020;
+    --text-primary:   #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted:     #898781;
+    --gridline:       #2c2c2a;
+    --baseline:       #383835;
+    --border:         rgba(255,255,255,0.10);
+    --accent:         #6f9bd6;
+    --accent-ink:     #a9c6ea;
+    --arm-lo:      #9085e9;
+    --arm-hi:      #898781;
+    --arm-adap:    #3987e5;
+    --arm-kv:      #199e70;
+    --arm-full:    #d95926;
+  }
+  :root[data-theme="light"] .viz-root {
+    color-scheme: light;
+    --plane:          #f9f9f7;
+    --surface-1:      #fcfcfb;
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  .viz-root { min-height: 100vh; }
+
+  ::selection { background: var(--accent); color: #fff; }
+
+  /* ---- type ---- */
+  .serif {
+    font-family: Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+  }
+  .mono {
+    font-family: ui-monospace, "SF Mono", "Cascadia Mono", "Roboto Mono", Menlo, Consolas, monospace;
+  }
+  h1, h2, h3 { font-family: Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif; text-wrap: balance; }
+
+  a { color: var(--accent); }
+
+  /* ---- layout shell ---- */
+  .masthead {
+    background: var(--surface-1);
+    border-bottom: 1px solid var(--border);
+    padding: 40px 24px 32px;
+  }
+  .masthead-inner { max-width: 760px; margin: 0 auto; }
+  .eyebrow {
+    font-size: 11.5px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase;
+    color: var(--accent-ink); margin-bottom: 14px; display: flex; align-items: center; gap: 10px;
+  }
+  .eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+  h1 { font-size: 32px; font-weight: 500; line-height: 1.22; margin: 0 0 16px; letter-spacing: -0.01em; }
+  .dek { font-size: 17px; line-height: 1.6; color: var(--text-secondary); max-width: 64ch; margin: 0; }
+  .meta-strip {
+    display: flex; flex-wrap: wrap; gap: 6px 22px; margin-top: 26px; padding-top: 22px;
+    border-top: 1px solid var(--border); font-size: 12.5px; color: var(--text-muted);
+  }
+  .meta-strip b { color: var(--text-primary); font-weight: 600; }
+  .meta-strip .mono { font-size: 12px; }
+
+  main { max-width: 760px; margin: 0 auto; padding: 44px 24px 100px; }
+  .wide { max-width: 900px; margin-left: auto; margin-right: auto; }
+
+  section { margin-bottom: 56px; }
+  section > h2 {
+    font-size: 22px; font-weight: 500; margin: 0 0 6px; letter-spacing: -0.005em;
+  }
+  section > .section-sub {
+    font-size: 14.5px; color: var(--text-secondary); line-height: 1.6; margin: 0 0 24px; max-width: 62ch;
+  }
+  p { font-size: 15.5px; line-height: 1.7; color: var(--text-primary); max-width: 62ch; }
+  p.tight { max-width: none; }
+
+  .lede {
+    font-size: 17px; line-height: 1.75; color: var(--text-primary);
+  }
+  .lede b { font-weight: 600; }
+
+  code { font-family: ui-monospace, "SF Mono", "Cascadia Mono", monospace; font-size: 0.88em;
+         background: var(--surface-2); padding: 1.5px 5px; border-radius: 4px; border: 1px solid var(--border); }
+
+  /* ---- callout ---- */
+  .callout {
+    background: var(--surface-1); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+    border-radius: 2px 10px 10px 2px; padding: 18px 22px; margin: 24px 0;
+  }
+  .callout p { margin: 0; max-width: none; }
+  .callout p + p { margin-top: 10px; }
+  .callout .label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
+    color: var(--accent-ink); margin-bottom: 8px; display: block;
+  }
+  .callout.critical { border-left-color: var(--critical); }
+  .callout.critical .label { color: var(--critical); }
+  .callout.good { border-left-color: var(--good); }
+  .callout.good .label { color: var(--good); }
+
+  /* ---- stat row ---- */
+  .stat-row {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px;
+    background: var(--border); border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
+    margin: 24px 0;
+  }
+  .stat-tile { background: var(--surface-1); padding: 16px 18px; }
+  .stat-tile .label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+  .stat-tile .value { font-size: 25px; font-weight: 600; font-family: system-ui, sans-serif; }
+  .stat-tile .sub { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+
+  /* ---- legend ---- */
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; font-size: 12.5px; color: var(--text-secondary); margin-bottom: 18px; }
+  .legend .item { display: flex; align-items: center; gap: 7px; white-space: nowrap; }
+  .legend .swatch { width: 11px; height: 11px; border-radius: 3px; flex-shrink: 0; }
+  .legend .swatch.line { width: 14px; height: 3px; border-radius: 2px; }
+
+  /* ---- panel grid (small multiples) ---- */
+  .panel-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;
+  }
+  @media (max-width: 640px) { .panel-grid { grid-template-columns: 1fr; } }
+  .panel {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 18px 18px 14px;
+  }
+  .panel h3 {
+    font-size: 14px; font-weight: 600; margin: 0 0 2px; font-family: system-ui, sans-serif;
+    display: flex; align-items: baseline; justify-content: space-between;
+  }
+  .panel h3 .rtype-tag { text-transform: capitalize; }
+  .panel h3 .rtype-note { font-size: 11px; font-weight: 400; color: var(--text-muted); font-family: inherit; }
+  .panel svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .bar-label { font-size: 9.5px; fill: var(--text-secondary); font-family: system-ui, sans-serif; }
+  .axis-label { font-size: 9.5px; fill: var(--text-muted); font-family: system-ui, sans-serif; }
+  .bar-rect { cursor: pointer; }
+  .bar-rect:hover { filter: brightness(1.08); }
+
+  /* tooltip */
+  .tooltip {
+    position: fixed; pointer-events: none; z-index: 50; background: var(--text-primary); color: var(--surface-1);
+    font-size: 12px; padding: 8px 11px; border-radius: 7px; line-height: 1.5; box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+    opacity: 0; transition: opacity 0.1s ease; max-width: 240px; font-family: system-ui, sans-serif;
+  }
+  .tooltip.show { opacity: 1; }
+  .tooltip b { font-weight: 700; }
+  .tooltip .mono-val { font-family: ui-monospace, monospace; }
+
+  /* ---- table ---- */
+  .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-1); }
+  table { border-collapse: collapse; width: 100%; font-size: 12.5px; min-width: 760px; }
+  th, td { padding: 9px 12px; text-align: right; }
+  th:first-child, td:first-child { text-align: left; }
+  th:nth-child(2), td:nth-child(2) { text-align: left; }
+  thead th {
+    font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted);
+    font-weight: 600; border-bottom: 1px solid var(--baseline); padding-bottom: 10px; white-space: nowrap;
+    position: sticky; top: 0; background: var(--surface-1);
+  }
+  tbody tr { border-bottom: 1px solid var(--gridline); }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--surface-2); }
+  td.num, th.num { font-family: ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+  td.arm-cell { font-weight: 600; }
+  .regime-pill {
+    display: inline-block; font-size: 10.5px; font-weight: 600; padding: 2px 8px; border-radius: 999px;
+    font-family: system-ui, sans-serif;
+  }
+  .regime-unconstrained { background: color-mix(in srgb, var(--good) 16%, transparent); color: var(--good); }
+  .regime-decode_bound { background: color-mix(in srgb, var(--warning) 26%, transparent); color: #8a5c00; }
+  .regime-admission_bound { background: color-mix(in srgb, var(--serious) 20%, transparent); color: #a24a24; }
+  .regime-both_bound { background: color-mix(in srgb, var(--critical) 16%, transparent); color: var(--critical); }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) .regime-decode_bound { color: var(--warning); }
+    :root:where(:not([data-theme="light"])) .regime-admission_bound { color: var(--serious); }
+  }
+  :root[data-theme="dark"] .regime-decode_bound { color: var(--warning); }
+  :root[data-theme="dark"] .regime-admission_bound { color: var(--serious); }
+
+  .filter-row { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+  select {
+    font: inherit; font-size: 13px; padding: 7px 11px; border-radius: 7px; border: 1px solid var(--border);
+    background: var(--surface-2); color: var(--text-primary); font-family: system-ui, sans-serif;
+  }
+  select:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* ---- kv chart ---- */
+  .kv-chart-wrap { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 22px 24px 16px; }
+  .kv-chart-wrap svg { width: 100%; height: auto; overflow: visible; }
+
+  /* ---- arm cards (methodology) ---- */
+  .arm-list { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; }
+  .arm-card {
+    display: grid; grid-template-columns: 20px 130px 1fr; gap: 14px; align-items: start;
+    padding: 13px 16px; background: var(--surface-1); border: 1px solid var(--border); border-radius: 9px;
+  }
+  .arm-card .swatch { width: 12px; height: 12px; border-radius: 3px; margin-top: 4px; }
+  .arm-card .name { font-weight: 600; font-size: 13.5px; font-family: system-ui, sans-serif; }
+  .arm-card .name .role { display: block; font-size: 10.5px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }
+  .arm-card .desc { font-size: 13.5px; color: var(--text-secondary); line-height: 1.55; }
+  .arm-card .desc code { font-size: 0.92em; }
+
+  footer {
+    max-width: 760px; margin: 0 auto; padding: 0 24px 60px; font-size: 12.5px; color: var(--text-muted); line-height: 1.7;
+  }
+  footer a { color: var(--text-muted); text-decoration-color: var(--border); }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+
+<div class="viz-root">
+
+  <div class="masthead">
+    <div class="masthead-inner">
+      <div class="eyebrow"><span class="dot"></span>specloop &middot; Axis-3 validation run</div>
+      <h1>Two fixes landed clean. The third exposed a real bug in how the controller measures decode latency.</h1>
+      <p class="dek">Ten cells on the highest-KV-pressure workload (<code>reason</code> / CNN-DailyMail): the trend-aware queue term reproduces the original sweep exactly at rate=16, and rate=32 confirms load does raise KV occupancy (0.365&rarr;0.475) &mdash; still short of the 0.80 ceiling trigger. The recalibrated speculation threshold, though, never got to prove itself: the gate that's supposed to open it stayed shut all run, for a reason that traces back to the patch layer, not the fix.</p>
+      <div class="meta-strip">
+        <span><b>10/10</b> cells succeeded</span>
+        <span>Workload: <b>reason</b> (CNN-DailyMail) only &mdash; highest KV pressure in the Axis-3 sweep</span>
+        <span>Rates: <b>16</b> (repeat) &middot; <b>32</b> (new)</span>
+        <span class="mono">results_gpu_sweep/axis3_validate/grid.json</span>
+      </div>
+    </div>
+  </div>
+
+  <main>
+
+    <section>
+      <h2>What this run was for</h2>
+      <p>Three changes went into <code>specloop_rt/controllers.py</code> after the first Axis-3 sweep: <b>(1)</b> recalibrate <code>GatedSpec</code>'s acceptance threshold from 0.45 to 0.15, since the measured acceptance rate (0.35&ndash;0.46) made the old threshold solve to &gamma;&asymp;1 regardless of the gate; <b>(2)</b> push arrival rate to 32 instead of switching to a bigger model, to get a real read on KV pressure without a ~28GB download the environment's disk quota couldn't fit; <b>(4)</b> make the admission cap's queue term trend-aware, so a draining queue loosens the cap sooner than a growing one at the same level. (Fix #3 &mdash; gating on <code>accept_rate_cv</code> &mdash; and fix #5 &mdash; seed averaging &mdash; are still open, not attempted here.) This run targets the ten cells most likely to show movement: the <code>reason</code> workload, which already carried the highest KV occupancy in the original sweep, at rate=16 (a direct repeat, to confirm nothing regressed) and rate=32 (new, to test whether higher load pushes KV pressure further).</p>
+
+      <div class="stat-row">
+        <div class="stat-tile">
+          <div class="label">Fix 4 &mdash; trend-aware cap</div>
+          <div class="value" style="color:var(--good)">Confirmed clean</div>
+          <div class="sub">rate=16 results match the original sweep to 3+ significant figures</div>
+        </div>
+        <div class="stat-tile">
+          <div class="label">Fix 2 &mdash; rate=32 for KV pressure</div>
+          <div class="value">0.365 &rarr; 0.475</div>
+          <div class="sub">KV occupancy rose with rate, but stayed under the 0.80 ceiling trigger</div>
+        </div>
+        <div class="stat-tile">
+          <div class="label">Fix 1 &mdash; threshold recalibration</div>
+          <div class="value" style="color:var(--critical)">Never exercised</div>
+          <div class="sub">mean &gamma; stayed at 1.0&ndash;1.01 across every <code>full</code>-arm cell</div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>The bug: <code>tpot_ema</code> is a per-token throughput number wearing a per-request latency name</h2>
+      <p class="section-sub">Traced from <code>full_reason_r32.0</code>'s step-level telemetry (<code>steps.jsonl</code>), not inferred from the aggregate metrics.</p>
+
+      <div class="callout critical">
+        <span class="label">Root cause, confirmed against raw telemetry</span>
+        <p><code>GatedSpec</code>'s gate opens when <code>tpot_ema &ge; 0.85 &times; tpot_slo</code> (0.034s). The <i>true</i> per-request TPOT this run measured was <b>0.248s</b> (p50) &mdash; a 6&times; breach that should have opened the gate on essentially every step. But the <b>live <code>tpot_ema</code> signal the controller actually reads sat at ~0.0008s the entire run</b> &mdash; 300&times; lower than reality, and comfortably under the gate's threshold every single time it was checked.</p>
+        <p>The formula, in <code>specloop_rt/vllm_patch/scheduler_patch.py</code>: <code>tpot_ema = step_time / (accepted_tokens_this_step + num_running)</code>. At low concurrency this is a reasonable proxy &mdash; one token lands per running request per step, so dividing by <code>num_running</code> approximates per-request latency. At the concurrency this cell actually ran (<b>mean 215 requests in flight</b>), the same step produces one token <i>simultaneously</i> for all 215&ndash;256 of them: <code>step_time&asymp;0.38s</code> divided by <code>~484</code> combined tokens gives <b>per-token GPU throughput</b>, not the ~0.38s each individual request actually waits between its own tokens. The metric shrinks as concurrency rises, in the exact direction that hides the very decode-bound condition <code>GatedSpec</code> exists to detect.</p>
+        <p>This is not a bug in fix #1 or fix #4 &mdash; it predates both, in code neither fix touched. It explains, precisely, why the recalibrated threshold (verified correct in isolation: &gamma;&asymp;2&ndash;3 at the observed acceptance rates) never showed up in a real run: the gate that's supposed to let it through never opened.</p>
+      </div>
+
+      <div class="table-wrap" style="margin-top:20px;">
+        <table>
+          <thead><tr><th>Step</th><th class="num">num_running</th><th class="num">tpot_ema (controller sees)</th><th class="num">Implied true TPOT (step_time)</th></tr></thead>
+          <tbody id="trace-table"></tbody>
+        </table>
+      </div>
+      <p style="font-size:13px;color:var(--text-secondary);margin-top:10px;">Sampled from <code>results_gpu_sweep/axis3_validate/full_reason_r32.0_s0/steps.jsonl</code>, every ~150 steps of a 2,200-step run. <code>tpot_ema</code> never once approached the gate's 0.034s threshold.</p>
+    </section>
+
+    <section>
+      <h2>rate=16: does the trend-aware cap change anything at an already-tested rate?</h2>
+      <p class="section-sub">SLO attainment and e2e p95, original sweep vs. this validation run, all five arms, <code>reason</code> workload at rate=16. If fix 4 changed behavior at a rate we've already characterized, it should show here.</p>
+      <div class="legend" id="legend-repro"></div>
+      <div class="table-wrap">
+        <table id="repro-table"></table>
+      </div>
+      <p style="font-size:13px;color:var(--text-secondary);margin-top:10px;">Differences are in the fourth decimal place or smaller &mdash; run-to-run noise on identical single-seed 60s probes, not a behavior change. This is the result you want here: a trend term with <code>trend_gain=0.5</code> only diverges from the level-only law when the queue is actually moving; at a fixed rate that's already found its steady state, there's nothing for it to react to.</p>
+    </section>
+
+    <section>
+      <h2>rate=32: does more load raise KV pressure?</h2>
+      <p class="section-sub">Mean KV occupancy across all five arms, rate=16 vs rate=32. The dashed line marks 0.80 &mdash; where <code>KVAwareAdmit</code>'s ceiling starts to bite.</p>
+      <div class="kv-chart-wrap">
+        <div class="legend" id="legend-kv32"></div>
+        <svg id="kv32-chart" viewBox="0 0 860 300" preserveAspectRatio="xMidYMid meet"></svg>
+      </div>
+      <div class="callout" style="margin-top:20px;">
+        <span class="label">Read</span>
+        <p>Every arm rose from ~0.365 at rate=16 to ~0.475 at rate=32 &mdash; a real, consistent effect of pushing load. <code>static-cap-lo</code> is the exception: its tight cap (16) throttles concurrency regardless of arrival rate, so it stays flat around 0.035&ndash;0.036 at both rates &mdash; the cap, not the KV cache, is already the bottleneck there. None of the five arms crossed 0.80. Doubling the rate again, to 64, would be the natural next probe &mdash; though at rate=32 the system is already so deep in <code>both_bound</code> territory (SLO attainment at or near 0.0 everywhere except <code>static-cap-lo</code>) that a further rate increase mostly stress-tests queueing collapse, not the KV ceiling specifically.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Full cell-by-cell results</h2>
+      <p class="section-sub">All 10 validation cells, plus the matching 8 original-sweep cells (rates 2/4/8/16 on <code>reason</code>) for context. Filter or sort as needed.</p>
+      <div class="filter-row">
+        <select id="f-run"><option value="">Both runs</option></select>
+        <select id="f-rate"><option value="">All rates</option></select>
+        <select id="f-arm"><option value="">All arms</option></select>
+      </div>
+      <div class="table-wrap">
+        <table id="full-table"></table>
+      </div>
+    </section>
+
+    <section>
+      <h2>What's next</h2>
+      <div class="arm-list" id="next-steps"></div>
+    </section>
+
+  </main>
+
+  <footer>
+    Companion runs: <code>results_gpu_sweep/axis3/grid.json</code> (original) &middot; <code>results_gpu_sweep/axis3_validate/grid.json</code> (this run) &middot; <code>scripts/sweep_admit_kv.py</code> &middot; controllers in <code>specloop_rt/controllers.py</code>. Root-cause trace read directly from <code>results_gpu_sweep/axis3_validate/full_reason_r32.0_s0/steps.jsonl</code>, not inferred from aggregates.
+  </footer>
+
+  <div class="tooltip" id="tooltip"></div>
+</div>
+
+<script>
+const ORIG = [{"arm":"adaptive-cap-only","rtype":"reason","rate":16.0,"n_finished":957,"ttft_p50":90.02627487899736,"ttft_p95":208.84910476119256,"ttft_p99":215.99153728365897,"tpot_p50":0.23805175065111447,"tpot_p99":0.3252886371637009,"e2e_p50":175.66384246386588,"e2e_p95":276.98388331402094,"e2e_p99":286.74250816018315,"slo_attainment":0.0,"goodput_tok_s":1172.5817141496868,"mean_gamma":1.0,"mean_accept_rate":0.4635072137718422,"mean_kv_frac":0.3599137747498403,"mean_output_tokens":413.55381400208984,"regime":"both_bound","run":"original"},{"arm":"adaptive-cap-only","rtype":"reason","rate":2.0,"n_finished":102,"ttft_p50":0.1696486835135147,"ttft_p95":0.33263669561129044,"ttft_p99":0.4318668697401881,"tpot_p50":0.02782674740156702,"tpot_p99":0.047542074921191016,"e2e_p50":8.36877817241475,"e2e_p95":23.522430770809297,"e2e_p99":26.80934844521107,"slo_attainment":0.9117647058823529,"goodput_tok_s":631.6923485808071,"mean_gamma":1.0,"mean_accept_rate":0.4020869338766853,"mean_kv_frac":0.03249059834480135,"mean_output_tokens":459.8529411764706,"regime":"decode_bound","run":"original"},{"arm":"adaptive-cap-only","rtype":"reason","rate":4.0,"n_finished":238,"ttft_p50":0.33325494709424675,"ttft_p95":0.8783821357064879,"ttft_p99":1.0392192884162068,"tpot_p50":0.08821578202762152,"tpot_p99":0.1757849324317639,"e2e_p50":27.81532424048055,"e2e_p95":66.766510509653,"e2e_p99":73.52071109204087,"slo_attainment":0.037815126050420166,"goodput_tok_s":1008.9599848740418,"mean_gamma":1.0,"mean_accept_rate":0.42193187627912676,"mean_kv_frac":0.1142846233524643,"mean_output_tokens":434.79831932773106,"regime":"decode_bound","run":"original"},{"arm":"adaptive-cap-only","rtype":"reason","rate":8.0,"n_finished":487,"ttft_p50":10.028506166068837,"ttft_p95":56.329872971819704,"ttft_p99":60.87584250324871,"tpot_p50":0.21792908139945547,"tpot_p99":0.3015382865728141,"e2e_p50":83.27756814914756,"e2e_p95":143.37634615863206,"e2e_p99":155.1975442932127,"slo_attainment":0.0,"goodput_tok_s":1152.619271836374,"mean_gamma":1.0,"mean_accept_rate":0.42650937616966794,"mean_kv_frac":0.32008866569426386,"mean_output_tokens":411.6694045174538,"regime":"both_bound","run":"original"},{"arm":"full","rtype":"reason","rate":16.0,"n_finished":957,"ttft_p50":89.50350426812656,"ttft_p95":211.26659000678916,"ttft_p99":218.10705615531654,"tpot_p50":0.2383811719667248,"tpot_p99":0.3216526091319968,"e2e_p50":174.86685854801908,"e2e_p95":278.8107707895338,"e2e_p99":288.66421057050115,"slo_attainment":0.0,"goodput_tok_s":1173.1109273368986,"mean_gamma":1.0,"mean_accept_rate":0.44893858887227833,"mean_kv_frac":0.36516443270716026,"mean_output_tokens":416.44723092998953,"regime":"both_bound","run":"original"},{"arm":"full","rtype":"reason","rate":2.0,"n_finished":102,"ttft_p50":0.1626182069303468,"ttft_p95":0.3240973557229152,"ttft_p99":0.418883424021769,"tpot_p50":0.028836660613716033,"tpot_p99":0.04762112465165746,"e2e_p50":8.500633743475191,"e2e_p95":24.59321196730014,"e2e_p99":26.869770063748582,"slo_attainment":0.9117647058823529,"goodput_tok_s":612.1505607431742,"mean_gamma":1.0,"mean_accept_rate":0.39165904997645495,"mean_kv_frac":0.03284767098963123,"mean_output_tokens":444.61764705882354,"regime":"decode_bound","run":"original"},{"arm":"full","rtype":"reason","rate":4.0,"n_finished":238,"ttft_p50":0.34802871115971357,"ttft_p95":0.9094815768883556,"ttft_p99":1.073254667816218,"tpot_p50":0.08691536114649392,"tpot_p99":0.17533283157994217,"e2e_p50":27.27497998951003,"e2e_p95":66.10211034503298,"e2e_p99":74.15475667083635,"slo_attainment":0.03361344537815126,"goodput_tok_s":1013.9784332997685,"mean_gamma":1.0,"mean_accept_rate":0.40921603900212083,"mean_kv_frac":0.1156562661846931,"mean_output_tokens":437.9453781512605,"regime":"decode_bound","run":"original"},{"arm":"full","rtype":"reason","rate":8.0,"n_finished":487,"ttft_p50":9.984831976005808,"ttft_p95":56.39665514617227,"ttft_p99":60.86283538348507,"tpot_p50":0.2175914040806381,"tpot_p99":0.3007598838669842,"e2e_p50":83.12248470215127,"e2e_p95":141.06801270567811,"e2e_p99":154.4073749103071,"slo_attainment":0.0,"goodput_tok_s":1163.5400412196639,"mean_gamma":1.0,"mean_accept_rate":0.44027298007742105,"mean_kv_frac":0.319637608206234,"mean_output_tokens":413.76386036960986,"regime":"both_bound","run":"original"},{"arm":"kv-aware-cap-only","rtype":"reason","rate":16.0,"n_finished":957,"ttft_p50":89.42912910180166,"ttft_p95":211.14357659178785,"ttft_p99":217.9773334341496,"tpot_p50":0.2381369949997665,"tpot_p99":0.3215842838573062,"e2e_p50":174.79377165692858,"e2e_p95":278.67432433082723,"e2e_p99":288.54091187277805,"slo_attainment":0.0,"goodput_tok_s":1173.5443174991387,"mean_gamma":1.0,"mean_accept_rate":0.44893858887227833,"mean_kv_frac":0.36516443270716026,"mean_output_tokens":416.44723092998953,"regime":"both_bound","run":"original"},{"arm":"kv-aware-cap-only","rtype":"reason","rate":2.0,"n_finished":102,"ttft_p50":0.1697019694838673,"ttft_p95":0.3129787477664649,"ttft_p99":0.4452681450103409,"tpot_p50":0.028121392564703675,"tpot_p99":0.046769283122559624,"e2e_p50":8.191078413510695,"e2e_p95":22.26509082376724,"e2e_p99":26.10317211022367,"slo_attainment":0.8921568627450981,"goodput_tok_s":600.2607609960337,"mean_gamma":1.0,"mean_accept_rate":0.39699145574534384,"mean_kv_frac":0.03208699305577576,"mean_output_tokens":434.80392156862746,"regime":"decode_bound","run":"original"},{"arm":"kv-aware-cap-only","rtype":"reason","rate":4.0,"n_finished":238,"ttft_p50":0.3413416870171204,"ttft_p95":0.8969654956250446,"ttft_p99":1.0690884592430665,"tpot_p50":0.08732162169820537,"tpot_p99":0.17528126222847445,"e2e_p50":27.134612835012376,"e2e_p95":66.58715143442386,"e2e_p99":73.13198010672349,"slo_attainment":0.037815126050420166,"goodput_tok_s":1017.7219371175631,"mean_gamma":1.0,"mean_accept_rate":0.4251016600715715,"mean_kv_frac":0.11626806079631331,"mean_output_tokens":441.76050420168065,"regime":"decode_bound","run":"original"},{"arm":"kv-aware-cap-only","rtype":"reason","rate":8.0,"n_finished":487,"ttft_p50":9.928542337147519,"ttft_p95":56.07148548793047,"ttft_p99":61.224375566020605,"tpot_p50":0.21706593949367217,"tpot_p99":0.29894358810237104,"e2e_p50":83.86354415817186,"e2e_p95":142.8292266561184,"e2e_p99":154.3070489455387,"slo_attainment":0.0,"goodput_tok_s":1165.2681218357884,"mean_gamma":1.0,"mean_accept_rate":0.4355897986486248,"mean_kv_frac":0.32105078954878397,"mean_output_tokens":414.7022587268994,"regime":"both_bound","run":"original"},{"arm":"static-cap-hi","rtype":"reason","rate":16.0,"n_finished":957,"ttft_p50":89.24250805098563,"ttft_p95":210.76089296285062,"ttft_p99":217.58184044749476,"tpot_p50":0.23787555852467554,"tpot_p99":0.3210793635962444,"e2e_p50":174.463300782023,"e2e_p95":278.192135142209,"e2e_p99":287.98437002243475,"slo_attainment":0.0,"goodput_tok_s":1175.4787161027746,"mean_gamma":4.0,"mean_accept_rate":0.44893858887227833,"mean_kv_frac":0.36516443270716026,"mean_output_tokens":416.44723092998953,"regime":"both_bound","run":"original"},{"arm":"static-cap-hi","rtype":"reason","rate":2.0,"n_finished":102,"ttft_p50":0.16469421796500683,"ttft_p95":0.3402392280637286,"ttft_p99":0.45350566218607113,"tpot_p50":0.02860732119806384,"tpot_p99":0.04780042464902917,"e2e_p50":8.934841308509931,"e2e_p95":24.159235795156565,"e2e_p99":27.162493684280197,"slo_attainment":0.8529411764705882,"goodput_tok_s":622.604371798099,"mean_gamma":4.0,"mean_accept_rate":0.40152619536516954,"mean_kv_frac":0.03406308463075118,"mean_output_tokens":460.1470588235294,"regime":"decode_bound","run":"original"},{"arm":"static-cap-hi","rtype":"reason","rate":4.0,"n_finished":238,"ttft_p50":0.3416482860920951,"ttft_p95":0.9121913775801656,"ttft_p99":1.0934128948720172,"tpot_p50":0.08558532270818588,"tpot_p99":0.17190712064724953,"e2e_p50":26.869967604521662,"e2e_p95":64.77575172975193,"e2e_p99":73.39035481357247,"slo_attainment":0.046218487394957986,"goodput_tok_s":1010.5287409931204,"mean_gamma":4.0,"mean_accept_rate":0.42535979082942854,"mean_kv_frac":0.11295153311982749,"mean_output_tokens":430.83613445378154,"regime":"decode_bound","run":"original"},{"arm":"static-cap-hi","rtype":"reason","rate":8.0,"n_finished":487,"ttft_p50":9.9549327660352,"ttft_p95":55.619168936507776,"ttft_p99":60.825873699663205,"tpot_p50":0.2182094088812928,"tpot_p99":0.29968991918043836,"e2e_p50":83.79299544310197,"e2e_p95":142.25236085241195,"e2e_p99":154.53570157920942,"slo_attainment":0.0,"goodput_tok_s":1121.4235366081134,"mean_gamma":4.0,"mean_accept_rate":0.4517783613769449,"mean_kv_frac":0.25934711608586736,"mean_output_tokens":411.6981519507187,"regime":"both_bound","run":"original"},{"arm":"static-cap-lo","rtype":"reason","rate":16.0,"n_finished":957,"ttft_p50":241.59306561318226,"ttft_p95":457.01826480301094,"ttft_p99":473.41010271974835,"tpot_p50":0.026228759224552697,"tpot_p99":0.035284843508778335,"e2e_p50":250.04004374681972,"e2e_p95":463.1744658066425,"e2e_p99":481.71030410021535,"slo_attainment":0.01671891327063741,"goodput_tok_s":715.276650512362,"mean_gamma":4.0,"mean_accept_rate":0.42303528087372627,"mean_kv_frac":0.034852027952469285,"mean_output_tokens":411.9278996865204,"regime":"admission_bound","run":"original"},{"arm":"static-cap-lo","rtype":"reason","rate":2.0,"n_finished":102,"ttft_p50":3.3720599424559623,"ttft_p95":10.635152978438413,"ttft_p99":11.312555145751684,"tpot_p50":0.025905628669563776,"tpot_p99":0.03647176566659206,"e2e_p50":14.1096812535543,"e2e_p95":24.55737939935643,"e2e_p99":29.546064111900044,"slo_attainment":0.2647058823529412,"goodput_tok_s":617.8095140722805,"mean_gamma":4.0,"mean_accept_rate":0.4213242174376426,"mean_kv_frac":0.029459387667575155,"mean_output_tokens":470.70588235294116,"regime":"admission_bound","run":"original"},{"arm":"static-cap-lo","rtype":"reason","rate":4.0,"n_finished":238,"ttft_p50":39.620520508964546,"ttft_p95":78.00873392811044,"ttft_p99":80.53673159876605,"tpot_p50":0.026288706735167602,"tpot_p99":0.036506605882315524,"e2e_p50":47.565837711445056,"e2e_p95":85.85385612358805,"e2e_p99":93.12036097391741,"slo_attainment":0.07563025210084033,"goodput_tok_s":688.6269291986188,"mean_gamma":4.0,"mean_accept_rate":0.43696002400117356,"mean_kv_frac":0.03261894616315556,"mean_output_tokens":446.218487394958,"regime":"admission_bound","run":"original"},{"arm":"static-cap-lo","rtype":"reason","rate":8.0,"n_finished":487,"ttft_p50":112.45846552611329,"ttft_p95":206.16372956985143,"ttft_p99":215.19723566575442,"tpot_p50":0.0263235232860567,"tpot_p99":0.03558404184529933,"e2e_p50":122.42806966695935,"e2e_p95":214.3846952994354,"e2e_p99":222.4401589873945,"slo_attainment":0.03285420944558522,"goodput_tok_s":708.003175932047,"mean_gamma":4.0,"mean_accept_rate":0.4288925953317358,"mean_kv_frac":0.03455636008298025,"mean_output_tokens":413.8788501026694,"regime":"admission_bound","run":"original"}];
+const VAL = [{"arm":"adaptive-cap-only","rtype":"reason","rate":16.0,"n_finished":957,"ttft_p50":89.3978765339125,"ttft_p95":211.14560944680122,"ttft_p99":217.9761168983858,"tpot_p50":0.23822327283506226,"tpot_p99":0.3216711891469756,"e2e_p50":174.73204057407565,"e2e_p95":278.63814882561564,"e2e_p99":288.4670311313681,"slo_attainment":0.0,"goodput_tok_s":1173.7393014197123,"mean_gamma":1.0,"mean_accept_rate":0.44893858887227833,"mean_kv_frac":0.36516443270716026,"mean_output_tokens":416.44723092998953,"regime":"both_bound","run":"validation"},{"arm":"adaptive-cap-only","rtype":"reason","rate":32.0,"n_finished":1912,"ttft_p50":249.29103345097974,"ttft_p95":530.4797254152246,"ttft_p99":556.1861828066478,"tpot_p50":0.24846976178992994,"tpot_p99":0.334600816156122,"e2e_p50":341.78985284105875,"e2e_p95":604.0309271296253,"e2e_p99":622.6081228548078,"slo_attainment":0.0,"goodput_tok_s":1185.3003919897535,"mean_gamma":1.0,"mean_accept_rate":0.423456440155205,"mean_kv_frac":0.4747578457626973,"mean_output_tokens":421.7039748953975,"regime":"both_bound","run":"validation"},{"arm":"full","rtype":"reason","rate":16.0,"n_finished":957,"ttft_p50":89.39332969603129,"ttft_p95":211.14847283526322,"ttft_p99":217.9963557291962,"tpot_p50":0.2382936074854693,"tpot_p99":0.32164717843716323,"e2e_p50":174.7703636959195,"e2e_p95":278.6414021206554,"e2e_p99":288.46108253777027,"slo_attainment":0.0,"goodput_tok_s":1173.7640996775474,"mean_gamma":1.0142857142857142,"mean_accept_rate":0.44893858887227833,"mean_kv_frac":0.36516443270716026,"mean_output_tokens":416.44723092998953,"regime":"both_bound","run":"validation"},{"arm":"full","rtype":"reason","rate":32.0,"n_finished":1912,"ttft_p50":249.04946892801672,"ttft_p95":529.4016290008323,"ttft_p99":555.0544071805174,"tpot_p50":0.24789392475792948,"tpot_p99":0.33384731967724063,"e2e_p50":341.3531691719545,"e2e_p95":602.819983026199,"e2e_p99":621.3497734055248,"slo_attainment":0.0,"goodput_tok_s":1187.4887384531276,"mean_gamma":1.0018181818181817,"mean_accept_rate":0.423456440155205,"mean_kv_frac":0.4747578457626973,"mean_output_tokens":421.7039748953975,"regime":"both_bound","run":"validation"},{"arm":"kv-aware-cap-only","rtype":"reason","rate":16.0,"n_finished":957,"ttft_p50":89.3967818019446,"ttft_p95":211.11758702369406,"ttft_p99":217.9455067546945,"tpot_p50":0.238320420627133,"tpot_p99":0.3216516735901252,"e2e_p50":174.77011525817215,"e2e_p95":278.56389136188665,"e2e_p99":288.39535630241966,"slo_attainment":0.0,"goodput_tok_s":1174.0097384787696,"mean_gamma":1.0,"mean_accept_rate":0.44893858887227833,"mean_kv_frac":0.36516443270716026,"mean_output_tokens":416.44723092998953,"regime":"both_bound","run":"validation"},{"arm":"kv-aware-cap-only","rtype":"reason","rate":32.0,"n_finished":1912,"ttft_p50":248.51653939206153,"ttft_p95":528.5075954841217,"ttft_p99":554.1564627566421,"tpot_p50":0.24776122024730562,"tpot_p99":0.33353724432553017,"e2e_p50":340.76565540744923,"e2e_p95":601.9382392009953,"e2e_p99":620.4192620587581,"slo_attainment":0.0,"goodput_tok_s":1189.1109070821863,"mean_gamma":1.0,"mean_accept_rate":0.423456440155205,"mean_kv_frac":0.4747578457626973,"mean_output_tokens":421.7039748953975,"regime":"both_bound","run":"validation"},{"arm":"static-cap-hi","rtype":"reason","rate":16.0,"n_finished":957,"ttft_p50":89.21928237495013,"ttft_p95":210.9871037191711,"ttft_p99":217.82622847176157,"tpot_p50":0.23822639418189615,"tpot_p99":0.32163293472024673,"e2e_p50":174.60701270401478,"e2e_p95":278.4853758412413,"e2e_p99":288.3336944126896,"slo_attainment":0.0,"goodput_tok_s":1174.2444020849234,"mean_gamma":4.0,"mean_accept_rate":0.44893858887227833,"mean_kv_frac":0.36516443270716026,"mean_output_tokens":416.44723092998953,"regime":"both_bound","run":"validation"},{"arm":"static-cap-hi","rtype":"reason","rate":32.0,"n_finished":1912,"ttft_p50":249.3372883705888,"ttft_p95":530.3442382384092,"ttft_p99":556.0191145038511,"tpot_p50":0.24863963346403303,"tpot_p99":0.33524852043057657,"e2e_p50":342.1002573838923,"e2e_p95":603.7896595950355,"e2e_p99":622.257533884556,"slo_attainment":0.0,"goodput_tok_s":1185.9165870571303,"mean_gamma":4.0,"mean_accept_rate":0.423456440155205,"mean_kv_frac":0.4747578457626973,"mean_output_tokens":421.7039748953975,"regime":"both_bound","run":"validation"},{"arm":"static-cap-lo","rtype":"reason","rate":16.0,"n_finished":957,"ttft_p50":241.35507459915243,"ttft_p95":456.6814294666051,"ttft_p99":473.09313019081947,"tpot_p50":0.026180897568983418,"tpot_p99":0.03527272193309291,"e2e_p50":249.79116643895395,"e2e_p95":462.8470708938781,"e2e_p99":481.373748382125,"slo_attainment":0.01671891327063741,"goodput_tok_s":715.7246414664158,"mean_gamma":4.0,"mean_accept_rate":0.42303528087372627,"mean_kv_frac":0.034852027952469285,"mean_output_tokens":411.9278996865204,"regime":"admission_bound","run":"validation"},{"arm":"static-cap-lo","rtype":"reason","rate":32.0,"n_finished":1912,"ttft_p50":507.8151593869552,"ttft_p95":992.1653107743709,"ttft_p99":1033.0470495560835,"tpot_p50":0.026231456881553455,"tpot_p99":0.035244072356585,"e2e_p50":516.8743613441475,"e2e_p95":1000.1666478374738,"e2e_p99":1044.2172095402818,"slo_attainment":0.008368200836820083,"goodput_tok_s":722.0786816722358,"mean_gamma":4.0,"mean_accept_rate":0.4202634460929844,"mean_kv_frac":0.0356674988791866,"mean_output_tokens":420.85564853556485,"regime":"admission_bound","run":"validation"}];
+const TRACE = [{"step":0,"num_running":1,"tpot_ema":0.03,"step_time_ema":0.047235037898644805},{"step":157,"num_running":256,"tpot_ema":0.0008305611392353014,"step_time_ema":0.28375125800470885},{"step":314,"num_running":256,"tpot_ema":0.000826300571720502,"step_time_ema":0.31798807634081094},{"step":471,"num_running":251,"tpot_ema":0.0007702735623337625,"step_time_ema":0.3882399148407426},{"step":628,"num_running":256,"tpot_ema":0.0008860343267298881,"step_time_ema":0.3913040067838383},{"step":785,"num_running":256,"tpot_ema":0.000899500906794155,"step_time_ema":0.39574933800750395},{"step":942,"num_running":256,"tpot_ema":0.0008510724681772314,"step_time_ema":0.3531012352259215},{"step":1099,"num_running":252,"tpot_ema":0.0008857984307508243,"step_time_ema":0.3892103044122093},{"step":1256,"num_running":256,"tpot_ema":0.0008680643450117626,"step_time_ema":0.35286572414855855},{"step":1413,"num_running":256,"tpot_ema":0.000797135274701155,"step_time_ema":0.3676079902805204},{"step":1570,"num_running":256,"tpot_ema":0.0008439493968788254,"step_time_ema":0.3363400057944998},{"step":1727,"num_running":256,"tpot_ema":0.0007657313286680197,"step_time_ema":0.3404241729792544},{"step":1884,"num_running":118,"tpot_ema":0.0006760898718924191,"step_time_ema":0.16800888221988974},{"step":2041,"num_running":56,"tpot_ema":0.0006059312850543458,"step_time_ema":0.09343428738084651},{"step":2198,"num_running":14,"tpot_ema":0.001118413105566995,"step_time_ema":0.040655775620464935}];
+const ALL = ORIG.concat(VAL);
+
+const ARMS = ['static-cap-lo', 'static-cap-hi', 'adaptive-cap-only', 'kv-aware-cap-only', 'full'];
+const ARM_LABEL = {
+  'static-cap-lo': 'Static, tight cap',
+  'static-cap-hi': 'Static, generous cap',
+  'adaptive-cap-only': 'Adaptive cap (TTFT-slack)',
+  'kv-aware-cap-only': 'Adaptive cap + KV ceiling',
+  'full': 'Full (+ gated γ)',
+};
+const ARM_COLOR_VAR = {
+  'static-cap-lo': '--arm-lo',
+  'static-cap-hi': '--arm-hi',
+  'adaptive-cap-only': '--arm-adap',
+  'kv-aware-cap-only': '--arm-kv',
+  'full': '--arm-full',
+};
+const REGIME_LABEL = { unconstrained: 'unconstrained', decode_bound: 'decode bound', admission_bound: 'admission bound', both_bound: 'both bound' };
+
+function fmtPct(v) { return v === null || v === undefined ? '—' : (v * 100).toFixed(1) + '%'; }
+function fmtNum(v, d = 2) { return v === null || v === undefined ? '—' : v.toFixed(d); }
+
+const tooltip = document.getElementById('tooltip');
+function showTooltip(evt, html) { tooltip.innerHTML = html; tooltip.classList.add('show'); moveTooltip(evt); }
+function moveTooltip(evt) {
+  const pad = 14;
+  let x = evt.clientX + pad, y = evt.clientY + pad;
+  if (x + 250 > window.innerWidth) x = evt.clientX - 250 - pad;
+  if (y + 90 > window.innerHeight) y = evt.clientY - 90 - pad;
+  tooltip.style.left = x + 'px'; tooltip.style.top = y + 'px';
+}
+function hideTooltip() { tooltip.classList.remove('show'); }
+
+// ---------------------------------------------------------------------
+// trace table (tpot_ema vs implied true TPOT)
+// ---------------------------------------------------------------------
+(function buildTraceTable() {
+  const tbl = document.getElementById('trace-table');
+  tbl.innerHTML = TRACE.map(r => {
+    const impliedTrue = r.step_time_ema; // ~1 token/req/step in steady decode
+    return `<tr>
+      <td class="num">${r.step}</td>
+      <td class="num">${r.num_running}</td>
+      <td class="num" style="color:var(--critical);font-weight:600;">${r.tpot_ema.toFixed(4)}s</td>
+      <td class="num">${impliedTrue.toFixed(3)}s</td>
+    </tr>`;
+  }).join('');
+})();
+
+// ---------------------------------------------------------------------
+// rate=16 reproducibility table
+// ---------------------------------------------------------------------
+(function buildReproTable() {
+  const legendEl = document.getElementById('legend-repro');
+  legendEl.innerHTML = `<div class="item"><span class="swatch" style="background:var(--text-muted)"></span>original sweep</div>` +
+    `<div class="item"><span class="swatch" style="background:var(--accent)"></span>validation (this run)</div>`;
+
+  const tbl = document.getElementById('repro-table');
+  let thead = '<thead><tr><th>Arm</th><th class="num">SLO (orig)</th><th class="num">SLO (val)</th>' +
+    '<th class="num">e2e p95 (orig)</th><th class="num">e2e p95 (val)</th><th class="num">Δ e2e p95</th></tr></thead>';
+  let tbody = '<tbody>';
+  ARMS.forEach(arm => {
+    const o = ORIG.find(r => r.arm === arm && r.rate === 16.0);
+    const v = VAL.find(r => r.arm === arm && r.rate === 16.0);
+    if (!o || !v) return;
+    const delta = v.e2e_p95 - o.e2e_p95;
+    tbody += `<tr>
+      <td class="arm-cell" style="color:var(${ARM_COLOR_VAR[arm]})">${ARM_LABEL[arm]}</td>
+      <td class="num">${fmtPct(o.slo_attainment)}</td>
+      <td class="num">${fmtPct(v.slo_attainment)}</td>
+      <td class="num">${fmtNum(o.e2e_p95, 2)}s</td>
+      <td class="num">${fmtNum(v.e2e_p95, 2)}s</td>
+      <td class="num" style="color:var(--text-muted)">${delta >= 0 ? '+' : ''}${fmtNum(delta, 3)}s</td>
+    </tr>`;
+  });
+  tbody += '</tbody>';
+  tbl.innerHTML = thead + tbody;
+})();
+
+// ---------------------------------------------------------------------
+// rate=16 vs rate=32 KV pressure grouped bar chart
+// ---------------------------------------------------------------------
+(function buildKv32Chart() {
+  const legendEl = document.getElementById('legend-kv32');
+  legendEl.innerHTML = ARMS.map(a =>
+    `<div class="item"><span class="swatch" style="background:var(${ARM_COLOR_VAR[a]})"></span>${ARM_LABEL[a]}</div>`
+  ).join('') + `<div class="item"><span class="swatch line" style="background:var(--text-muted);opacity:0.6"></span>kv_target = 0.80</div>`;
+
+  const svg = document.getElementById('kv32-chart');
+  const W = 860, H = 300;
+  const padL = 50, padR = 24, padT = 20, padB = 46;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const rates = [16.0, 32.0];
+  const groupGap = 30, barGap = 3;
+  const groupW = plotW / rates.length;
+  const barW = (groupW - groupGap) / ARMS.length;
+  const maxDomain = 0.85;
+
+  function yFor(v) { return padT + plotH * (1 - v / maxDomain); }
+
+  [0, 0.2, 0.4, 0.6, 0.8].forEach(v => {
+    const y = yFor(v);
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', padL); line.setAttribute('x2', W - padR);
+    line.setAttribute('y1', y); line.setAttribute('y2', y);
+    line.setAttribute('stroke', 'var(--gridline)'); line.setAttribute('stroke-width', '1');
+    svg.appendChild(line);
+    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    label.setAttribute('x', padL - 8); label.setAttribute('y', y + 3);
+    label.setAttribute('text-anchor', 'end'); label.setAttribute('class', 'axis-label');
+    label.textContent = (v * 100).toFixed(0) + '%';
+    svg.appendChild(label);
+  });
+
+  const targetY = yFor(0.80);
+  const targetLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  targetLine.setAttribute('x1', padL); targetLine.setAttribute('x2', W - padR);
+  targetLine.setAttribute('y1', targetY); targetLine.setAttribute('y2', targetY);
+  targetLine.setAttribute('stroke', 'var(--text-muted)'); targetLine.setAttribute('stroke-width', '1.5');
+  targetLine.setAttribute('stroke-dasharray', '5,4'); targetLine.setAttribute('opacity', '0.7');
+  svg.appendChild(targetLine);
+
+  rates.forEach((rate, gi) => {
+    const groupX = padL + gi * groupW + groupGap / 2;
+    ARMS.forEach((arm, ai) => {
+      const row = ALL.find(r => r.arm === arm && r.rate === rate && r.rtype === 'reason');
+      const val = row ? row.mean_kv_frac : 0;
+      const barH = plotH * (val / maxDomain);
+      const x = groupX + ai * barW;
+      const y = padT + plotH - barH;
+      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      rect.setAttribute('x', x + barGap / 2);
+      rect.setAttribute('y', y);
+      rect.setAttribute('width', Math.max(0, barW - barGap));
+      rect.setAttribute('height', Math.max(0, barH));
+      rect.setAttribute('rx', '2');
+      rect.setAttribute('fill', `var(${ARM_COLOR_VAR[arm]})`);
+      rect.setAttribute('class', 'bar-rect');
+      rect.addEventListener('mouseenter', e => showTooltip(e,
+        `<b>${ARM_LABEL[arm]}</b><br>rate=${rate}<br>mean KV occupancy: <span class="mono-val">${fmtPct(val)}</span><br>` +
+        `run: ${row ? row.run : '—'}`));
+      rect.addEventListener('mousemove', moveTooltip);
+      rect.addEventListener('mouseleave', hideTooltip);
+      svg.appendChild(rect);
+    });
+    const tick = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    tick.setAttribute('x', groupX + (groupW - groupGap) / 2);
+    tick.setAttribute('y', H - padB + 20);
+    tick.setAttribute('text-anchor', 'middle');
+    tick.setAttribute('class', 'axis-label');
+    tick.setAttribute('font-weight', '600');
+    tick.textContent = 'rate = ' + rate;
+    svg.appendChild(tick);
+  });
+
+  const base = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  base.setAttribute('x1', padL); base.setAttribute('x2', W - padR);
+  base.setAttribute('y1', padT + plotH); base.setAttribute('y2', padT + plotH);
+  base.setAttribute('stroke', 'var(--baseline)'); base.setAttribute('stroke-width', '1');
+  svg.appendChild(base);
+})();
+
+// ---------------------------------------------------------------------
+// next steps
+// ---------------------------------------------------------------------
+const NEXT_STEPS = [
+  { role: '01', title: 'Fix the tpot_ema formula before re-testing fix 1', desc: 'Divide by <code>n_run</code> alone (per-request tokens-per-step), not <code>accepted+n_run</code> across the whole batch, or track true inter-token gaps per request directly. Until this is fixed, <code>GatedSpec</code> and <code>SlackAdmit</code> (which shares the same signal) are both flying blind at high concurrency — this affects more than just the new controllers.' },
+  { role: '02', title: 'Re-run the full arm once the metric is fixed', desc: 'Only then does the threshold=0.15 recalibration get a real test — the gate needs to actually open under decode-bound conditions before the setpoint law&rsquo;s output means anything.' },
+  { role: '03', title: 'Push rate further only after the metric fix', desc: 'rate=32 confirmed KV pressure rises with load (0.365→0.475) but stayed under 0.80; at rate=32 the system is already deep in both_bound collapse (SLO≈0), so further rate increases mostly stress-test queueing, not KV specifically. Worth revisiting once decode-bound detection itself is trustworthy.' },
+  { role: '04', title: 'Fixes 3 and 5 are still open', desc: 'Gating γ changes on <code>accept_rate_cv</code> (signal-quality awareness) and multi-seed averaging before trusting small deltas were both scoped for later, not attempted in this validation round.' },
+];
+document.getElementById('next-steps').innerHTML = NEXT_STEPS.map(s => `
+  <div class="arm-card" style="grid-template-columns: 34px 1fr;">
+    <div class="name mono" style="color:var(--accent-ink);font-size:13px;">${s.role}</div>
+    <div>
+      <div class="name" style="margin-bottom:3px;">${s.title}</div>
+      <div class="desc">${s.desc}</div>
+    </div>
+  </div>
+`).join('');
+
+// ---------------------------------------------------------------------
+// full data table
+// ---------------------------------------------------------------------
+let sortKey = 'rate', sortDir = 1;
+
+function renderTable() {
+  const fRun = document.getElementById('f-run').value;
+  const fRate = document.getElementById('f-rate').value;
+  const fArm = document.getElementById('f-arm').value;
+
+  let filtered = ALL.filter(r =>
+    (!fRun || r.run === fRun) &&
+    (!fRate || String(r.rate) === fRate) &&
+    (!fArm || r.arm === fArm)
+  );
+
+  filtered.sort((a, b) => {
+    let av = a[sortKey], bv = b[sortKey];
+    if (typeof av === 'string') return sortDir * av.localeCompare(bv);
+    return sortDir * ((av ?? 0) - (bv ?? 0));
+  });
+
+  const cols = [
+    { k: 'run', label: 'Run' },
+    { k: 'arm', label: 'Arm' },
+    { k: 'rate', label: 'Rate', num: true },
+    { k: 'regime', label: 'Regime' },
+    { k: 'slo_attainment', label: 'SLO', num: true, fmt: v => fmtPct(v) },
+    { k: 'ttft_p99', label: 'TTFT p99 (s)', num: true, fmt: v => fmtNum(v, 2) },
+    { k: 'tpot_p50', label: 'TPOT p50 (s)', num: true, fmt: v => fmtNum(v, 3) },
+    { k: 'e2e_p95', label: 'E2E p95 (s)', num: true, fmt: v => fmtNum(v, 1) },
+    { k: 'mean_gamma', label: 'Mean γ', num: true, fmt: v => fmtNum(v, 2) },
+    { k: 'mean_kv_frac', label: 'Mean KV', num: true, fmt: v => fmtPct(v) },
+  ];
+
+  const tbl = document.getElementById('full-table');
+  let thead = '<thead><tr>' + cols.map(c =>
+    `<th class="${c.num ? 'num' : ''}" data-key="${c.k}" style="cursor:pointer;">${c.label}${sortKey === c.k ? (sortDir > 0 ? ' ↑' : ' ↓') : ''}</th>`
+  ).join('') + '</tr></thead>';
+
+  let tbody = '<tbody>';
+  for (const r of filtered) {
+    tbody += '<tr>';
+    tbody += `<td>${r.run === 'validation' ? '<b style="color:var(--accent-ink)">validation</b>' : 'original'}</td>`;
+    tbody += `<td class="arm-cell" style="color:var(${ARM_COLOR_VAR[r.arm]})">${ARM_LABEL[r.arm]}</td>`;
+    tbody += `<td class="num">${r.rate}</td>`;
+    tbody += `<td><span class="regime-pill regime-${r.regime}">${REGIME_LABEL[r.regime] || r.regime}</span></td>`;
+    tbody += `<td class="num">${fmtPct(r.slo_attainment)}</td>`;
+    tbody += `<td class="num">${fmtNum(r.ttft_p99, 2)}</td>`;
+    tbody += `<td class="num">${fmtNum(r.tpot_p50, 3)}</td>`;
+    tbody += `<td class="num">${fmtNum(r.e2e_p95, 1)}</td>`;
+    tbody += `<td class="num">${fmtNum(r.mean_gamma, 2)}</td>`;
+    tbody += `<td class="num">${fmtPct(r.mean_kv_frac)}</td>`;
+    tbody += '</tr>';
+  }
+  tbody += '</tbody>';
+  tbl.innerHTML = thead + tbody;
+
+  tbl.querySelectorAll('thead th').forEach(th => {
+    th.addEventListener('click', () => {
+      const k = th.getAttribute('data-key');
+      if (sortKey === k) sortDir *= -1; else { sortKey = k; sortDir = 1; }
+      renderTable();
+    });
+  });
+}
+
+function populateFilters() {
+  const runSel = document.getElementById('f-run');
+  ['original', 'validation'].forEach(r => {
+    const o = document.createElement('option'); o.value = r; o.textContent = r === 'validation' ? 'Validation only' : 'Original only';
+    runSel.appendChild(o);
+  });
+  const rateSel = document.getElementById('f-rate');
+  [2.0, 4.0, 8.0, 16.0, 32.0].forEach(r => {
+    const o = document.createElement('option'); o.value = String(r); o.textContent = 'rate=' + r;
+    rateSel.appendChild(o);
+  });
+  const armSel = document.getElementById('f-arm');
+  ARMS.forEach(a => {
+    const o = document.createElement('option'); o.value = a; o.textContent = ARM_LABEL[a];
+    armSel.appendChild(o);
+  });
+  [runSel, rateSel, armSel].forEach(sel => sel.addEventListener('change', renderTable));
+}
+populateFilters();
+renderTable();
+</script>

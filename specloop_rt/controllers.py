@@ -10,6 +10,15 @@ The headline comparison for the paper:
     ``num_speculative_tokens_per_batch_size`` (k as a step function of batch
     size).  This is the BASELINE.
   * ``ClosedLoopSpec``   — closes the loop on measured acceptance.  This is OURS.
+
+Axis-3 (admission-primary, gamma-secondary): given Axis-1/Axis-2's finding
+that the admission cap moves SLO/TTFT far more than gamma ever moves goodput
+or acceptance, ``KVAwareAdmit`` + ``GatedSpec`` invert the priority the earlier
+controllers implied. ``KVAwareAdmit`` is the primary actuator (TTFT-slack cap,
+KV-headroom ceiling); ``GatedSpec`` only closes the acceptance-setpoint loop
+in the decode-bound-with-KV-headroom regime Axis-1 located, and pins low
+everywhere else so it cannot compete with the admission/KV loop for the same
+resource. See scripts/sweep_admit_kv.py for the bracketing-arm sweep.
 """
 from __future__ import annotations
 
@@ -126,11 +135,99 @@ class DSDESpec(Controller):
         return ControlAction(gamma=obs.gamma_current)
 
 
+class GatedSpec(Controller):
+    """Secondary loop: gamma is a regime-gated trim, not a primary knob.
+
+    Axis-1 found decode_bound/both_bound only at the top of the rate ramp;
+    Axis-2 found gamma's effect on goodput/acceptance stays under ~10% of the
+    mean at EVERY rtype/rate/cap combination tried. Given that, closing a
+    proportional loop on gamma everywhere just adds a second actuator that can
+    fight the admission/KV loop for no measured benefit, and risks reproducing
+    the simulator's batch-aggregate-acceptance limit cycle (see
+    specloop/README.md "Status of the findings") on the one signal (measured
+    acceptance) both loops can plausibly share.
+
+    So: pin low (``gamma_floor``) unless BOTH hold this step:
+      * decode-bound, i.e. tpot_ema has used up ``decode_bound_util`` of its
+        SLO (the regime Axis-1 says gamma can matter in) -- gated on
+        long-window state, not a single-step read, else load-testing near the
+        threshold would toggle the mode every period like a bang-bang law
+        (the exact simulator bug this codebase's README documents fixing).
+      * KV has headroom (``kv_headroom_frac``) -- speculation reserves gamma
+        KV slots per request before acceptance is known (see
+        specloop/README.md cost-model note); adapting gamma upward under KV
+        pressure would compete with the admission/KV loop for the same
+        resource instead of trimming a genuine decode-bound slack.
+    When gated in, delegates to the same acceptance-setpoint law as
+    ClosedLoopSpec so the "gamma tracks measured acceptance, not a workload
+    label" behavior is identical -- only the gate is new.
+    """
+    name = "gated-spec"
+
+    def __init__(self, threshold: float = 0.15, gain: float = 0.5,
+                 deadband: float = 0.5, period: int = 4,
+                 gamma_min: int = 0, gamma_max: int = 8, gamma_init: int = 4,
+                 gamma_floor: int = 1, decode_bound_util: float = 0.85,
+                 kv_headroom_frac: float = 0.15):
+        # threshold default: the Axis-3 sweep measured mean_accept_rate in
+        # [0.35, 0.46] across every rtype/rate cell on Qwen2.5-7B + ngram
+        # speculation (results_gpu_sweep/axis3/grid.json). The original
+        # ClosedLoopSpec default of 0.45 solves target=log(threshold)/log(a)
+        # to ~1.0 at those acceptance rates, so the gate opened correctly but
+        # the setpoint law always answered "gamma=1" -- indistinguishable
+        # from the floor, so the gated arm never departed from StaticSpec(1)
+        # in that sweep despite the gate mechanism itself working (verified
+        # directly against a synthetic decode-bound/KV-headroom observation).
+        # 0.15 targets gamma in the 2-2.4 range at the same measured
+        # acceptance rates -- a real, non-trivial speculation depth to test
+        # against, not a recalibration proven optimal; re-derive from
+        # mean_accept_rate on whatever model/draft-method combination this
+        # runs against next, since the right threshold is a property of that
+        # combination's real acceptance behavior, not a universal constant.
+        self.threshold = threshold
+        self.gain = gain
+        self.deadband = deadband
+        self.period = max(1, period)
+        self.gamma_min, self.gamma_max = gamma_min, gamma_max
+        self.gamma_floor = gamma_floor
+        self.decode_bound_util = decode_bound_util
+        self.kv_headroom_frac = kv_headroom_frac
+        self._g = float(gamma_init)
+        self.gamma = gamma_init
+        self._gated_in = False
+
+    def reset(self):
+        self._g = float(self.gamma)
+        self._gated_in = False
+
+    def _gate_open(self, obs) -> bool:
+        decode_bound = obs.tpot_ema >= self.decode_bound_util * max(obs.tpot_slo_s, 1e-9)
+        kv_headroom = (1.0 - obs.kv_used_frac) >= self.kv_headroom_frac
+        return decode_bound and kv_headroom
+
+    def on_step(self, obs):
+        if obs.step % self.period != 0:
+            return ControlAction(gamma=self.gamma)
+        self._gated_in = self._gate_open(obs)
+        if not self._gated_in:
+            self._g = float(self.gamma_floor)
+            self.gamma = self.gamma_floor
+            return ControlAction(gamma=self.gamma)
+        a = _clamp(obs.accept_rate_ema, 1e-3, 0.999)
+        target = math.log(self.threshold) / math.log(a)
+        err = target - self._g
+        if abs(err) > self.deadband:
+            self._g = _clamp(self._g + self.gain * err, self.gamma_min, self.gamma_max)
+        self.gamma = int(round(self._g))
+        return ControlAction(gamma=self.gamma)
+
+
 SPEC_CONTROLLERS = {
     "static": StaticSpec,
     "static-table": StaticTableSpec,
     "closed-loop": ClosedLoopSpec,
     "dsde": DSDESpec,
+    "gated": GatedSpec,
 }
 
 
@@ -178,9 +275,182 @@ class SlackAdmit(Controller):
         return ControlAction(max_num_seqs=self.max_num_seqs)
 
 
+class _TrendAwareQueueTerm:
+    """Shared queue-slack-plus-trend term for TTFTSlackAdmit and KVAwareAdmit.
+
+    The level-only version (waiting_ratio vs. target_util) treats a queue that
+    is large-but-draining the same as one that is large-and-growing -- it
+    waits for the ratio itself to fall before loosening the cap, which is
+    slower than it needs to be whenever the queue is already recovering. This
+    adds a trend term: an EMA of the step-over-step change in waiting_ratio.
+    A negative trend (queue shrinking) adds extra slack on top of the level
+    term, so the cap loosens sooner during a genuine recovery; a positive
+    trend (queue still growing) subtracts, tightening faster than the level
+    alone would once growth is detected rather than waiting for the level to
+    cross target_util. trend_gain=0 recovers the original level-only law
+    exactly (trend term is inert), so this is a strict extension, not a
+    replacement.
+    """
+
+    def __init__(self, target_util: float, trend_gain: float, trend_ema_beta: float):
+        self.target_util = target_util
+        self.trend_gain = trend_gain
+        self.trend_ema_beta = trend_ema_beta
+        self._prev_ratio = None
+        self._trend_ema = 0.0
+
+    def slack(self, obs, cap_for_ratio: float) -> float:
+        # waiting_ratio is unbounded (num_waiting can be many multiples of the
+        # cap under real queue collapse), so slack is left unclamped -- an
+        # earlier version clamped waiting_ratio to [0,4] before taking the
+        # slack, which saturated the signal at exactly the severe-backup case
+        # this term exists to catch (waiting=200 at cap=64 produced only a
+        # barely-past-deadband nudge instead of a sharp contraction; caught by
+        # a sanity check in this module's own test scenarios, not a GPU run).
+        waiting_ratio = obs.num_waiting / max(1, cap_for_ratio)
+        if self._prev_ratio is not None:
+            delta = waiting_ratio - self._prev_ratio
+            self._trend_ema = (1 - self.trend_ema_beta) * self._trend_ema + self.trend_ema_beta * delta
+        self._prev_ratio = waiting_ratio
+        level_slack = self.target_util - waiting_ratio
+        # trend_ema > 0 (queue growing) subtracts from slack (tighten sooner);
+        # trend_ema < 0 (queue draining) adds to slack (loosen sooner).
+        return level_slack - self.trend_gain * self._trend_ema
+
+
+class TTFTSlackAdmit(Controller):
+    """Admission driven by TTFT slack alone (the queue-collapse lever).
+
+    ``SlackAdmit`` above closes on TPOT slack (decode-side). Axis-1/Axis-2's
+    ``regime`` classification (specloop_rt/analysis.py) treats TTFT-p99 breach
+    (queueing/admission) and TPOT-p99 breach (decode) as distinct failure
+    modes, and the sweep data shows the admission cap moving the *SLO*
+    numbers (queueing) far more than gamma ever moved the decode numbers. So
+    this loop senses the queueing signal directly: shrink the cap when TTFT is
+    already eating into its SLO budget (stop admitting into a queue that's
+    collapsing), grow it back when there is slack. Deliberately has no KV term
+    of its own -- ``KVAwareAdmit`` composes this with a KV ceiling so the two
+    failure modes (queue collapse vs. KV/preemption thrashing) stay
+    attributable to separate signals instead of one controller conflating them.
+
+    Reacts to the queue *trend*, not just its level -- see
+    ``_TrendAwareQueueTerm``: a queue that is large but draining loosens the
+    cap sooner than one that is large and still growing, instead of both
+    waiting for the same level threshold.
+    """
+    name = "ttft-slack-admit"
+
+    def __init__(self, target_util: float = 0.7, gain: float = 0.5,
+                 deadband: float = 0.05, period: int = 4,
+                 batch_min: int = 1, batch_max: int = 256, init: int = 64,
+                 trend_gain: float = 0.5, trend_ema_beta: float = 0.3):
+        self.target_util = target_util
+        self.gain = gain
+        self.deadband = deadband
+        self.period = max(1, period)
+        self.batch_min, self.batch_max = batch_min, batch_max
+        self._b = float(init)
+        self.max_num_seqs = init
+        self._queue_term = _TrendAwareQueueTerm(target_util, trend_gain, trend_ema_beta)
+
+    def reset(self):
+        pass
+
+    def _proposed_cap(self, obs) -> float:
+        slack = self._queue_term.slack(obs, obs.max_num_seqs_current)
+        return self._b + self.gain * 8.0 * slack if abs(slack) > self.deadband else self._b
+
+    def on_step(self, obs):
+        if obs.step % self.period != 0:
+            return ControlAction(max_num_seqs=self.max_num_seqs)
+        self._b = _clamp(self._proposed_cap(obs), self.batch_min, self.batch_max)
+        self.max_num_seqs = int(round(self._b))
+        return ControlAction(max_num_seqs=self.max_num_seqs)
+
+
+class KVAwareAdmit(Controller):
+    """Admission-primary controller: TTFT-slack drives the cap, KV headroom
+    bounds it from above.
+
+    This is the primary actuator of the admit-primary/gamma-secondary design
+    (see specloop_rt/README.md and the Axis-3 sweep this backs). Two terms,
+    combined as ``min``, not a blend, because they answer different questions
+    and a blend would let one mask the other exactly when isolating them
+    matters most for the bracketing arms:
+
+      * ``ttft_term`` -- same queueing-slack law as ``TTFTSlackAdmit``: shrink
+        the cap when the queue is backing up, grow it back when there is
+        slack. This is the lever Axis-1/Axis-2 showed has real leverage on
+        SLO attainment and TTFT.
+      * ``kv_ceiling`` -- a proportional cap on top of ``kv_used_frac``, not a
+        single-threshold clamp like ``SlackAdmit``'s ``if kv_used_frac > 0.92``
+        guard. Above ``kv_target``, the ceiling falls off linearly toward
+        ``batch_min`` as kv_used_frac approaches 1.0, so admission tightens
+        progressively as KV pressure builds instead of doing nothing until a
+        single trip-wire, then slamming down. The goal is to prevent the
+        preemption/recompute thrashing that (per the KV-accounting note in
+        specloop/README.md's cost model) is what actually wrecks e2e-p95 and
+        ITL -- no gamma policy touches this, because gamma is not what is
+        being preempted, occupied KV blocks are.
+
+    ``final = min(ttft_term, kv_ceiling)``: KV headroom is a hard safety bound
+    that TTFT slack is never allowed to override, matching the stated design
+    ("bound the cap from above by KV headroom ... regardless of TTFT slack").
+
+    ``ttft_term`` is trend-aware, same as ``TTFTSlackAdmit`` -- see
+    ``_TrendAwareQueueTerm``.
+    """
+    name = "kv-aware-admit"
+
+    def __init__(self, target_util: float = 0.7, gain: float = 0.5,
+                 deadband: float = 0.05, period: int = 4,
+                 kv_target: float = 0.80, kv_min_frac: float = 0.30,
+                 batch_min: int = 1, batch_max: int = 256, init: int = 64,
+                 trend_gain: float = 0.5, trend_ema_beta: float = 0.3):
+        self.target_util = target_util
+        self.gain = gain
+        self.deadband = deadband
+        self.period = max(1, period)
+        self.kv_target = kv_target
+        self.kv_min_frac = kv_min_frac
+        self.batch_min, self.batch_max = batch_min, batch_max
+        self._b = float(init)
+        self.max_num_seqs = init
+        self._queue_term = _TrendAwareQueueTerm(target_util, trend_gain, trend_ema_beta)
+
+    def reset(self):
+        pass
+
+    def _ttft_term(self, obs) -> float:
+        slack = self._queue_term.slack(obs, obs.max_num_seqs_current)
+        return self._b + self.gain * 8.0 * slack if abs(slack) > self.deadband else self._b
+
+    def _kv_ceiling(self, obs) -> float:
+        kv = obs.kv_used_frac
+        if kv <= self.kv_target:
+            return self.batch_max
+        # linear falloff from batch_max at kv_target to kv_min_frac*batch_max
+        # at kv_used_frac=1.0, so tightening is proportional to how far past
+        # the target KV occupancy already is, not a single step function.
+        over = (kv - self.kv_target) / max(1e-9, 1.0 - self.kv_target)
+        floor = self.kv_min_frac * self.batch_max
+        return self.batch_max - over * (self.batch_max - floor)
+
+    def on_step(self, obs):
+        if obs.step % self.period != 0:
+            return ControlAction(max_num_seqs=self.max_num_seqs)
+        ttft_term = self._ttft_term(obs)
+        kv_ceiling = self._kv_ceiling(obs)
+        self._b = _clamp(min(ttft_term, kv_ceiling), self.batch_min, self.batch_max)
+        self.max_num_seqs = int(round(self._b))
+        return ControlAction(max_num_seqs=self.max_num_seqs)
+
+
 ADMIT_CONTROLLERS = {
     "static": StaticAdmit,
     "slack": SlackAdmit,
+    "ttft-slack": TTFTSlackAdmit,
+    "kv-aware": KVAwareAdmit,
 }
 
 

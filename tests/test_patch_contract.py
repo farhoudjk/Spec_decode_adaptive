@@ -165,5 +165,63 @@ def run():
     print(f"  telemetry rows: {len(rows)}")
 
 
+def run_admit_primary():
+    """Same harness, driven by the Axis-3 'full' controller (gated spec +
+    kv-aware admit) instead of closed-loop/slack, so the admission-primary
+    design gets the same schedule()/update_from_output()/telemetry exercise
+    before it ever reaches a GPU launch."""
+    FakeScheduler = _install_fake_vllm()
+
+    from specloop_rt.vllm_patch import SpecLoopScheduler, configure
+    from specloop_rt.controllers import build_controller
+    from specloop_rt.interface import TelemetryWriter
+
+    tmp = "/tmp/specloop_contract_admit_primary"
+    os.makedirs(tmp, exist_ok=True)
+    tel = TelemetryWriter(f"{tmp}/steps.jsonl")
+    cfg = {"spec": "gated", "admit": "kv-aware", "coordination": "naive",
+           "spec_kw": {"gain": 0.5, "period": 1, "gamma_max": 8, "gamma_init": 4,
+                      "gamma_floor": 1, "decode_bound_util": 0.85,
+                      "kv_headroom_frac": 0.15},
+           "admit_kw": {"gain": 0.5, "period": 1, "init": 64, "kv_target": 0.8,
+                       "kv_min_frac": 0.3, "batch_max": 256}}
+    ctrl = build_controller(cfg, tpot_slo=0.04)
+    configure(ctrl, tel, {"gamma_init": 4, "tpot_slo_s": 0.04, "ttft_slo_s": 2.0})
+
+    sch = SpecLoopScheduler()
+
+    gammas, caps = [], []
+    for step in range(120):
+        out = sch.schedule()
+        mro = _fake_model_output(len(sch.running),
+                                 sch.vllm_config.speculative_config.num_speculative_tokens,
+                                 accept_frac=0.8 if step < 60 else 0.25)
+        sch.update_from_output(out, mro)
+        gammas.append(sch._sl_gamma)
+        caps.append(sch.scheduler_config.max_num_seqs)
+    tel.close()
+
+    import json
+    rows = [json.loads(l) for l in open(f"{tmp}/steps.jsonl") if '"_meta"' not in l]
+    assert len(rows) == 120, f"expected 120 telemetry rows, got {len(rows)}"
+    assert all(0.0 <= r["accept_rate_ema"] <= 1.0 for r in rows), "accept_rate out of range"
+    assert sch.scheduler_config.max_num_seqs == caps[-1]
+    assert sch.vllm_config.speculative_config.num_speculative_tokens == gammas[-1]
+    # gamma should mostly sit at/near the floor here: the fake scheduler's
+    # tiny running set (8-12) never drives tpot_ema past decode_bound_util,
+    # so the gate should stay closed almost the whole run -- this is the
+    # "gamma is a minor, regime-gated trim" claim, exercised mechanically.
+    at_floor_frac = sum(1 for g in gammas if g == 1) / len(gammas)
+    assert at_floor_frac > 0.5, (
+        f"expected gated-spec to sit at the floor most of the time under "
+        f"this low-load fake scheduler, got only {at_floor_frac:.2f} of steps")
+
+    print("PASS admit-primary contract test")
+    print(f"  final cap={caps[-1]}  final gamma={gammas[-1]}  "
+          f"frac-at-floor={at_floor_frac:.2f}")
+    print(f"  telemetry rows: {len(rows)}")
+
+
 if __name__ == "__main__":
     run()
+    run_admit_primary()

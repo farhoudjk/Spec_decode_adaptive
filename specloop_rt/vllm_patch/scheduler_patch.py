@@ -198,10 +198,34 @@ class SpecLoopScheduler(_V1Scheduler):
             self._sl_ema["accept_rate"].update(accepted / proposed)
         n_run = max(1, len(self.running))
         self._sl_ema["accepted_per_req"].update(accepted / n_run)
-        # TPOT proxy: step_time / accepted-tokens-this-step (+1 bonus per req)
+        # TPOT proxy: step_time_ema alone, NOT step_time / (accepted + n_run).
+        #
+        # The old formula divided one scheduler step's wall time by the TOTAL
+        # tokens produced across the whole running batch that step (summing
+        # accepted spec tokens plus one bonus token per request), which
+        # computes aggregate GPU throughput (tokens/sec across the batch), not
+        # per-request TPOT (seconds between one request's own tokens). In v1's
+        # continuous batching, each running request advances by ~1 decode
+        # token per scheduler step (barring preemption) -- so the wall time
+        # between two consecutive tokens FOR ONE REQUEST is approximately the
+        # step time itself, not the step time divided by n_run.
+        #
+        # This was silently wrong at every concurrency tested: confirmed
+        # against real per-request TPOT (tpot_p50 in
+        # specloop_rt/analysis.py's end_metrics, computed independently from
+        # replay.py's request-level timestamps) at num_running=20-32 (tpot_ema
+        # read ~0.001-0.002s against a true tpot_p50 of ~0.029s) and
+        # num_running=215-256 (~0.0008s against ~0.248s) -- roughly 15-300x
+        # off in both cases, and the error grows with concurrency because the
+        # old denominator scaled with n_run while the true per-request TPOT
+        # does not. GatedSpec's decode-bound gate (specloop_rt/controllers.py)
+        # compares this signal to tpot_slo_s directly, so the old formula kept
+        # the gate closed even when the system was genuinely decode-bound by
+        # 6x its SLO (results_gpu_sweep/axis3_validate/grid.json,
+        # results_gpu_sweep/axis3_validate2/grid.json). SlackAdmit reads the
+        # same signal and was affected identically.
         st = self._sl_ema["step_time"].value
-        toks = accepted + n_run
-        self._sl_ema["tpot"].update(st / max(1, toks))
+        self._sl_ema["tpot"].update(st)
         return super().update_from_output(scheduler_output, model_runner_output)
 
     # ------------------------------------------------------------------
