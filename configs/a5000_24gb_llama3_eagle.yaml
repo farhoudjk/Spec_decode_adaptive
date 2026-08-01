@@ -1,0 +1,60 @@
+# 1x RTX A5000 (24 GB). Llama-3.1-8B target + EAGLE3 draft head.
+#
+# Why EAGLE and not the ngram config (a5000_24gb_llama3.yaml): on the ngram
+# runs, gamma had no measurable effect on decode speed at all. TPOT p50 for
+# gamma=4 vs gamma=1 vs gated gamma~2, same cap and rate, came out
+# 0.0158/0.0159/0.0158 at rate=0.5 and 0.0389/0.0390/0.0394 at rate=2 --
+# identical to three decimal places at every rate tested
+# (results_llama3/axis3_llama3_24gb_lowrate/grid.json). With ~0.53 ngram
+# acceptance on CNN-DailyMail, speculation depth is not the binding term, so
+# no gamma policy -- gated, fixed high, or fixed low -- can show up in end
+# metrics. The gate was reading its signal correctly; the actuator was simply
+# not connected to anything the metrics measure.
+#
+# EAGLE gives speculation depth real leverage: a trained draft head reaches
+# much higher and more variable acceptance than prompt-lookup ngram, which is
+# the condition under which an acceptance-tracking gamma law can beat a fixed
+# one. NOTE: GatedSpec's `threshold` is a property of the measured acceptance
+# distribution, not a universal constant (see the comment on GatedSpec.__init__)
+# -- re-derive it from mean_accept_rate on THIS pairing before reading the
+# gated arm's result as final.
+# WORKLOAD CONSTRAINT -- this config is for `code`, not `reason`.
+# Both public EAGLE heads for Llama-3.1-8B (yuhuili EAGLE and EAGLE3) declare
+# max_position_embeddings=2048. Running `reason` (CNN-DailyMail) against them
+# crashes with a CUDA device-side assert
+#     index out of bounds: 0 <= idx < 2048
+# from the EAGLE head's position indexing, because reason's worst case is
+# prompt 2019 + max_tokens 1024 = 3043 positions. Measured token budgets:
+#     reason  worst 3043  TOO BIG      chat  worst 8101  TOO BIG
+#     code    worst 1254  fits         rag   worst  994  fits
+# `code` (HumanEval) is used here: it fits with margin, and structured code is
+# also where draft acceptance runs highest, which is the regime where
+# speculation depth has the most room to matter. max_model_len is pinned to
+# 2048 to match the head so an oversized request fails loudly at admission
+# rather than as a device-side assert mid-run.
+model:
+  target_model: meta-llama/Llama-3.1-8B-Instruct
+  draft_model: null
+  eagle_model: yuhuili/EAGLE3-LLaMA3.1-Instruct-8B
+  spec_method: eagle
+  tp: 1
+  gpu_mem_util: 0.90
+  max_model_len: 2048
+  dtype: float16
+  enforce_eager: false
+
+runtime:
+  gamma_init: 4
+  max_num_seqs_init: 64
+  tpot_slo_s: 0.040
+  ttft_slo_s: 2.0
+  temperature: 0.0
+  ignore_eos: true
+
+controller:
+  spec: closed-loop
+  admit: slack
+  coordination: naive
+  spec_kw:  {threshold: 0.45, gain: 0.5, period: 4, gamma_min: 0, gamma_max: 8, gamma_init: 4}
+  admit_kw: {target_util: 0.85, gain: 0.5, period: 4, batch_max: 256, init: 64}
+  coord_kw: {}

@@ -38,6 +38,11 @@ class RequestResult:
     ttft_s: Optional[float] = None
     tpot_s: Optional[float] = None
     e2e_s: Optional[float] = None
+    # Load shedding: a rejected request never reaches the engine, so it has no
+    # TTFT/TPOT/e2e. It is NOT a vanished request -- analysis counts it as an
+    # SLO failure (see analysis.end_metrics), because dropping work to make the
+    # admitted set look fast would otherwise be trivially "optimal".
+    shed: bool = False
 
 
 def _build_engine(cfg: dict):
@@ -85,7 +90,8 @@ def _build_engine(cfg: dict):
 
 
 async def _run_one(engine, req: W.TraceRequest, sampling, t0: float,
-                   results: Dict[str, RequestResult]):
+                   results: Dict[str, RequestResult],
+                   shed_fn=None):
     from vllm import SamplingParams  # noqa
     # pace to arrival
     dt = req.arrival_s - (time.monotonic() - t0)
@@ -95,6 +101,12 @@ async def _run_one(engine, req: W.TraceRequest, sampling, t0: float,
     rr = RequestResult(rid=req.rid, rtype=req.rtype, arrival_s=req.arrival_s,
                        submit_wall=submit)
     results[req.rid] = rr
+    # Admission-time shedding: reject before the engine sees the request, so a
+    # request that could not have met its TTFT SLO anyway does not also consume
+    # KV blocks and slow down the requests that still can.
+    if shed_fn is not None and shed_fn():
+        rr.shed = True
+        return
     sp = sampling(req.max_tokens)
     n = 0
     async for out in engine.generate(req.prompt, sp, request_id=req.rid):
@@ -132,9 +144,51 @@ async def replay(cfg: dict, trace: List[W.TraceRequest], out_dir: str):
         return SamplingParams(temperature=cfg["runtime"].get("temperature", 0.0),
                               max_tokens=mt, ignore_eos=cfg["runtime"].get("ignore_eos", False))
 
+    # Optional admission-time load shedding. Off unless runtime.shed_enabled.
+    # Rejects an arrival whose expected TTFT already exceeds the SLO.
+    #
+    # The signal is deliberately CLIENT-side. An earlier version read the
+    # scheduler's StepObservation via vllm_patch.last_observation(), which
+    # silently never shed anything: vLLM v1 runs EngineCore in a separate
+    # process (VLLM_ENABLE_V1_MULTIPROCESSING defaults on), so the scheduler
+    # set that global in the engine process while this predicate ran in the
+    # client process and read None on every call. The failure was invisible in
+    # the metrics -- shed_frac was simply 0.0, indistinguishable from "the
+    # policy chose not to shed" -- which is exactly why shed_frac is reported.
+    #
+    # What the client does own: how many requests it has in flight and what
+    # TTFT the recently-admitted ones actually got. A rising observed TTFT is
+    # the direct measurement of the quantity the SLO is written against, so no
+    # cross-process plumbing is needed.
+    shed_fn = None
+    rt = cfg["runtime"]
+    if rt.get("shed_enabled", False):
+        shed_slo_mult = rt.get("shed_slo_mult", 1.0)
+        ttft_slo = rt["ttft_slo_s"]
+        budget = shed_slo_mult * ttft_slo
+
+        def shed_fn() -> bool:  # noqa: F811
+            now = time.monotonic()
+            # TTFT of requests that have already produced a first token, most
+            # recent first; EMA-free, just the last few, to stay responsive.
+            recent = [r.ttft_s for r in results.values() if r.ttft_s is not None]
+            if len(recent) >= 5:
+                tail = recent[-20:]
+                if sum(tail) / len(tail) > budget:
+                    return True
+            # Also shed on in-flight requests that are ALREADY past budget
+            # without a first token -- catches a queue collapsing right now,
+            # before any of its victims have reported a TTFT.
+            stuck = sum(1 for r in results.values()
+                        if r.first_token_wall is None and not r.shed
+                        and r.finish_wall is None
+                        and (now - r.submit_wall) > budget)
+            return stuck >= 5
+
     results: Dict[str, RequestResult] = {}
     t0 = time.monotonic()
-    tasks = [asyncio.create_task(_run_one(engine, r, sampling, t0, results)) for r in trace]
+    tasks = [asyncio.create_task(_run_one(engine, r, sampling, t0, results, shed_fn))
+             for r in trace]
     await asyncio.gather(*tasks)
     telemetry.close()
 

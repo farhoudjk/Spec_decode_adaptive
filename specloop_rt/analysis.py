@@ -42,6 +42,16 @@ def end_metrics(run: Dict, tpot_slo: float, ttft_slo: float) -> Dict[str, float]
     tpot = done.tpot_s.dropna().values
     e2e = done.e2e_s.dropna().values
     slo_ok = ((done.ttft_s <= ttft_slo) & (done.tpot_s <= tpot_slo)).mean()
+    ttft_ok = (done.ttft_s <= ttft_slo).mean()
+    tpot_ok = (done.tpot_s <= tpot_slo).mean()
+    # Load shedding accounting: a shed request produced no tokens and met no
+    # SLO, so it must count against attainment. Reporting only the admitted
+    # set would make "reject almost everything" the trivially optimal policy.
+    # slo_attainment stays the admitted-set number (comparable to every prior
+    # round, none of which shed); *_offered are over all arrivals.
+    n_shed = int(r["shed"].sum()) if "shed" in r.columns else 0
+    n_offered = len(r)
+    slo_ok_offered = (float(slo_ok) * len(done) / n_offered) if n_offered else float("nan")
     dur = s.t_wall.max() - s.t_wall.min() if len(s) else 1.0
     out_tok = done.output_tokens.sum()
     mean_out_tok = float(done.output_tokens.mean())
@@ -75,6 +85,19 @@ def end_metrics(run: Dict, tpot_slo: float, ttft_slo: float) -> Dict[str, float]
         "e2e_p50": float(np.percentile(e2e, 50)),
         "e2e_p95": float(np.percentile(e2e, 95)), "e2e_p99": float(np.percentile(e2e, 99)),
         "slo_attainment": float(slo_ok),
+        # joint AND above collapses to ~0 whenever one SLO is structurally
+        # unreachable at a given load (e.g. TTFT under admission queueing) --
+        # these split it out so a single tight constraint doesn't mask that
+        # the other constraint is being met fine.
+        "ttft_attainment": float(ttft_ok),
+        "tpot_attainment": float(tpot_ok),
+        "n_shed": n_shed,
+        "n_offered": n_offered,
+        "shed_frac": float(n_shed / n_offered) if n_offered else float("nan"),
+        # attainment over OFFERED load (shed requests counted as failures) --
+        # the number to compare when any arm sheds; equals slo_attainment when
+        # nothing is shed and every arrival finished.
+        "slo_attainment_offered": float(slo_ok_offered),
         "goodput_tok_s": float(out_tok / dur),
         "mean_gamma": float(s.act_gamma.dropna().mean()) if "act_gamma" in s else float("nan"),
         "mean_accept_rate": float(s.accept_rate_ema.mean()),

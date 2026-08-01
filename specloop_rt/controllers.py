@@ -318,6 +318,147 @@ class _TrendAwareQueueTerm:
         return level_slack - self.trend_gain * self._trend_ema
 
 
+class _PredictedWaitTerm:
+    """Queue term that senses predicted TTFT directly, not a queue-to-cap ratio.
+
+    ``_TrendAwareQueueTerm`` compares ``num_waiting/cap`` against a target
+    ratio. On the Llama-3.1-8B/A5000 sweeps that sensor was numb exactly where
+    it mattered: at rate=2, TTFT p99 was 37s against a 2.0s SLO (breached 19x)
+    while num_waiting peaked at 37 against cap=256 -- a ratio of 0.14, far
+    under target_util=0.7, so the cap never left 256 for the entire run
+    (verified in adaptive-cap-only_reason_r2.0_s0/steps.jsonl). The loop was
+    not losing to the static baseline; it never actuated at all.
+
+    The failure is that queue-to-cap ratio is a proxy for waiting time, and a
+    bad one when the cap is generous: a queue can be short relative to a large
+    cap while each request in it still waits far past its TTFT SLO, because
+    what sets waiting time is queue length divided by *service rate*, not
+    divided by the cap.
+
+    So sense the quantity the SLO is written against. By Little's Law the wait
+    a newly-arriving request faces is approximately
+
+        predicted_wait = num_waiting / max(finish_rate, eps)
+
+    where ``finish_rate`` is requests completing per second, estimated as
+    ``num_running / mean_request_duration``. We do not have per-request
+    duration in StepObservation, so use the decode-side identity: a request
+    running for ``L`` output tokens at ``tpot_ema`` seconds/token occupies a
+    slot for ``L * tpot_ema`` seconds, giving
+
+        finish_rate ~= num_running / (L_est * tpot_ema)
+
+    ``L_est`` (``est_output_len``) is the one free parameter and is a workload
+    property -- set it from the corpus's mean output length. Slack is then the
+    normalized headroom against the TTFT SLO, so the law tightens as soon as
+    predicted wait eats into the SLO budget rather than waiting for a ratio
+    that may never move.
+    """
+
+    def __init__(self, ttft_target_util: float, est_output_len: float,
+                 trend_gain: float, trend_ema_beta: float):
+        self.ttft_target_util = ttft_target_util
+        self.est_output_len = est_output_len
+        self.trend_gain = trend_gain
+        self.trend_ema_beta = trend_ema_beta
+        self._prev_wait = None
+        self._trend_ema = 0.0
+
+    def predicted_wait(self, obs) -> float:
+        # Slot service time: how long one running request holds its slot.
+        service_s = max(self.est_output_len * max(obs.tpot_ema, 1e-6), 1e-6)
+        finish_rate = max(obs.num_running, 1) / service_s
+        return obs.num_waiting / max(finish_rate, 1e-9)
+
+    def slack(self, obs) -> float:
+        wait = self.predicted_wait(obs)
+        if self._prev_wait is not None:
+            delta = wait - self._prev_wait
+            self._trend_ema = ((1 - self.trend_ema_beta) * self._trend_ema
+                               + self.trend_ema_beta * delta)
+        self._prev_wait = wait
+        budget = self.ttft_target_util * max(obs.ttft_slo_s, 1e-9)
+        # Normalize by the budget so gain is dimensionless and comparable to
+        # the ratio-based law's gain; positive slack = wait is under budget.
+        level_slack = (budget - wait) / budget
+        # trend > 0 (wait growing) subtracts slack -> tighten sooner.
+        return level_slack - self.trend_gain * (self._trend_ema / budget)
+
+
+class TTFTPredictiveAdmit(Controller):
+    """Admission driven by *predicted* TTFT against the TTFT SLO.
+
+    Same actuation shape as ``TTFTSlackAdmit`` (proportional, periodic,
+    deadbanded, clamped) but with ``_PredictedWaitTerm`` as the sensor instead
+    of ``_TrendAwareQueueTerm``. This is the "rewire the sensor to the SLO
+    quantity" fix; everything else about the loop is held constant so the
+    comparison against ``ttft-slack`` isolates the sensor change alone.
+    """
+    name = "ttft-predictive-admit"
+
+    def __init__(self, ttft_target_util: float = 0.7, est_output_len: float = 840.0,
+                 gain: float = 0.5, deadband: float = 0.05, period: int = 4,
+                 batch_min: int = 1, batch_max: int = 256, init: int = 64,
+                 trend_gain: float = 0.5, trend_ema_beta: float = 0.3):
+        self.gain = gain
+        self.deadband = deadband
+        self.period = max(1, period)
+        self.batch_min, self.batch_max = batch_min, batch_max
+        self._b = float(init)
+        self.max_num_seqs = init
+        self._queue_term = _PredictedWaitTerm(ttft_target_util, est_output_len,
+                                              trend_gain, trend_ema_beta)
+
+    def reset(self):
+        pass
+
+    def on_step(self, obs):
+        if obs.step % self.period != 0:
+            return ControlAction(max_num_seqs=self.max_num_seqs)
+        slack = self._queue_term.slack(obs)
+        if abs(slack) > self.deadband:
+            self._b = _clamp(self._b + self.gain * 8.0 * slack,
+                             self.batch_min, self.batch_max)
+        self.max_num_seqs = int(round(self._b))
+        return ControlAction(max_num_seqs=self.max_num_seqs)
+
+
+class KVPredictiveAdmit(TTFTPredictiveAdmit):
+    """``TTFTPredictiveAdmit`` + the same proportional KV ceiling as
+    ``KVAwareAdmit``, combined as ``min``.
+
+    Keeps the admission-primary/KV-safety structure while swapping in the
+    working sensor, so the KV ceiling's incremental effect can be measured on
+    top of a cap loop that actually actuates.
+    """
+    name = "kv-predictive-admit"
+
+    def __init__(self, kv_target: float = 0.80, kv_min_frac: float = 0.30, **kw):
+        super().__init__(**kw)
+        self.kv_target = kv_target
+        self.kv_min_frac = kv_min_frac
+
+    def _kv_ceiling(self, obs) -> float:
+        kv = obs.kv_used_frac
+        if kv <= self.kv_target:
+            return self.batch_max
+        over = (kv - self.kv_target) / max(1e-9, 1.0 - self.kv_target)
+        floor = self.kv_min_frac * self.batch_max
+        return self.batch_max - over * (self.batch_max - floor)
+
+    def on_step(self, obs):
+        if obs.step % self.period != 0:
+            return ControlAction(max_num_seqs=self.max_num_seqs)
+        slack = self._queue_term.slack(obs)
+        proposed = self._b
+        if abs(slack) > self.deadband:
+            proposed = self._b + self.gain * 8.0 * slack
+        self._b = _clamp(min(proposed, self._kv_ceiling(obs)),
+                         self.batch_min, self.batch_max)
+        self.max_num_seqs = int(round(self._b))
+        return ControlAction(max_num_seqs=self.max_num_seqs)
+
+
 class TTFTSlackAdmit(Controller):
     """Admission driven by TTFT slack alone (the queue-collapse lever).
 
@@ -451,6 +592,8 @@ ADMIT_CONTROLLERS = {
     "slack": SlackAdmit,
     "ttft-slack": TTFTSlackAdmit,
     "kv-aware": KVAwareAdmit,
+    "ttft-predictive": TTFTPredictiveAdmit,
+    "kv-predictive": KVPredictiveAdmit,
 }
 
 

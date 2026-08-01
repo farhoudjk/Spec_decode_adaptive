@@ -1,0 +1,42 @@
+# 1x RTX A5000 (24 GB). Llama-3.1-8B target, ngram speculation, fp16.
+# Companion to rtx4090_24gb.yaml (same GPU tier, Qwen2.5-7B/0.5B draft-model
+# pairing) -- this config swaps in Llama 3.1-8B to test whether Axis-3's
+# KV-ceiling mechanism (KVAwareAdmit, see specloop_rt/controllers.py) ever
+# engages when the target model itself claims more weight memory (8B vs 7B)
+# on a smaller GPU (24GB vs the original 48GB A6000), leaving less room for
+# KV blocks. Across all four Axis-3 rounds on the A6000 at up to rate=32, KV
+# occupancy never crossed ~0.475 -- never close to the 0.80 ceiling trigger.
+#
+# spec_method is ngram, not draft_model: vLLM 0.9.2's V1 engine (which
+# scheduler_patch.py's SpecLoopScheduler targets, see vllm_patch/PROVENANCE.md)
+# does not support draft-model speculation and silently falls back to V0,
+# which then crashes replay.py's hardcoded V1 AsyncLLM construction. This is
+# why a6000_48gb_multiturn.yaml -- the config Axis-3's actual sweeps ran
+# against -- also uses ngram, not draft_model. rtx4090_24gb.yaml's
+# draft_model config is untested against this vllm pin.
+model:
+  target_model: meta-llama/Llama-3.1-8B-Instruct
+  draft_model: null
+  spec_method: ngram
+  eagle_model: null
+  tp: 1
+  gpu_mem_util: 0.90
+  max_model_len: 4096
+  dtype: float16
+  enforce_eager: false
+
+runtime:
+  gamma_init: 4
+  max_num_seqs_init: 64
+  tpot_slo_s: 0.040
+  ttft_slo_s: 2.0
+  temperature: 0.0
+  ignore_eos: true      # honour trace max_tokens exactly for reproducibility
+
+controller:
+  spec: closed-loop
+  admit: slack
+  coordination: naive
+  spec_kw:  {threshold: 0.45, gain: 0.5, period: 4, gamma_min: 0, gamma_max: 8, gamma_init: 4}
+  admit_kw: {target_util: 0.85, gain: 0.5, period: 4, batch_max: 256, init: 64}
+  coord_kw: {}

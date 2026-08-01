@@ -1,0 +1,592 @@
+<title>Axis-3 on Llama-3.1-8B / 24GB: the KV ceiling finally has something to react to</title>
+<style>
+  .viz-root {
+    color-scheme: light;
+    --plane:          #f9f9f7;
+    --surface-1:      #fcfcfb;
+    --surface-2:      #f3f2ee;
+    --text-primary:   #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted:     #898781;
+    --gridline:       #e1e0d9;
+    --baseline:       #c3c2b7;
+    --border:         rgba(11,11,11,0.10);
+    --accent:         #2a5a8c;
+    --accent-ink:     #1f4569;
+
+    --arm-lo:      #4a3aa7;
+    --arm-hi:      #898781;
+    --arm-adap:    #2a78d6;
+    --arm-kv:      #1baf7a;
+    --arm-full:    #eb6834;
+
+    --good:      #0ca30c;
+    --warning:   #fab219;
+    --serious:   #ec835a;
+    --critical:  #d03b3b;
+
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: var(--plane);
+    color: var(--text-primary);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) .viz-root {
+      color-scheme: dark;
+      --plane:          #0d0d0d;
+      --surface-1:      #1a1a19;
+      --surface-2:      #202020;
+      --text-primary:   #ffffff;
+      --text-secondary: #c3c2b7;
+      --text-muted:     #898781;
+      --gridline:       #2c2c2a;
+      --baseline:       #383835;
+      --border:         rgba(255,255,255,0.10);
+      --accent:         #6f9bd6;
+      --accent-ink:     #a9c6ea;
+      --arm-lo:      #9085e9;
+      --arm-hi:      #898781;
+      --arm-adap:    #3987e5;
+      --arm-kv:      #199e70;
+      --arm-full:    #d95926;
+      --good:      #0ca30c;
+      --warning:   #fab219;
+      --serious:   #ec835a;
+      --critical:  #e66767;
+    }
+  }
+  :root[data-theme="dark"] .viz-root {
+    color-scheme: dark;
+    --plane:          #0d0d0d;
+    --surface-1:      #1a1a19;
+    --surface-2:      #202020;
+    --text-primary:   #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted:     #898781;
+    --gridline:       #2c2c2a;
+    --baseline:       #383835;
+    --border:         rgba(255,255,255,0.10);
+    --accent:         #6f9bd6;
+    --accent-ink:     #a9c6ea;
+    --arm-lo:      #9085e9;
+    --arm-hi:      #898781;
+    --arm-adap:    #3987e5;
+    --arm-kv:      #199e70;
+    --arm-full:    #d95926;
+  }
+  :root[data-theme="light"] .viz-root {
+    color-scheme: light;
+    --plane:          #f9f9f7;
+    --surface-1:      #fcfcfb;
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  .viz-root { min-height: 100vh; }
+  ::selection { background: var(--accent); color: #fff; }
+
+  .serif { font-family: Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif; }
+  .mono { font-family: ui-monospace, "SF Mono", "Cascadia Mono", "Roboto Mono", Menlo, Consolas, monospace; }
+  h1, h2, h3 { font-family: Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif; text-wrap: balance; }
+  a { color: var(--accent); }
+
+  .masthead { background: var(--surface-1); border-bottom: 1px solid var(--border); padding: 40px 24px 32px; }
+  .masthead-inner { max-width: 760px; margin: 0 auto; }
+  .eyebrow {
+    font-size: 11.5px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase;
+    color: var(--accent-ink); margin-bottom: 14px; display: flex; align-items: center; gap: 10px;
+  }
+  .eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+  h1 { font-size: 32px; font-weight: 500; line-height: 1.22; margin: 0 0 16px; letter-spacing: -0.01em; }
+  .dek { font-size: 17px; line-height: 1.6; color: var(--text-secondary); max-width: 64ch; margin: 0; }
+  .meta-strip {
+    display: flex; flex-wrap: wrap; gap: 6px 22px; margin-top: 26px; padding-top: 22px;
+    border-top: 1px solid var(--border); font-size: 12.5px; color: var(--text-muted);
+  }
+  .meta-strip b { color: var(--text-primary); font-weight: 600; }
+  .meta-strip .mono { font-size: 12px; }
+
+  main { max-width: 760px; margin: 0 auto; padding: 44px 24px 100px; }
+  .wide { max-width: 900px; margin-left: auto; margin-right: auto; }
+
+  section { margin-bottom: 56px; }
+  section > h2 { font-size: 22px; font-weight: 500; margin: 0 0 6px; letter-spacing: -0.005em; }
+  section > .section-sub { font-size: 14.5px; color: var(--text-secondary); line-height: 1.6; margin: 0 0 24px; max-width: 62ch; }
+  p { font-size: 15.5px; line-height: 1.7; color: var(--text-primary); max-width: 62ch; }
+  p.tight { max-width: none; }
+  .lede { font-size: 17px; line-height: 1.75; color: var(--text-primary); }
+  .lede b { font-weight: 600; }
+
+  code { font-family: ui-monospace, "SF Mono", "Cascadia Mono", monospace; font-size: 0.88em;
+         background: var(--surface-2); padding: 1.5px 5px; border-radius: 4px; border: 1px solid var(--border); }
+
+  .callout {
+    background: var(--surface-1); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+    border-radius: 2px 10px 10px 2px; padding: 18px 22px; margin: 24px 0;
+  }
+  .callout p { margin: 0; max-width: none; }
+  .callout p + p { margin-top: 10px; }
+  .callout .label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
+    color: var(--accent-ink); margin-bottom: 8px; display: block;
+  }
+  .callout.critical { border-left-color: var(--critical); }
+  .callout.critical .label { color: var(--critical); }
+  .callout.good { border-left-color: var(--good); }
+  .callout.good .label { color: var(--good); }
+  .callout.warning { border-left-color: var(--warning); }
+  .callout.warning .label { color: #8a5c00; }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) .callout.warning .label { color: var(--warning); }
+  }
+  :root[data-theme="dark"] .callout.warning .label { color: var(--warning); }
+
+  .stat-row {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px;
+    background: var(--border); border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
+    margin: 24px 0;
+  }
+  .stat-tile { background: var(--surface-1); padding: 16px 18px; }
+  .stat-tile .label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+  .stat-tile .value { font-size: 25px; font-weight: 600; font-family: system-ui, sans-serif; }
+  .stat-tile .sub { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; font-size: 12.5px; color: var(--text-secondary); margin-bottom: 18px; }
+  .legend .item { display: flex; align-items: center; gap: 7px; white-space: nowrap; }
+  .legend .swatch { width: 11px; height: 11px; border-radius: 3px; flex-shrink: 0; }
+  .legend .swatch.line { width: 14px; height: 3px; border-radius: 2px; }
+
+  .kv-chart-wrap { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 22px 24px 16px; }
+  .kv-chart-wrap svg { width: 100%; height: auto; overflow: visible; }
+  .axis-label { font-size: 9.5px; fill: var(--text-muted); font-family: system-ui, sans-serif; }
+
+  .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-1); }
+  table { border-collapse: collapse; width: 100%; font-size: 12.5px; min-width: 760px; }
+  th, td { padding: 9px 12px; text-align: right; }
+  th:first-child, td:first-child { text-align: left; }
+  th:nth-child(2), td:nth-child(2) { text-align: left; }
+  thead th {
+    font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted);
+    font-weight: 600; border-bottom: 1px solid var(--baseline); padding-bottom: 10px; white-space: nowrap;
+    position: sticky; top: 0; background: var(--surface-1);
+  }
+  tbody tr { border-bottom: 1px solid var(--gridline); }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--surface-2); }
+  td.num, th.num { font-family: ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+  td.arm-cell { font-weight: 600; }
+  .regime-pill {
+    display: inline-block; font-size: 10.5px; font-weight: 600; padding: 2px 8px; border-radius: 999px;
+    font-family: system-ui, sans-serif;
+  }
+  .regime-both_bound { background: color-mix(in srgb, var(--critical) 16%, transparent); color: var(--critical); }
+  .regime-admission_bound { background: color-mix(in srgb, var(--serious) 20%, transparent); color: #a24a24; }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) .regime-admission_bound { color: var(--serious); }
+  }
+  :root[data-theme="dark"] .regime-admission_bound { color: var(--serious); }
+
+  .arm-list { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; }
+  .arm-card {
+    display: grid; grid-template-columns: 20px 130px 1fr; gap: 14px; align-items: start;
+    padding: 13px 16px; background: var(--surface-1); border: 1px solid var(--border); border-radius: 9px;
+  }
+  .arm-card .swatch { width: 12px; height: 12px; border-radius: 3px; margin-top: 4px; }
+  .arm-card .name { font-weight: 600; font-size: 13.5px; font-family: system-ui, sans-serif; }
+  .arm-card .name .role { display: block; font-size: 10.5px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }
+  .arm-card .desc { font-size: 13.5px; color: var(--text-secondary); line-height: 1.55; }
+  .arm-card .desc code { font-size: 0.92em; }
+
+  footer { max-width: 760px; margin: 0 auto; padding: 0 24px 60px; font-size: 12.5px; color: var(--text-muted); line-height: 1.7; }
+  footer a { color: var(--text-muted); text-decoration-color: var(--border); }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<div class="viz-root">
+
+  <div class="masthead">
+    <div class="masthead-inner">
+      <div class="eyebrow"><span class="dot"></span>specloop &middot; Axis-3 on new hardware</div>
+      <h1>Swap the GPU, not the finding: the KV ceiling engages, but has no lever on committed decode</h1>
+      <p class="dek">Same five-arm bracket, same <code>reason</code> workload, new pairing: <b>Llama-3.1-8B-Instruct on a 24GB RTX A5000</b> (vs. Qwen2.5-7B on a 48GB A6000 for all four prior rounds). The smaller card + bigger target model finally pushes KV occupancy past the 0.80 ceiling trigger &mdash; something no A6000 run ever did, even at rate=32. <code>KVAwareAdmit</code> reacts hard, cutting the admission cap to its floor of 1. Mean KV occupancy barely moves anyway.</p>
+      <div class="meta-strip">
+        <span><b>15/15</b> cells succeeded</span>
+        <span>Model: <b>Llama-3.1-8B-Instruct</b>, ngram spec</span>
+        <span>GPU: <b>RTX A5000, 24GB</b></span>
+        <span>Workload: <b>reason</b> only</span>
+        <span>Rates: <b>2</b> &middot; <b>4</b> &middot; <b>8</b></span>
+        <span class="mono">results_llama3/axis3_llama3_24gb/grid.json</span>
+      </div>
+    </div>
+  </div>
+
+  <main>
+
+    <section>
+      <p class="lede">All four prior Axis-3 rounds ran Qwen2.5-7B on a 48GB A6000 and never got KV occupancy above <b>0.475</b> &mdash; nowhere near the 0.80 ceiling that <code>KVAwareAdmit</code> is built to react to. Open item #2 in that write-up was blunt: <i>"The mechanism is untested end-to-end on hardware, not just unproven."</i> Moving to a 24GB card with an 8B target model (nearly double the weight footprint, on half the memory) was the direct way to force that disturbance. It worked &mdash; <code>static-cap-hi</code> alone hits <b>kv_frac=0.833</b> at rate=4 and <b>0.948</b> at rate=8. But the result is not the clean "ceiling engages, occupancy drops" story the design predicted.</p>
+
+      <div class="stat-row">
+        <div class="stat-tile">
+          <div class="label">static-cap-hi, rate=8</div>
+          <div class="value" style="color:var(--critical)">0.948</div>
+          <div class="sub">mean KV occupancy &mdash; vs. 0.475 max across all 4 A6000 rounds</div>
+        </div>
+        <div class="stat-tile">
+          <div class="label">kv-aware-cap-only, rate=8</div>
+          <div class="value">0.953</div>
+          <div class="sub">ceiling active, occupancy <i>higher</i>, not lower</div>
+        </div>
+        <div class="stat-tile">
+          <div class="label">admission cap after ceiling reacts</div>
+          <div class="value" style="color:var(--arm-kv)">1</div>
+          <div class="sub">cut from 256 to its floor by ~step 500 of 3200</div>
+        </div>
+      </div>
+
+      <div class="callout warning">
+        <span class="label">Ceiling engaged, occupancy didn't follow</span>
+        <p>This is not the KV ceiling failing to trigger &mdash; it triggers hard and holds the cap at 1 for roughly 85% of the run. It's the ceiling triggering <i>correctly</i> and still not moving mean occupancy, because a lower admission cap only blocks new requests. It cannot evict or shrink the KV footprint of requests already running &mdash; and on <code>reason</code> (CNN-DailyMail, ~840 mean output tokens per request), once ~30 concurrent requests are mid-generation, their committed KV blocks are what's pinning occupancy near 1.0, not new arrivals.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>What the ceiling actually did, one run</h2>
+      <p class="section-sub">Step-level trace from <code>kv-aware-cap-only_reason_r4.0_s0/steps.jsonl</code>, the deepest KV-pressure cell where the ceiling is live. Cap collapses within ~500 steps of ramp-up; KV occupancy stays pinned regardless.</p>
+      <div class="legend" id="legend-trace"></div>
+      <div class="kv-chart-wrap">
+        <svg id="trace-chart" viewBox="0 0 860 340" preserveAspectRatio="xMidYMid meet"></svg>
+      </div>
+    </section>
+
+    <section>
+      <h2>Does the ceiling change anything vs. no ceiling at all?</h2>
+      <p class="section-sub"><code>kv-aware-cap-only</code> (TTFT-slack + KV ceiling, γ pinned) vs. <code>adaptive-cap-only</code> (TTFT-slack alone, γ pinned) &mdash; isolates the ceiling's incremental effect once the queue-slack loop is already accounted for.</p>
+      <div class="table-wrap">
+        <table id="compare-table"></table>
+      </div>
+      <div class="callout">
+        <span class="label">Read</span>
+        <p>Mean KV occupancy is statistically indistinguishable between the two arms at every rate (max gap 0.05, within single-seed noise) &mdash; but e2e p95 is <i>consistently worse</i> with the ceiling active: +7.8s at rate=4, +9.8s at rate=8. The ceiling adds queueing delay (new requests wait longer to be admitted) without buying back KV headroom, because the headroom it's trying to protect is already spoken for by requests it can't touch. On this workload, <code>KVAwareAdmit</code>'s core assumption &mdash; that gating admission prevents KV exhaustion &mdash; doesn't hold once decode length is long enough that steady-state occupancy is dominated by the running set, not the arrival rate.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Gated γ: shut for 85% of the run, by design</h2>
+      <p class="section-sub">Step-level trace from <code>full_reason_r4.0_s0</code>. <code>GatedSpec</code> requires KV headroom (<code>kv_headroom_frac: 0.15</code>) before it opens. Since KV sits at ~0.97&ndash;1.0 for nearly the entire run, the gate stays shut &mdash; correctly, since spending more speculative compute per step while the KV pool is nearly full is exactly the wrong move. γ only climbs (to 3, then 6) in the last ~10% of the run as the queue drains.</p>
+      <div class="kv-chart-wrap">
+        <div class="legend" id="legend-gamma"></div>
+        <svg id="gamma-chart" viewBox="0 0 860 220" preserveAspectRatio="xMidYMid meet"></svg>
+      </div>
+      <div class="callout good" style="margin-top:20px;">
+        <span class="label">This part is working as designed</span>
+        <p>Unlike the tpot_ema bug that pinned γ at the floor across four A6000 rounds, this is the gate doing its job: KV headroom is the correct reason to keep γ low here, and the controller is reading that signal accurately. The gate not opening under sustained KV pressure is the intended behavior, not a repeat of the earlier bug.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Full 15-cell results</h2>
+      <div class="legend" id="legend-main"></div>
+      <div class="table-wrap">
+        <table id="full-table"></table>
+      </div>
+    </section>
+
+    <section>
+      <h2>What this means for the design</h2>
+      <div class="arm-list" id="next-steps"></div>
+    </section>
+
+  </main>
+
+  <footer>
+    Config: <code>configs/a5000_24gb_llama3.yaml</code> (Llama-3.1-8B-Instruct target, ngram speculation &mdash; draft-model speculation was tried first but vLLM 0.9.2's V1 engine, which <code>scheduler_patch.py</code> targets, doesn't support it and silently falls back to V0, which then crashes the hardcoded V1 <code>AsyncLLM</code> construction in <code>replay.py</code>; matches why <code>a6000_48gb_multiturn.yaml</code> also uses ngram). Weights: <code>meta-llama/Llama-3.1-8B-Instruct</code> fp16, safetensors only. Raw results: <code>results_llama3/axis3_llama3_24gb/grid.json</code> (15 cells, reason &times; rates 2/4/8 &times; 5 arms). Companion rounds: <code>reports/axis3_admit_kv_sweep_report.html</code>, <code>reports/axis3_validate_r16_r32_report.html</code>, <code>reports/axis3_validate_r1_r2_report.html</code>, <code>reports/axis3_validate_postfix_report.html</code> (all Qwen2.5-7B / A6000).
+  </footer>
+
+  <div class="tooltip" id="tooltip"></div>
+</div>
+
+<script>
+const DATA = [{"arm":"static-cap-lo","rtype":"reason","rate":2.0,"n_finished":102,"ttft_p50":30.019384614017326,"ttft_p95":52.48309777755347,"ttft_p99":58.83845499244866,"tpot_p50":0.022835569624318028,"tpot_p99":0.03628580066532903,"e2e_p50":49.69141680802568,"e2e_p95":74.27147112406963,"e2e_p99":77.16859022562858,"slo_attainment":0.16666666666666666,"goodput_tok_s":658.8459853741919,"mean_gamma":4.0,"mean_kv_frac":0.3704548561999057,"regime":"admission_bound"},{"arm":"static-cap-lo","rtype":"reason","rate":4.0,"n_finished":238,"ttft_p50":101.90639744099462,"ttft_p95":207.07306853774062,"ttft_p99":215.21320169973595,"tpot_p50":0.023030789108991985,"tpot_p99":0.03874021469350561,"e2e_p50":121.4261301009683,"e2e_p95":222.36062924236757,"e2e_p99":230.37591196378517,"slo_attainment":0.06722689075630252,"goodput_tok_s":674.2906036110946,"mean_gamma":4.0,"mean_kv_frac":0.38279277121260513,"regime":"admission_bound"},{"arm":"static-cap-lo","rtype":"reason","rate":8.0,"n_finished":487,"ttft_p50":252.30576638801722,"ttft_p95":493.2206991882936,"ttft_p99":516.6696855077345,"tpot_p50":0.023242403235548666,"tpot_p99":0.038920614945064616,"e2e_p50":274.6465753620141,"e2e_p95":515.1076781101001,"e2e_p99":537.4612748732743,"slo_attainment":0.03285420944558522,"goodput_tok_s":685.7382271296038,"mean_gamma":4.0,"mean_kv_frac":0.40362676513553,"regime":"admission_bound"},{"arm":"static-cap-hi","rtype":"reason","rate":2.0,"n_finished":102,"ttft_p50":18.9938320130168,"ttft_p95":36.12233395788353,"ttft_p99":36.72133906765608,"tpot_p50":0.03777855751227558,"tpot_p99":0.06926667913596121,"e2e_p50":49.35507179249544,"e2e_p95":68.7693672946305,"e2e_p99":71.73027206199825,"slo_attainment":0.23529411764705882,"goodput_tok_s":714.1962073135073,"mean_gamma":4.0,"mean_kv_frac":0.6970555555555554,"regime":"both_bound"},{"arm":"static-cap-hi","rtype":"reason","rate":4.0,"n_finished":238,"ttft_p50":75.03314571949886,"ttft_p95":165.76059772959852,"ttft_p99":184.07785806670202,"tpot_p50":0.042596073276434124,"tpot_p99":0.07175279779021976,"e2e_p50":115.07090827700449,"e2e_p95":199.27154361841093,"e2e_p99":203.90997216131828,"slo_attainment":0.07983193277310924,"goodput_tok_s":741.1525017821355,"mean_gamma":4.0,"mean_kv_frac":0.8331128994905048,"regime":"both_bound"},{"arm":"static-cap-hi","rtype":"reason","rate":8.0,"n_finished":487,"ttft_p50":216.10969567095162,"ttft_p95":430.50275381486273,"ttft_p99":450.8306619311077,"tpot_p50":0.04355575081815839,"tpot_p99":0.07668648024253856,"e2e_p50":252.38226848997874,"e2e_p95":464.6099660596985,"e2e_p99":476.93771762978633,"slo_attainment":0.03285420944558522,"goodput_tok_s":760.6382228967111,"mean_gamma":4.0,"mean_kv_frac":0.9475040005080011,"regime":"both_bound"},{"arm":"adaptive-cap-only","rtype":"reason","rate":2.0,"n_finished":102,"ttft_p50":19.60473708799691,"ttft_p95":38.219185257016214,"ttft_p99":38.88145178603998,"tpot_p50":0.038628897546479427,"tpot_p99":0.07044554565545365,"e2e_p50":51.31997336898348,"e2e_p95":70.39675324752461,"e2e_p99":73.23162897710746,"slo_attainment":0.23529411764705882,"goodput_tok_s":704.391913327633,"mean_gamma":1.0,"mean_kv_frac":0.6976327646544181,"regime":"both_bound"},{"arm":"adaptive-cap-only","rtype":"reason","rate":4.0,"n_finished":238,"ttft_p50":75.7546804845042,"ttft_p95":163.7924807387899,"ttft_p99":180.95034175368025,"tpot_p50":0.04231839115504274,"tpot_p99":0.07524793612783608,"e2e_p50":113.55610319797415,"e2e_p95":195.3743304700881,"e2e_p99":200.8622018394235,"slo_attainment":0.07983193277310924,"goodput_tok_s":748.1243619119164,"mean_gamma":1.0,"mean_kv_frac":0.8310475914775358,"regime":"both_bound"},{"arm":"adaptive-cap-only","rtype":"reason","rate":8.0,"n_finished":487,"ttft_p50":214.38184694002848,"ttft_p95":428.8493281309143,"ttft_p99":449.4337766313134,"tpot_p50":0.04326407044170374,"tpot_p99":0.07627141672691583,"e2e_p50":250.53742832696298,"e2e_p95":463.3033653404098,"e2e_p99":475.8280157919764,"slo_attainment":0.030800821355236138,"goodput_tok_s":762.0742204309508,"mean_gamma":1.0,"mean_kv_frac":0.9475040005080011,"regime":"both_bound"},{"arm":"kv-aware-cap-only","rtype":"reason","rate":2.0,"n_finished":102,"ttft_p50":18.531176282995148,"ttft_p95":36.46700239579077,"ttft_p99":36.69559234114713,"tpot_p50":0.03866886789901981,"tpot_p99":0.06741659539503347,"e2e_p50":50.45224718697136,"e2e_p95":67.9100666715356,"e2e_p99":71.27830896994506,"slo_attainment":0.24509803921568626,"goodput_tok_s":708.8324459059775,"mean_gamma":1.0,"mean_kv_frac":0.6948101487314086,"regime":"both_bound"},{"arm":"kv-aware-cap-only","rtype":"reason","rate":4.0,"n_finished":238,"ttft_p50":82.82586773548974,"ttft_p95":166.9268272124027,"ttft_p99":185.33376109642907,"tpot_p50":0.04284416622584662,"tpot_p99":0.07096177993164722,"e2e_p50":116.34466756449547,"e2e_p95":203.11343300486334,"e2e_p99":207.0842451638222,"slo_attainment":0.07983193277310924,"goodput_tok_s":747.2081149336077,"mean_gamma":1.0,"mean_kv_frac":0.8819522637795276,"regime":"both_bound"},{"arm":"kv-aware-cap-only","rtype":"reason","rate":8.0,"n_finished":487,"ttft_p50":217.1265305840061,"ttft_p95":433.96804201279303,"ttft_p99":453.1355367013125,"tpot_p50":0.04404723909775702,"tpot_p99":0.07736297993096182,"e2e_p50":254.58653587597655,"e2e_p95":473.064996661077,"e2e_p99":484.0927456583234,"slo_attainment":0.03285420944558522,"goodput_tok_s":752.6591606897392,"mean_gamma":1.0,"mean_kv_frac":0.9526454152908306,"regime":"both_bound"},{"arm":"full","rtype":"reason","rate":2.0,"n_finished":102,"ttft_p50":17.523619075975148,"ttft_p95":36.12150691439456,"ttft_p99":36.721644299008766,"tpot_p50":0.03868862516664574,"tpot_p99":0.07022117832780814,"e2e_p50":50.178326859517256,"e2e_p95":69.37331754342011,"e2e_p99":71.24829851771588,"slo_attainment":0.2549019607843137,"goodput_tok_s":710.6162725261842,"mean_gamma":1.6444444444444444,"mean_kv_frac":0.6949538495188101,"regime":"both_bound"},{"arm":"full","rtype":"reason","rate":4.0,"n_finished":238,"ttft_p50":73.05990707399906,"ttft_p95":165.44465339656455,"ttft_p99":181.73321885195793,"tpot_p50":0.04243750606117719,"tpot_p99":0.07034645579759106,"e2e_p50":115.46733628452057,"e2e_p95":199.18911820138743,"e2e_p99":203.4280510043836,"slo_attainment":0.07983193277310924,"goodput_tok_s":741.9113316269622,"mean_gamma":1.3258823529411765,"mean_kv_frac":0.8401164891153311,"regime":"both_bound"},{"arm":"full","rtype":"reason","rate":8.0,"n_finished":487,"ttft_p50":217.1055886130198,"ttft_p95":433.8972387255984,"ttft_p99":453.0147531037091,"tpot_p50":0.04407270882445727,"tpot_p99":0.07740312957298898,"e2e_p50":254.520058900991,"e2e_p95":472.98895514761097,"e2e_p99":484.0424801390548,"slo_attainment":0.03285420944558522,"goodput_tok_s":752.7154706800491,"mean_gamma":1.1458064516129032,"mean_kv_frac":0.9526454152908306,"regime":"both_bound"}];
+
+const KV_TRACE_A = [{"step":0,"kv_frac":0.0181,"cap":256,"running":1},{"step":80,"kv_frac":0.2492,"cap":256,"running":11},{"step":160,"kv_frac":0.9984,"cap":80,"running":41},{"step":240,"kv_frac":0.9984,"cap":80,"running":37},{"step":320,"kv_frac":0.9894,"cap":79,"running":32},{"step":400,"kv_frac":0.9803,"cap":75,"running":29},{"step":480,"kv_frac":0.9768,"cap":1,"running":29},{"step":560,"kv_frac":0.9874,"cap":1,"running":32},{"step":640,"kv_frac":0.9681,"cap":1,"running":34},{"step":720,"kv_frac":0.989,"cap":1,"running":32},{"step":800,"kv_frac":0.9925,"cap":1,"running":32},{"step":880,"kv_frac":0.9622,"cap":1,"running":30},{"step":960,"kv_frac":0.9799,"cap":1,"running":28},{"step":1040,"kv_frac":0.9921,"cap":1,"running":30},{"step":1120,"kv_frac":0.9807,"cap":1,"running":33},{"step":1200,"kv_frac":0.9941,"cap":1,"running":34},{"step":1280,"kv_frac":0.9902,"cap":1,"running":33},{"step":1360,"kv_frac":0.9898,"cap":1,"running":29},{"step":1440,"kv_frac":0.9728,"cap":1,"running":30},{"step":1520,"kv_frac":0.9791,"cap":1,"running":32},{"step":1600,"kv_frac":1.0,"cap":1,"running":30},{"step":1680,"kv_frac":0.9925,"cap":1,"running":33},{"step":1760,"kv_frac":0.9819,"cap":1,"running":33},{"step":1840,"kv_frac":0.9744,"cap":1,"running":29},{"step":1920,"kv_frac":0.9823,"cap":1,"running":26},{"step":2000,"kv_frac":0.9776,"cap":1,"running":29},{"step":2080,"kv_frac":0.9677,"cap":1,"running":32},{"step":2160,"kv_frac":0.9878,"cap":1,"running":33},{"step":2240,"kv_frac":0.9969,"cap":1,"running":29},{"step":2320,"kv_frac":0.9831,"cap":1,"running":32},{"step":2400,"kv_frac":0.9626,"cap":1,"running":37},{"step":2480,"kv_frac":0.9992,"cap":1,"running":38},{"step":2560,"kv_frac":0.9941,"cap":1,"running":38},{"step":2640,"kv_frac":0.9941,"cap":1,"running":32},{"step":2720,"kv_frac":0.9902,"cap":1,"running":34},{"step":2800,"kv_frac":0.7846,"cap":51,"running":26},{"step":2880,"kv_frac":0.5886,"cap":107,"running":19},{"step":2960,"kv_frac":0.3819,"cap":163,"running":12},{"step":3040,"kv_frac":0.3382,"cap":219,"running":9},{"step":3120,"kv_frac":0.1157,"cap":256,"running":3}];
+
+const GAMMA_TRACE = [{"step":0,"kv_frac":0.0181,"cap":256,"gamma":1,"running":1},{"step":85,"kv_frac":0.25,"cap":256,"gamma":1,"running":11},{"step":170,"kv_frac":0.9909,"cap":82,"gamma":1,"running":40},{"step":255,"kv_frac":0.9988,"cap":82,"gamma":1,"running":36},{"step":340,"kv_frac":0.9752,"cap":78,"gamma":1,"running":31},{"step":425,"kv_frac":0.9843,"cap":64,"gamma":1,"running":29},{"step":510,"kv_frac":0.9823,"cap":1,"gamma":1,"running":30},{"step":595,"kv_frac":0.9819,"cap":1,"gamma":1,"running":35},{"step":680,"kv_frac":0.9693,"cap":1,"gamma":1,"running":32},{"step":765,"kv_frac":0.9858,"cap":1,"gamma":1,"running":30},{"step":850,"kv_frac":0.9677,"cap":1,"gamma":1,"running":30},{"step":935,"kv_frac":0.9894,"cap":1,"gamma":1,"running":29},{"step":1020,"kv_frac":0.989,"cap":1,"gamma":1,"running":30},{"step":1105,"kv_frac":0.9984,"cap":1,"gamma":1,"running":33},{"step":1190,"kv_frac":1.0,"cap":1,"gamma":1,"running":31},{"step":1275,"kv_frac":0.9862,"cap":1,"gamma":1,"running":34},{"step":1360,"kv_frac":0.9902,"cap":1,"gamma":1,"running":30},{"step":1445,"kv_frac":0.9941,"cap":1,"gamma":1,"running":30},{"step":1530,"kv_frac":0.9791,"cap":1,"gamma":1,"running":32},{"step":1615,"kv_frac":0.9945,"cap":1,"gamma":1,"running":30},{"step":1700,"kv_frac":0.9882,"cap":1,"gamma":1,"running":32},{"step":1785,"kv_frac":0.9555,"cap":1,"gamma":1,"running":32},{"step":1870,"kv_frac":0.9969,"cap":1,"gamma":1,"running":30},{"step":1955,"kv_frac":0.9811,"cap":1,"gamma":1,"running":27},{"step":2040,"kv_frac":0.9823,"cap":1,"gamma":1,"running":29},{"step":2125,"kv_frac":0.9921,"cap":1,"gamma":1,"running":33},{"step":2210,"kv_frac":0.9913,"cap":1,"gamma":1,"running":32},{"step":2295,"kv_frac":0.9776,"cap":1,"gamma":1,"running":31},{"step":2380,"kv_frac":0.9953,"cap":1,"gamma":1,"running":37},{"step":2465,"kv_frac":0.9878,"cap":1,"gamma":1,"running":36},{"step":2550,"kv_frac":0.9827,"cap":1,"gamma":1,"running":42},{"step":2635,"kv_frac":0.9961,"cap":1,"gamma":1,"running":36},{"step":2720,"kv_frac":0.9929,"cap":1,"gamma":1,"running":32},{"step":2805,"kv_frac":0.8764,"cap":43,"gamma":1,"running":29},{"step":2890,"kv_frac":0.702,"cap":102,"gamma":3,"running":21},{"step":2975,"kv_frac":0.3929,"cap":160,"gamma":3,"running":12},{"step":3060,"kv_frac":0.3709,"cap":222,"gamma":6,"running":10},{"step":3145,"kv_frac":0.1315,"cap":256,"gamma":1,"running":3},{"step":3230,"kv_frac":0.1004,"cap":256,"gamma":1,"running":2},{"step":3315,"kv_frac":0.0469,"cap":256,"gamma":1,"running":1}];
+
+const ARMS = ['static-cap-lo', 'static-cap-hi', 'adaptive-cap-only', 'kv-aware-cap-only', 'full'];
+const ARM_LABEL = {
+  'static-cap-lo': 'Static, tight cap',
+  'static-cap-hi': 'Static, generous cap',
+  'adaptive-cap-only': 'Adaptive cap (TTFT-slack)',
+  'kv-aware-cap-only': 'Adaptive cap + KV ceiling',
+  'full': 'Full (+ gated γ)',
+};
+const ARM_COLOR_VAR = {
+  'static-cap-lo': '--arm-lo',
+  'static-cap-hi': '--arm-hi',
+  'adaptive-cap-only': '--arm-adap',
+  'kv-aware-cap-only': '--arm-kv',
+  'full': '--arm-full',
+};
+const REGIME_LABEL = { admission_bound: 'admission bound', both_bound: 'both bound' };
+
+function fmtPct(v) { return v === null || v === undefined ? '—' : (v * 100).toFixed(1) + '%'; }
+function fmtNum(v, d = 2) { return v === null || v === undefined ? '—' : v.toFixed(d); }
+
+(function buildMainLegend() {
+  const el = document.getElementById('legend-main');
+  el.innerHTML = ARMS.map(a =>
+    `<div class="item"><span class="swatch" style="background:var(${ARM_COLOR_VAR[a]})"></span>${ARM_LABEL[a]}</div>`
+  ).join('');
+})();
+
+// ---------------------------------------------------------------------
+// KV occupancy vs. admission cap trace (two stacked small multiples)
+// ---------------------------------------------------------------------
+(function buildTraceChart() {
+  const legendEl = document.getElementById('legend-trace');
+  legendEl.innerHTML =
+    `<div class="item"><span class="swatch line" style="background:var(--arm-kv)"></span>KV occupancy</div>` +
+    `<div class="item"><span class="swatch line" style="background:var(--text-secondary)"></span>admission cap (act_max_num_seqs)</div>` +
+    `<div class="item"><span class="swatch line" style="background:var(--critical);opacity:0.6"></span>0.80 ceiling trigger</div>`;
+
+  const svg = document.getElementById('trace-chart');
+  const W = 860, H = 340;
+  const padL = 54, padR = 54, padT = 24, padB = 40;
+  const midGap = 20;
+  const plotW = W - padL - padR;
+  const rowH = (H - padT - padB - midGap) / 2;
+
+  const steps = KV_TRACE_A.map(t => t.step);
+  const minStep = Math.min(...steps), maxStep = Math.max(...steps);
+  function xFor(step) { return padL + plotW * (step - minStep) / (maxStep - minStep); }
+
+  // ---- top row: KV occupancy (0-1) ----
+  const kTop = padT;
+  function yKv(v) { return kTop + rowH * (1 - v); }
+  [0, 0.25, 0.5, 0.8, 1.0].forEach(v => {
+    const y = yKv(v);
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', padL); line.setAttribute('x2', W - padR);
+    line.setAttribute('y1', y); line.setAttribute('y2', y);
+    line.setAttribute('stroke', v === 0.8 ? 'var(--critical)' : 'var(--gridline)');
+    line.setAttribute('stroke-width', v === 0.8 ? '1.5' : '1');
+    if (v === 0.8) { line.setAttribute('stroke-dasharray', '5,4'); line.setAttribute('opacity', '0.6'); }
+    svg.appendChild(line);
+    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    label.setAttribute('x', padL - 8); label.setAttribute('y', y + 3);
+    label.setAttribute('text-anchor', 'end'); label.setAttribute('class', 'axis-label');
+    label.textContent = v.toFixed(2);
+    svg.appendChild(label);
+  });
+  const kPath = KV_TRACE_A.map((t, i) => (i === 0 ? 'M' : 'L') + xFor(t.step).toFixed(1) + ',' + yKv(t.kv_frac).toFixed(1)).join(' ');
+  const kLine = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  kLine.setAttribute('d', kPath);
+  kLine.setAttribute('fill', 'none');
+  kLine.setAttribute('stroke', 'var(--arm-kv)');
+  kLine.setAttribute('stroke-width', '2');
+  kLine.setAttribute('stroke-linejoin', 'round');
+  svg.appendChild(kLine);
+  const kTitle = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  kTitle.setAttribute('x', padL); kTitle.setAttribute('y', kTop - 8);
+  kTitle.setAttribute('class', 'axis-label'); kTitle.setAttribute('font-weight', '600');
+  kTitle.textContent = 'KV occupancy (fraction of blocks used)';
+  svg.appendChild(kTitle);
+
+  // ---- bottom row: admission cap (log-ish scale via linear 0-256) ----
+  const cTop = padT + rowH + midGap;
+  const maxCap = 256;
+  function yCap(v) { return cTop + rowH * (1 - v / maxCap); }
+  [0, 64, 128, 192, 256].forEach(v => {
+    const y = yCap(v);
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', padL); line.setAttribute('x2', W - padR);
+    line.setAttribute('y1', y); line.setAttribute('y2', y);
+    line.setAttribute('stroke', 'var(--gridline)'); line.setAttribute('stroke-width', '1');
+    svg.appendChild(line);
+    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    label.setAttribute('x', padL - 8); label.setAttribute('y', y + 3);
+    label.setAttribute('text-anchor', 'end'); label.setAttribute('class', 'axis-label');
+    label.textContent = v;
+    svg.appendChild(label);
+  });
+  const cPath = KV_TRACE_A.map((t, i) => (i === 0 ? 'M' : 'L') + xFor(t.step).toFixed(1) + ',' + yCap(t.cap).toFixed(1)).join(' ');
+  const cLine = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  cLine.setAttribute('d', cPath);
+  cLine.setAttribute('fill', 'none');
+  cLine.setAttribute('stroke', 'var(--text-secondary)');
+  cLine.setAttribute('stroke-width', '2');
+  cLine.setAttribute('stroke-linejoin', 'round');
+  svg.appendChild(cLine);
+  const cTitle = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  cTitle.setAttribute('x', padL); cTitle.setAttribute('y', cTop - 8);
+  cTitle.setAttribute('class', 'axis-label'); cTitle.setAttribute('font-weight', '600');
+  cTitle.textContent = 'admission cap (act_max_num_seqs)';
+  svg.appendChild(cTitle);
+
+  [minStep, Math.round((minStep + maxStep) / 2), maxStep].forEach(s => {
+    const x = xFor(s);
+    const tick = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    tick.setAttribute('x', x); tick.setAttribute('y', H - padB + 18);
+    tick.setAttribute('text-anchor', 'middle'); tick.setAttribute('class', 'axis-label');
+    tick.textContent = 'step ' + s;
+    svg.appendChild(tick);
+  });
+
+  [kTop + rowH, H - padB].forEach(y => {
+    const base = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    base.setAttribute('x1', padL); base.setAttribute('x2', W - padR);
+    base.setAttribute('y1', y); base.setAttribute('y2', y);
+    base.setAttribute('stroke', 'var(--baseline)'); base.setAttribute('stroke-width', '1');
+    svg.appendChild(base);
+  });
+})();
+
+// ---------------------------------------------------------------------
+// gamma vs KV occupancy trace (full arm, rate=4)
+// ---------------------------------------------------------------------
+(function buildGammaChart() {
+  const legendEl = document.getElementById('legend-gamma');
+  legendEl.innerHTML =
+    `<div class="item"><span class="swatch line" style="background:var(--arm-full)"></span>γ (actuated)</div>` +
+    `<div class="item"><span class="swatch line" style="background:var(--arm-kv);opacity:0.55"></span>KV occupancy</div>`;
+
+  const svg = document.getElementById('gamma-chart');
+  const W = 860, H = 220;
+  const padL = 54, padR = 54, padT = 24, padB = 36;
+  const plotW = W - padL - padR;
+  const plotH = H - padT - padB;
+
+  const steps = GAMMA_TRACE.map(t => t.step);
+  const minStep = Math.min(...steps), maxStep = Math.max(...steps);
+  function xFor(step) { return padL + plotW * (step - minStep) / (maxStep - minStep); }
+
+  const maxGamma = Math.max(...GAMMA_TRACE.map(t => t.gamma), 6);
+  function yGamma(g) { return padT + plotH * (1 - g / maxGamma); }
+  function yKv(v) { return padT + plotH * (1 - v); }
+
+  [0, 1, 2, 3, 4, 5, 6].filter(v => v <= maxGamma).forEach(v => {
+    const y = yGamma(v);
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', padL); line.setAttribute('x2', W - padR);
+    line.setAttribute('y1', y); line.setAttribute('y2', y);
+    line.setAttribute('stroke', 'var(--gridline)'); line.setAttribute('stroke-width', '1');
+    svg.appendChild(line);
+    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    label.setAttribute('x', padL - 8); label.setAttribute('y', y + 3);
+    label.setAttribute('text-anchor', 'end'); label.setAttribute('class', 'axis-label');
+    label.textContent = 'γ=' + v;
+    svg.appendChild(label);
+  });
+
+  const kvPath = GAMMA_TRACE.map((t, i) => (i === 0 ? 'M' : 'L') + xFor(t.step).toFixed(1) + ',' + yKv(t.kv_frac).toFixed(1)).join(' ');
+  const kvLine = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  kvLine.setAttribute('d', kvPath);
+  kvLine.setAttribute('fill', 'none');
+  kvLine.setAttribute('stroke', 'var(--arm-kv)');
+  kvLine.setAttribute('stroke-width', '2');
+  kvLine.setAttribute('opacity', '0.55');
+  kvLine.setAttribute('stroke-linejoin', 'round');
+  svg.appendChild(kvLine);
+
+  const gPath = GAMMA_TRACE.map((t, i) => (i === 0 ? 'M' : 'L') + xFor(t.step).toFixed(1) + ',' + yGamma(t.gamma).toFixed(1)).join(' ');
+  const gLine = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  gLine.setAttribute('d', gPath);
+  gLine.setAttribute('fill', 'none');
+  gLine.setAttribute('stroke', 'var(--arm-full)');
+  gLine.setAttribute('stroke-width', '2.5');
+  gLine.setAttribute('stroke-linejoin', 'round');
+  svg.appendChild(gLine);
+
+  [minStep, Math.round((minStep + maxStep) / 2), maxStep].forEach(s => {
+    const x = xFor(s);
+    const tick = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    tick.setAttribute('x', x); tick.setAttribute('y', H - padB + 18);
+    tick.setAttribute('text-anchor', 'middle'); tick.setAttribute('class', 'axis-label');
+    tick.textContent = 'step ' + s;
+    svg.appendChild(tick);
+  });
+
+  const base = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  base.setAttribute('x1', padL); base.setAttribute('x2', W - padR);
+  base.setAttribute('y1', H - padB); base.setAttribute('y2', H - padB);
+  base.setAttribute('stroke', 'var(--baseline)'); base.setAttribute('stroke-width', '1');
+  svg.appendChild(base);
+})();
+
+// ---------------------------------------------------------------------
+// kv-aware-cap-only vs adaptive-cap-only comparison table
+// ---------------------------------------------------------------------
+(function buildCompareTable() {
+  const rates = [2.0, 4.0, 8.0];
+  const tbl = document.getElementById('compare-table');
+  let thead = '<thead><tr><th>Rate</th><th class="num">KV frac (+ceiling)</th><th class="num">KV frac (no ceiling)</th>' +
+    '<th class="num">e2e p95 (+ceiling)</th><th class="num">e2e p95 (no ceiling)</th><th class="num">&Delta; e2e p95</th></tr></thead>';
+  let tbody = '<tbody>';
+  rates.forEach(rate => {
+    const kv = DATA.find(r => r.arm === 'kv-aware-cap-only' && r.rate === rate);
+    const ad = DATA.find(r => r.arm === 'adaptive-cap-only' && r.rate === rate);
+    if (!kv || !ad) return;
+    const delta = kv.e2e_p95 - ad.e2e_p95;
+    tbody += `<tr>
+      <td>rate=${rate}</td>
+      <td class="num" style="color:var(--arm-kv);font-weight:600;">${fmtNum(kv.mean_kv_frac, 3)}</td>
+      <td class="num" style="color:var(--arm-adap)">${fmtNum(ad.mean_kv_frac, 3)}</td>
+      <td class="num">${fmtNum(kv.e2e_p95, 1)}s</td>
+      <td class="num">${fmtNum(ad.e2e_p95, 1)}s</td>
+      <td class="num" style="color:${delta > 0 ? 'var(--critical)' : 'var(--good)'};font-weight:600;">${delta > 0 ? '+' : ''}${fmtNum(delta, 1)}s</td>
+    </tr>`;
+  });
+  tbody += '</tbody>';
+  tbl.innerHTML = thead + tbody;
+})();
+
+// ---------------------------------------------------------------------
+// full data table
+// ---------------------------------------------------------------------
+(function buildFullTable() {
+  const cols = [
+    { k: 'arm', label: 'Arm' },
+    { k: 'rate', label: 'Rate', num: true },
+    { k: 'regime', label: 'Regime' },
+    { k: 'slo_attainment', label: 'SLO', num: true },
+    { k: 'ttft_p99', label: 'TTFT p99 (s)', num: true },
+    { k: 'e2e_p95', label: 'E2E p95 (s)', num: true },
+    { k: 'mean_kv_frac', label: 'Mean KV frac', num: true },
+    { k: 'mean_gamma', label: 'Mean γ', num: true },
+  ];
+  const tbl = document.getElementById('full-table');
+  let thead = '<thead><tr>' + cols.map(c => `<th class="${c.num ? 'num' : ''}">${c.label}</th>`).join('') + '</tr></thead>';
+  const rows = DATA.slice().sort((a, b) => ARMS.indexOf(a.arm) - ARMS.indexOf(b.arm) || a.rate - b.rate);
+  let tbody = '<tbody>';
+  for (const r of rows) {
+    tbody += '<tr>';
+    tbody += `<td class="arm-cell" style="color:var(${ARM_COLOR_VAR[r.arm]})">${ARM_LABEL[r.arm]}</td>`;
+    tbody += `<td class="num">${r.rate}</td>`;
+    tbody += `<td><span class="regime-pill regime-${r.regime}">${REGIME_LABEL[r.regime] || r.regime}</span></td>`;
+    tbody += `<td class="num">${fmtPct(r.slo_attainment)}</td>`;
+    tbody += `<td class="num">${fmtNum(r.ttft_p99, 1)}</td>`;
+    tbody += `<td class="num">${fmtNum(r.e2e_p95, 1)}</td>`;
+    tbody += `<td class="num" style="font-weight:${r.arm.includes('kv-aware') || r.arm === 'full' ? '700' : '400'}">${fmtNum(r.mean_kv_frac, 3)}</td>`;
+    tbody += `<td class="num">${fmtNum(r.mean_gamma, 2)}</td>`;
+    tbody += '</tr>';
+  }
+  tbody += '</tbody>';
+  tbl.innerHTML = thead + tbody;
+})();
+
+const NEXT_STEPS = [
+  { role: '01', title: 'The KV ceiling needs a second lever, not just admission gating', desc: 'Blocking new admissions can\'t recover KV blocks already committed to long-running requests. A ceiling that actually holds occupancy below target on long-output workloads needs either output-length-aware admission (estimate footprint before accepting) or a way to shed/deprioritize already-running low-priority requests — <code>KVAwareAdmit</code> as built only has the first lever.' },
+  { role: '02', title: 'Check whether this generalizes past <code>reason</code>', desc: 'CNN-DailyMail (reason) has the longest mean output length (~840 tokens) of the four corpora. rag/code/chat requests finish faster, so their running set may turn over quickly enough that admission gating actually does control occupancy. This run does not test that — it stayed on <code>reason</code> for continuity with all four prior Axis-3 rounds.' },
+  { role: '03', title: 'The gated-γ behavior here is a different (correct) regime, not a repeat of the tpot_ema bug', desc: 'γ pinned near 1 for 85% of this run is the gate correctly reading sustained KV pressure, not the old aggregate-throughput bug (that bug is fixed and documented in <code>PROVENANCE.md#tpot</code>). Worth stating explicitly since the shape looks superficially similar to the four broken pre-fix rounds.' },
+  { role: '04', title: 'Single-seed, single-workload — same caveat as every prior round', desc: 'All 15 cells here are one 60s run each. The e2e p95 gap between kv-aware-cap-only and adaptive-cap-only (the ceiling making things measurably worse, not better) is a bigger and more consistent effect than the noise-level SLO gaps seen in earlier rounds, but still deserves 3-5 seeds before treating the ceiling-adds-latency finding as settled.' },
+];
+document.getElementById('next-steps').innerHTML = NEXT_STEPS.map(s => `
+  <div class="arm-card" style="grid-template-columns: 34px 1fr;">
+    <div class="name mono" style="color:var(--accent-ink);font-size:13px;">${s.role}</div>
+    <div>
+      <div class="name" style="margin-bottom:3px;">${s.title}</div>
+      <div class="desc">${s.desc}</div>
+    </div>
+  </div>
+`).join('');
+</script>

@@ -51,6 +51,13 @@ from specloop_rt.interface import (EMA, ControlAction, StepObservation,
 _CONTROLLER = None
 _TELEMETRY: Optional[TelemetryWriter] = None
 _RUNTIME_CFG: Dict = {}
+# Most recent StepObservation. NOTE: this is only readable from INSIDE the
+# engine process. vLLM v1 runs EngineCore in a separate process by default
+# (VLLM_ENABLE_V1_MULTIPROCESSING), so a client-process reader sees None
+# forever -- that mistake silently disabled load shedding in an early Axis-4
+# run (shed_frac=0.0, indistinguishable from "chose not to shed"). Client-side
+# consumers must derive their own signal; see replay.replay's shed_fn.
+_LAST_OBS: Optional[StepObservation] = None
 
 
 def configure(controller, telemetry: TelemetryWriter, runtime_cfg: Dict) -> None:
@@ -59,6 +66,11 @@ def configure(controller, telemetry: TelemetryWriter, runtime_cfg: Dict) -> None
     _CONTROLLER = controller
     _TELEMETRY = telemetry
     _RUNTIME_CFG = runtime_cfg
+
+
+def last_observation() -> Optional[StepObservation]:
+    """Latest per-step observation, or None before the first scheduler step."""
+    return _LAST_OBS
 
 
 class SpecLoopScheduler(_V1Scheduler):
@@ -176,6 +188,8 @@ class SpecLoopScheduler(_V1Scheduler):
         n_sched = self._sl_sum_scheduled(out)
         n_spec = self._sl_sum_spec(out)
         obs2 = self._sl_build_obs(n_sched, n_spec)
+        global _LAST_OBS
+        _LAST_OBS = obs2
         if _TELEMETRY is not None:
             _TELEMETRY.record(obs2, action)
         self._sl_step += 1
