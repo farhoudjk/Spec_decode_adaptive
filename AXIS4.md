@@ -59,6 +59,29 @@ barely acting:
 
 ---
 
+## Picking this up on a new machine
+
+Everything needed to *read and extend* the work is in this branch. What is not
+in it, because it is too large and is regenerable, is the environment:
+
+| Survives a clone | Must be rebuilt on the new box |
+|---|---|
+| All code, configs, tests, reports | The venv (~15 GB with vllm/torch/CUDA) |
+| `grid.json` for all three sweeps | The HF weight cache (~19 GB) |
+| `scripts/analyze_axis4.py` | Per-cell `steps.jsonl` telemetry (~313 MB) |
+
+So the analysis, the reports and every number quoted in them are reproducible
+immediately from a fresh clone:
+
+```bash
+python3 scripts/analyze_axis4.py    # regenerates the full results table
+```
+
+Re-running the *sweep* needs the environment below, and re-running it will also
+regenerate the per-cell telemetry. Note the step traces are what back the
+mechanism claims (cap-vs-concurrency, gamma distribution); the committed
+`grid.json` holds only per-cell summaries.
+
 ## Reproducing
 
 ### 1. Environment
