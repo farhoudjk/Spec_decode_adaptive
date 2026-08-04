@@ -51,22 +51,46 @@ def _build_engine(cfg: dict):
     from vllm.v1.engine.async_llm import AsyncLLM  # v1 async engine
 
     m = cfg["model"]
+    gamma_init = cfg["runtime"].get("gamma_init", 4)
     spec = None
-    if m.get("spec_method") == "ngram":
+    # gamma_init=0 is a true no-speculation baseline: passing
+    # num_speculative_tokens=0 into any of the branches below would still
+    # construct a SpeculativeConfig and attempt to propose zero tokens (an
+    # odd, not-really-tested state), which is not equivalent to skipping
+    # speculation entirely (spec=None, no draft loaded, plain autoregressive
+    # decode). Guard every branch on gamma_init > 0 so k=0 falls through to
+    # spec=None regardless of which drafter spec_method/eagle_model/
+    # draft_model would otherwise select.
+    if gamma_init > 0 and m.get("spec_method") == "ngram":
         # prompt-lookup drafting: no separate draft model, so this must be
         # checked before the draft_model/eagle_model branches below (which
         # both require a model path and would otherwise leave spec=None).
         spec = {"method": "ngram",
-                "num_speculative_tokens": cfg["runtime"].get("gamma_init", 4),
+                "num_speculative_tokens": gamma_init,
                 "prompt_lookup_max": m.get("prompt_lookup_max", 4),
                 "prompt_lookup_min": m.get("prompt_lookup_min", 2)}
-    elif m.get("draft_model"):
+    elif gamma_init > 0 and m.get("draft_model"):
         spec = {"method": m.get("spec_method", "draft_model"),
                 "model": m["draft_model"],
-                "num_speculative_tokens": cfg["runtime"].get("gamma_init", 4)}
-    elif m.get("eagle_model"):
-        spec = {"method": "eagle3", "model": m["eagle_model"],
-                "num_speculative_tokens": cfg["runtime"].get("gamma_init", 4)}
+                "num_speculative_tokens": gamma_init}
+    elif gamma_init > 0 and m.get("eagle_model"):
+        # EAGLE head generation is a property of the CHECKPOINT, not a free
+        # config choice: v1 (single decoder layer, reuses the target's
+        # lm_head/embed_tokens -> vLLM method "eagle") and v3 (separate
+        # fused-hidden-state head -> method "eagle3") are different vLLM
+        # architectures (EagleLlamaForCausalLM vs Eagle3LlamaForCausalLM) and
+        # loading one as the other silently mis-loads. Existing configs in
+        # this repo set spec_method: eagle while pointing at EAGLE3 checkpoints
+        # (e.g. yuhuili/EAGLE3-LLaMA3.1-Instruct-8B) -- spec_method there names
+        # the *feature* (EAGLE speculation), not the vLLM method string, so it
+        # cannot be trusted to disambiguate. Key off the checkpoint name
+        # instead: "eagle3" (case-insensitive) in the repo id selects eagle3,
+        # otherwise plain eagle. Override with eagle_method if a checkpoint's
+        # name doesn't follow this convention.
+        name = m["eagle_model"].lower()
+        method = m.get("eagle_method") or ("eagle3" if "eagle3" in name else "eagle")
+        spec = {"method": method, "model": m["eagle_model"],
+                "num_speculative_tokens": gamma_init}
 
     args = AsyncEngineArgs(
         model=m["target_model"],
@@ -75,6 +99,7 @@ def _build_engine(cfg: dict):
         max_model_len=m.get("max_model_len", 4096),
         max_num_seqs=cfg["runtime"].get("max_num_seqs_init", 64),
         dtype=m.get("dtype", "auto"),
+        quantization=m.get("quantization"),
         enforce_eager=m.get("enforce_eager", False),
         speculative_config=spec,
         # multi-turn replay (specloop_rt.multiturn) resubmits the whole

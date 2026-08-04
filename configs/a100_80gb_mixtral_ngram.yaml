@@ -1,0 +1,73 @@
+# 1x A100 80GB. Mixtral-8x7B-Instruct (MoE) target, FP8 weights, ngram
+# (prompt-lookup) speculation. Axis-4 roofline follow-up: tests whether B*
+# moves as predicted for a sparse-MoE target (AXIS4_ROOFLINE.md secs 6-7,
+# Experiment 2).
+#
+# WHY NGRAM, NOT EAGLE. Tried yuhuili/EAGLE-mixtral-instruct-8x7B first (see
+# a100_80gb_mixtral_eagle.yaml) -- it loads and attaches cleanly (confirmed:
+# "Loading EAGLE LM head weights from the target model", hidden_size/
+# vocab_size both match), but vLLM 0.9.2's V1 engine crashes at KV-cache
+# setup with a bare NotImplementedError in kv_cache_utils.py::
+# get_kv_cache_config. Root cause: the EAGLE head is full MHA
+# (num_key_value_heads=32) while Mixtral is GQA (num_key_value_heads=8) --
+# different per-layer KV page sizes, and is_kv_cache_type_uniform /
+# is_kv_cache_page_size_uniform both fail, so there's no path that doesn't
+# raise. This is a genuine checkpoint incompatibility (confirmed by directly
+# diffing both config.json's), not a config error, and there's no workaround
+# flag for it in 0.9.2. So this run uses ngram instead.
+#
+# WHAT THIS COSTS THE EXPERIMENT. Per the theory doc sec 4.1 vs 4.2: ngram is
+# t_d ~= 0 (free draft), which puts this run in Case A, not Case B. Case A's
+# prediction is NOT "k* tracks measured acceptance alpha" (that's EAGLE/
+# draft-model only) -- it's k* = max{k : B < B*(k)}, i.e. ITL should keep
+# falling as k rises for as long as B < B*, and flatten/reverse once B >= B*.
+# That is still the sec 6 headline claim under test here: does the B*
+# crossover ITSELF move for a sparse-MoE target vs the falsified dense
+# Llama-3.1-8B baseline (Axis-4, B* ~20-40, zero measured gamma effect at any
+# tested batch)? This config tests that directly. It does NOT test the
+# interior acceptance-driven k* branch (sec 4.2) -- that needs a KV-head-
+# compatible costed drafter for Mixtral, which was not available at the time
+# this was written.
+#
+# WHY FP8. See a100_80gb_mixtral_eagle.yaml's header for the full derivation:
+# fp16 (~93GB) does not fit one 80GB card; AWQ 4-bit pulls B* back down into
+# the already-falsified dense-model range (W directly scales B*); FP8
+# (~47GB) keeps B* ~ 20-25 at k=4, the real middle ground.
+#
+# NO GATING. RedHatAI/Mixtral-8x7B-Instruct-v0.1-FP8 is ungated and ships its
+# own tokenizer -- the gated mistralai/Mixtral-8x7B-Instruct-v0.1 original is
+# never touched.
+model:
+  target_model: RedHatAI/Mixtral-8x7B-Instruct-v0.1-FP8
+  draft_model: null
+  eagle_model: null
+  spec_method: ngram
+  prompt_lookup_max: 4
+  prompt_lookup_min: 2
+  quantization: null          # compressed-tensors config is auto-detected from
+                               # the checkpoint; vLLM does not need this set
+                               # explicitly, left here so it's visible/overridable
+  tp: 1
+  gpu_mem_util: 0.90
+  max_model_len: 4096
+  dtype: auto                 # let vLLM read bf16/fp8 from the checkpoint
+  enforce_eager: false
+
+runtime:
+  gamma_init: 4                # overridden per-cell by the B*/k sweep script
+  max_num_seqs_init: 24        # overridden per-cell; ~B* at k=4 (see header)
+  tpot_slo_s: 0.040
+  ttft_slo_s: 2.0
+  temperature: 0.0
+  ignore_eos: true
+
+# Sweep cells hold spec/admit STATIC (fixed k, fixed batch cap) rather than
+# closed-loop -- this run measures the ITL(B,k) surface directly to compare
+# against the roofline prediction, not a controller's response to it.
+controller:
+  spec: static
+  admit: static
+  coordination: naive
+  spec_kw:  {gamma: 4}
+  admit_kw: {max_num_seqs: 24}
+  coord_kw: {}

@@ -1,0 +1,69 @@
+# 1x A100 80GB. Mixtral-8x7B-Instruct (MoE) target, FP8 weights, EAGLE v1
+# draft head. Axis-4 roofline follow-up: tests whether B* moves as predicted
+# for a sparse-MoE target (AXIS4_ROOFLINE.md secs 6-7, Experiment 2).
+#
+# WHY FP8, NOT fp16 OR AWQ. fp16 Mixtral-8x7B is ~93GB of weights alone --
+# does not fit on one 80GB card at any gpu_mem_util, let alone with headroom
+# for KV cache + draft head. AWQ 4-bit fits easily (~24GB) but the roofline
+# formula B* = W / ((2*P_active*(k+1)/FLOPS)*BW - L*S_kv) is directly
+# proportional to W: cutting W 4x pulls B* from ~47 (fp16, k=4, iota=1.5) down
+# to ~12-20, i.e. AWQ fights the MoE total/active-ratio effect this run exists
+# to isolate and lands B* back near the already-falsified dense regime
+# (Axis-4, Llama-3.1-8B dense, B* ~20). FP8 (RedHatAI/Mixtral-8x7B-Instruct-
+# v0.1-FP8, compressed-tensors W8A8, ~47GB weights) keeps B* ~ 20-25 at k=4 --
+# a real middle ground, still clearly above the dense baseline, still fits
+# with room for KV cache on one 80GB card.
+#
+# WHY THIS EAGLE HEAD. yuhuili/EAGLE-mixtral-instruct-8x7B is plain EAGLE
+# (v1: single decoder layer, reuses the target's lm_head/embed_tokens),
+# NOT EAGLE3 -- its config.json declares architectures=["LlamaForCausalLM"]
+# with no fused-hidden-state head. replay.py's spec-method dispatch (see
+# _build_engine) previously hardcoded "eagle3" whenever eagle_model was set;
+# that would have silently mis-loaded this head as Eagle3LlamaForCausalLM.
+# Fixed to key off the checkpoint name ("eagle3" in the repo id selects
+# eagle3, else plain eagle) -- this checkpoint's name has no "eagle3"
+# substring so it resolves to plain "eagle" automatically. Override with
+# eagle_method: eagle|eagle3 if a future checkpoint doesn't follow that
+# naming convention. hidden_size (4096) and vocab_size (32000) match the
+# Mixtral target, so the head's lm_head/embed_tokens reuse path applies
+# cleanly (verified against both config.json's directly, not assumed).
+#
+# NO GATING. Unlike Llama-3.1-8B in AXIS4.md, nothing here needs HF_TOKEN:
+# RedHatAI/Mixtral-8x7B-Instruct-v0.1-FP8 is an ungated requantization that
+# ships its own tokenizer (verified via list_repo_files -- tokenizer.json/
+# tokenizer.model/tokenizer_config.json are all present in the repo), so the
+# gated mistralai/Mixtral-8x7B-Instruct-v0.1 original is never touched. The
+# EAGLE head (yuhuili/EAGLE-mixtral-instruct-8x7B) is also ungated.
+model:
+  target_model: RedHatAI/Mixtral-8x7B-Instruct-v0.1-FP8
+  draft_model: null
+  eagle_model: yuhuili/EAGLE-mixtral-instruct-8x7B
+  # eagle_method left unset: the checkpoint name has no "eagle3" substring,
+  # so replay.py's dispatch resolves it to plain "eagle" automatically.
+  quantization: null          # compressed-tensors config is auto-detected from
+                               # the checkpoint; vLLM does not need this set
+                               # explicitly, left here so it's visible/overridable
+  tp: 1
+  gpu_mem_util: 0.90
+  max_model_len: 4096         # EAGLE head declares max_position_embeddings=4096
+  dtype: auto                 # let vLLM read bf16/fp8 from the checkpoint
+  enforce_eager: false
+
+runtime:
+  gamma_init: 4                # overridden per-cell by the B*/k sweep script
+  max_num_seqs_init: 24        # overridden per-cell; ~B* at k=4 (see header)
+  tpot_slo_s: 0.040
+  ttft_slo_s: 2.0
+  temperature: 0.0
+  ignore_eos: true
+
+# Sweep cells hold spec/admit STATIC (fixed k, fixed batch cap) rather than
+# closed-loop -- this run measures the ITL(B,k) surface directly to compare
+# against the roofline prediction, not a controller's response to it.
+controller:
+  spec: static
+  admit: static
+  coordination: naive
+  spec_kw:  {gamma: 4}
+  admit_kw: {max_num_seqs: 24}
+  coord_kw: {}

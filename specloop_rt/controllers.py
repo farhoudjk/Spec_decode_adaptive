@@ -222,12 +222,143 @@ class GatedSpec(Controller):
         return ControlAction(gamma=self.gamma)
 
 
+class HillClimbSpec(Controller):
+    """Batch-gated hill-climb on measured ITL. Monitors obs.tpot_ema (ground
+    truth ITL) and obs.num_running (live batch B), and searches for the
+    ITL-minimizing k directly rather than reading a pre-fit curve or tracking
+    acceptance.
+
+    Why not acceptance (ClosedLoopSpec/GatedSpec) or a static k*(B) lookup:
+    the Mixtral-8x7B-FP8/ngram roofline sweep (results_gpu_sweep/
+    axis4_roofline_moe_fit) found ITL(k) has an INTERIOR optimum at every
+    batch tested (B=8..32), with acceptance falling monotonically across the
+    whole k range -- so acceptance cannot localize the optimum, it only says
+    "less accepted per token as k grows," true on both sides of the peak.
+    The optimal k also shifts with B (roughly 4/6/3/2 across B=8/16/24/32),
+    so any single fixed k is wrong somewhere in that range. This controller
+    hill-climbs the metric that actually has the interior optimum (ITL
+    itself) instead of a proxy that doesn't.
+
+    Why batch-gated, and why a fitted formula rather than the raw peaks: an
+    unconstrained hill-climb wastes early steps probing k values the same
+    sweep already shows are wrong for the current regime. The first version
+    of this window used the raw per-B row-minimum (4/6/3/2 at B=8/16/24/32)
+    -- but those are single-seed point estimates, noisy, and don't move
+    smoothly with B (B=16's "6" breaks monotonicity because its optimum
+    region is genuinely broad/flat, not because k=6 is meaningfully better
+    than k=4 or k=5 there -- all three are within 3% of the row minimum).
+    Fitting ITL(B,k) = c0 + c1*B + c2*k + c3*k^2 + c4*B*k by least squares
+    across all 28 non-baseline cells (not just the 4 row-minima) gives R^2 =
+    0.94 and, from dITL/dk = 0, a closed form:
+
+        k*(B) = -(c2 + c4*B) / (2*c3)  ~=  6.66 - 0.095*B
+
+    This borrows statistical strength from every cell instead of just the
+    single noisiest point per row, and gives a smooth, monotonic k*(B) the
+    raw peaks don't cleanly show. ``window_halfwidth`` (default 2) bounds the
+    live search to k*(B) +- that margin (clamped to [1, 8]) -- a window
+    around the formula's prediction, not the formula's prediction itself.
+    The hill-climb still does the work of finding the actual optimum inside
+    that window; the formula only narrows where it looks, so a live run
+    still self-corrects if real conditions (workload, rate, hardware) diverge
+    from what the fit sweep measured. Re-fit ``_KSTAR_INTERCEPT``/``_KSTAR_SLOPE``
+    against a new B x k sweep before trusting this on a different model/
+    hardware pairing -- these coefficients are specific to Mixtral-8x7B-FP8
+    + ngram on one A100, not a hardware law.
+
+    Algorithm: settle-then-compare, NOT compare-every-period. ``obs.tpot_ema``
+    is itself an EMA (alpha=0.1 per scheduler step, see vllm_patch/
+    scheduler_patch.py's ``_sl_ema["tpot"]``) with a ~10-step time constant --
+    an early version of this controller compared it every ``period=4`` steps
+    and never converged: a smoke test at B=16 showed gamma still bouncing
+    across the ENTIRE search window after 4400+ saturated steps, because at 4
+    steps the EMA has only moved ~34% of the way toward reflecting the new
+    k's true effect (1-(1-0.1)^4). Each comparison was reading transient, not
+    settled, signal. Fixed by holding k fixed for ``settle_steps`` (default
+    40, ~4x the EMA time constant, empirically >95% settled) before every
+    comparison, and comparing against the ITL measured at the END of the
+    PREVIOUS settle window rather than the previous single step.
+
+    Every ``settle_steps`` steps: clamp gamma into the current batch-derived
+    window, read ``obs.tpot_ema`` (now settled), and compare to the reading
+    from the last window. If it improved, keep stepping in the same
+    direction; if it got worse by more than ``deadband_frac`` (relative, so
+    the threshold scales with the operating point), reverse direction.
+    Bounces off window edges rather than getting stuck there.
+    """
+    name = "hillclimb-spec"
+
+    # Least-squares fit of ITL(B,k) = c0 + c1*B + c2*k + c3*k^2 + c4*B*k
+    # across all 28 non-baseline cells of axis4_roofline_moe_fit/grid.json
+    # (R^2 = 0.94). k*(B) = -(c2 + c4*B) / (2*c3) reduces to this linear form.
+    # Mixtral-8x7B-FP8 + ngram, 1x A100-80GB, code/HumanEval, rate=8 -- refit
+    # for a different model/hardware/workload before trusting this elsewhere.
+    _KSTAR_INTERCEPT = 6.66
+    _KSTAR_SLOPE = -0.095
+    _K_HARD_MIN, _K_HARD_MAX = 1, 8
+
+    @classmethod
+    def _kstar(cls, num_running: int) -> float:
+        return cls._KSTAR_INTERCEPT + cls._KSTAR_SLOPE * num_running
+
+    def __init__(self, settle_steps: int = 40, deadband_frac: float = 0.03,
+                 gamma_init: int = 4, window_halfwidth: int = 2):
+        self.settle_steps = max(1, settle_steps)
+        self.deadband_frac = deadband_frac
+        self.window_halfwidth = max(0, window_halfwidth)
+        self.gamma = gamma_init
+        self._direction = 1          # +1 climbing up, -1 climbing down
+        self._last_itl: Optional[float] = None
+        self._window_start_step: Optional[int] = None
+
+    def reset(self):
+        self._direction = 1
+        self._last_itl = None
+        self._window_start_step = None
+
+    def _window(self, num_running: int) -> Tuple[int, int]:
+        center = round(self._kstar(num_running))
+        k_min = _clamp(center - self.window_halfwidth, self._K_HARD_MIN, self._K_HARD_MAX)
+        k_max = _clamp(center + self.window_halfwidth, self._K_HARD_MIN, self._K_HARD_MAX)
+        return int(k_min), int(k_max)
+
+    def on_step(self, obs):
+        if self._window_start_step is None:
+            self._window_start_step = obs.step
+        if obs.step - self._window_start_step < self.settle_steps:
+            return ControlAction(gamma=self.gamma)
+        self._window_start_step = obs.step
+
+        k_min, k_max = self._window(obs.num_running)
+        self.gamma = _clamp(self.gamma, k_min, k_max)
+
+        itl = obs.tpot_ema
+        if self._last_itl is not None and itl > 0:
+            # Relative deadband: at higher ITL operating points a fixed
+            # absolute threshold is too tight (noise dominates); at low ITL
+            # it's too loose (real signal gets ignored as noise).
+            if itl > self._last_itl * (1.0 + self.deadband_frac):
+                self._direction *= -1
+        self._last_itl = itl
+
+        proposed = self.gamma + self._direction
+        if proposed > k_max:
+            self._direction = -1
+            proposed = self.gamma + self._direction
+        elif proposed < k_min:
+            self._direction = 1
+            proposed = self.gamma + self._direction
+        self.gamma = _clamp(proposed, k_min, k_max)
+        return ControlAction(gamma=self.gamma)
+
+
 SPEC_CONTROLLERS = {
     "static": StaticSpec,
     "static-table": StaticTableSpec,
     "closed-loop": ClosedLoopSpec,
     "dsde": DSDESpec,
     "gated": GatedSpec,
+    "hillclimb": HillClimbSpec,
 }
 
 
