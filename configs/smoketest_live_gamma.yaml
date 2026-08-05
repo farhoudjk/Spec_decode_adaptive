@@ -1,0 +1,32 @@
+# Fast, ungated smoke-test config for the live_gamma_patch fix -- NOT a real
+# experiment config. Qwen2.5-0.5B (small, ungated, seconds to download) + ngram
+# so the freeze-bug patch (specloop_rt/vllm_patch/live_gamma_patch.py) can be
+# validated end-to-end on real vLLM/GPU without waiting on Mixtral (44GB) or
+# gated Llama-3.1-8B downloads. See tests/test_live_gamma_patch.py for the
+# GPU-free version of this same claim.
+model:
+  target_model: Qwen/Qwen2.5-0.5B-Instruct
+  draft_model: null
+  spec_method: ngram
+  eagle_model: null
+  tp: 1
+  gpu_mem_util: 0.5
+  max_model_len: 2048
+  dtype: float16
+  enforce_eager: true
+
+runtime:
+  gamma_init: 4
+  max_num_seqs_init: 16
+  tpot_slo_s: 0.040
+  ttft_slo_s: 2.0
+  temperature: 0.0
+  ignore_eos: true
+
+controller:
+  spec: static
+  admit: static
+  coordination: naive
+  spec_kw: {gamma: 4}
+  admit_kw: {max_num_seqs: 16}
+  coord_kw: {}

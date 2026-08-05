@@ -87,6 +87,22 @@ class SpecLoopScheduler(_V1Scheduler):
                 "vLLM v1 scheduler import failed; specloop patch is pinned to "
                 f"the v0.9.x v1 engine. Original error: {_IMPORT_ERR}. "
                 "See vllm_patch/PROVENANCE.md for the API this targets.")
+        # Fixes the freeze bug (AXIS5_ROOFLINE_MOE.md#4): vLLM's proposers
+        # cache num_speculative_tokens at construction and never re-read it.
+        # This MUST run from inside Scheduler.__init__, not from replay.py's
+        # client process -- see live_gamma_patch.py's module docstring
+        # ("CALL SITE") for why the client-process call site was tried first
+        # and reverted (it forces vLLM's EngineCore child to `spawn` instead
+        # of `fork`, which breaks configure()'s process-global propagation).
+        # Scheduler.__init__ always runs INSIDE the EngineCore process
+        # regardless of fork/spawn, so this is the one reliable call site.
+        # apply() no-ops (via _VLLM_SPEC_DECODE_OK below) when
+        # vllm.v1.spec_decode isn't importable -- e.g. tests/
+        # test_patch_contract.py's stub vllm tree fakes enough of
+        # vllm.v1.core.sched.scheduler to pass _VLLM_OK above without
+        # providing vllm.v1.spec_decode at all.
+        from specloop_rt.vllm_patch.live_gamma_patch import apply as _apply_live_gamma
+        _apply_live_gamma()
         super().__init__(*args, **kwargs)
         self._sl_step = 0
         self._sl_ema = {

@@ -50,6 +50,21 @@ def _build_engine(cfg: dict):
     from vllm import AsyncEngineArgs
     from vllm.v1.engine.async_llm import AsyncLLM  # v1 async engine
 
+    # NOTE: live_gamma_patch is applied INSIDE SpecLoopScheduler.__init__
+    # (specloop_rt/vllm_patch/scheduler_patch.py), not here. It must run
+    # inside the EngineCore process, which for AsyncLLM is a CHILD process
+    # (forked or spawned depending on whether CUDA is already initialized in
+    # this, the client, process -- see vllm.utils.get_mp_context). Applying
+    # it here in the client would import vllm.v1.spec_decode.eagle, which
+    # itself initializes a CUDA context as an import side effect -- that
+    # alone flips vLLM from fork to spawn for the EngineCore child, which
+    # breaks the (separate, pre-existing) mechanism configure() below relies
+    # on to reach the scheduler's process-global controller/telemetry state
+    # (fork inherits parent memory; spawn does not). Discovered by running
+    # this exact sequence and finding steps.jsonl came back with zero real
+    # rows -- confirmed via a standalone spawn test that the child's
+    # _CONTROLLER/_TELEMETRY globals were unset. Do not import either
+    # proposer class here for any reason.
     m = cfg["model"]
     gamma_init = cfg["runtime"].get("gamma_init", 4)
     spec = None

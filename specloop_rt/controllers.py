@@ -302,19 +302,39 @@ class HillClimbSpec(Controller):
         return cls._KSTAR_INTERCEPT + cls._KSTAR_SLOPE * num_running
 
     def __init__(self, settle_steps: int = 40, deadband_frac: float = 0.03,
-                 gamma_init: int = 4, window_halfwidth: int = 2):
+                 gamma_init: int = 4, window_halfwidth: int = 2,
+                 avg_last_n: Optional[int] = None):
         self.settle_steps = max(1, settle_steps)
         self.deadband_frac = deadband_frac
         self.window_halfwidth = max(0, window_halfwidth)
+        # Comparisons average the last avg_last_n readings collected during
+        # each settle window, not a single point-sample at the window's end.
+        # Default: the whole window. WHY: found via offline replay against
+        # real B=32 tpot_ema traces (results_gpu_sweep/
+        # axis5_hillclimb_vs_static_live) after a live GPU run showed this
+        # controller does not beat the best static k -- comparing single
+        # readings is comparing noise (measured tpot_ema stdev ~7.7% of the
+        # mean at B=32, i.e. LARGER than deadband_frac's default 3%), so a
+        # single sample cannot reliably distinguish adjacent k's whose true
+        # ITL means differ by a similar few percent. Averaging avg_last_n
+        # samples cuts comparison noise by ~sqrt(n); replay showed n=40
+        # (the full settle window) reduces steady-state ITL by ~2.6% vs
+        # n=1 and collapses the steady-state gamma histogram from a 5-wide
+        # spread (2-6) down to 2 adjacent values, without changing
+        # settle_steps or adding wall-clock cost (the samples are free --
+        # every step in the settle window already computes obs.tpot_ema).
+        self.avg_last_n = avg_last_n if avg_last_n is not None else self.settle_steps
         self.gamma = gamma_init
         self._direction = 1          # +1 climbing up, -1 climbing down
         self._last_itl: Optional[float] = None
         self._window_start_step: Optional[int] = None
+        self._readings: List[float] = []
 
     def reset(self):
         self._direction = 1
         self._last_itl = None
         self._window_start_step = None
+        self._readings = []
 
     def _window(self, num_running: int) -> Tuple[int, int]:
         center = round(self._kstar(num_running))
@@ -325,30 +345,46 @@ class HillClimbSpec(Controller):
     def on_step(self, obs):
         if self._window_start_step is None:
             self._window_start_step = obs.step
-        if obs.step - self._window_start_step < self.settle_steps:
+        elapsed = obs.step - self._window_start_step
+        # collect readings for the trailing avg_last_n steps of this window
+        if elapsed >= self.settle_steps - self.avg_last_n:
+            self._readings.append(obs.tpot_ema)
+        if elapsed < self.settle_steps:
             return ControlAction(gamma=self.gamma)
         self._window_start_step = obs.step
 
         k_min, k_max = self._window(obs.num_running)
         self.gamma = _clamp(self.gamma, k_min, k_max)
 
-        itl = obs.tpot_ema
+        itl = sum(self._readings) / len(self._readings) if self._readings else obs.tpot_ema
+        self._readings = []
+        # Hold position when the windowed comparison is ambiguous (within
+        # the deadband either direction) instead of always taking another
+        # step in the current direction -- without this, a controller
+        # sitting exactly at the optimum still takes a random-walk step
+        # every window purely from residual averaging noise, which is what
+        # produced the persistent 2-3-value oscillation this fix targets.
+        move = True
         if self._last_itl is not None and itl > 0:
             # Relative deadband: at higher ITL operating points a fixed
             # absolute threshold is too tight (noise dominates); at low ITL
             # it's too loose (real signal gets ignored as noise).
-            if itl > self._last_itl * (1.0 + self.deadband_frac):
+            rel_change = (itl - self._last_itl) / self._last_itl
+            if rel_change > self.deadband_frac:
                 self._direction *= -1
+            elif abs(rel_change) <= self.deadband_frac:
+                move = False
         self._last_itl = itl
 
-        proposed = self.gamma + self._direction
-        if proposed > k_max:
-            self._direction = -1
+        if move:
             proposed = self.gamma + self._direction
-        elif proposed < k_min:
-            self._direction = 1
-            proposed = self.gamma + self._direction
-        self.gamma = _clamp(proposed, k_min, k_max)
+            if proposed > k_max:
+                self._direction = -1
+                proposed = self.gamma + self._direction
+            elif proposed < k_min:
+                self._direction = 1
+                proposed = self.gamma + self._direction
+            self.gamma = _clamp(proposed, k_min, k_max)
         return ControlAction(gamma=self.gamma)
 
 

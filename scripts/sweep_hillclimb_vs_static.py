@@ -64,6 +64,22 @@ def run_cell(base_cfg, arm, B, rtype, rate, duration, seed, out_dir):
     cfg = copy.deepcopy(base_cfg)
     spec = build_arm(arm, B)
     cfg["runtime"]["max_num_seqs_init"] = B
+    # NOTE: cfg["runtime"]["gamma_init"] is what _build_engine (replay.py)
+    # reads to construct speculative_config -- spec["controller"]["spec_kw"]
+    # ["gamma_init"] is a SEPARATE field the engine-builder never reads. Before
+    # the live_gamma_patch (specloop_rt/vllm_patch/live_gamma_patch.py) fixed
+    # the underlying proposer freeze, every cell in this sweep silently ran at
+    # whatever gamma_init the base config had (4), regardless of the arm's
+    # configured k -- see AXIS5_ROOFLINE_MOE.md#4. Setting it here for both
+    # static-k arms (their real k) and hillclimb (its starting gamma) keeps
+    # engine-construction k consistent with what each arm claims, on top of
+    # (not instead of) the live-actuation fix -- static's k should never move
+    # after construction, and now genuinely won't.
+    static_k = spec["controller"]["spec_kw"].get("gamma")
+    hillclimb_init = spec["controller"]["spec_kw"].get("gamma_init")
+    cfg["runtime"]["gamma_init"] = (static_k if static_k is not None
+                                    else hillclimb_init if hillclimb_init is not None
+                                    else cfg["runtime"].get("gamma_init", 4))
     cfg["controller"] = copy.deepcopy(spec["controller"])
     cfg_path = os.path.join(out_dir, f"cfg_{arm}_B{B}_{rtype}_r{rate}_s{seed}.yaml")
     with open(cfg_path, "w") as f:

@@ -3,8 +3,22 @@
 Standalone follow-up to Axis-3. Everything needed to reproduce the sweep is in
 this branch; the only external dependencies are the model weights and a GPU.
 
-**Headline result: all ten admission/γ comparisons tie the static baseline, and
-the null is structural rather than statistical** — `n_finished` is bit-identical
+**SUPERSEDED, see AXIS5_ROOFLINE_MOE.md §0 and §4.3.** This doc's headline
+γ-null finding below rests on vLLM 0.9.2's proposers never actually receiving
+the actuated γ (a bug found and confirmed in the Axis-5 follow-up session,
+then FIXED and GPU-validated live in a further follow-up — see
+`specloop_rt/vllm_patch/live_gamma_patch.py`). A confirming test with real
+per-γ engine rebuilds (AXIS5_ROOFLINE_MOE.md §4.3) shows EAGLE + dense
+Llama-3.1-8B has a real 23-24% ITL swing with an interior optimum at γ=4 —
+directly contradicting "the null is structural" below. The admission-side
+findings in this doc (predictive-wait sensor, load-shedding accounting
+discipline) are UNAFFECTED by this bug and remain valid; only the γ/EAGLE
+speculation-depth conclusion needs to be read as superseded pending a
+full re-run with the fix applied.
+
+**Original headline result (γ side now superseded, admission side still
+valid): all ten admission/γ comparisons tie the static baseline, and the null
+is structural rather than statistical** — `n_finished` is bit-identical
 across all five non-shedding arms in every one of the six seed×rate cells.
 
 - `reports/axis4_predictive_eagle_report.html` — results
