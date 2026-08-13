@@ -42,6 +42,36 @@ from specloop_rt.workload import homogeneous
 HF_HOME = "/root/spec_decode_env/hf_cache"
 
 
+def filter_overlong(trace: list, context_length: int, max_new_tokens: int) -> list:
+    """Drop trace requests whose prompt is too long to fit the server's
+    fixed context budget alongside its completion. Needed for workloads
+    like `reason` (CNN-DailyMail articles, specloop_rt.real_corpus) where
+    raw article length has no cap and a real fraction of prompts (~7% in
+    one check) exceed context_length once tokenized -- those requests get
+    a 400 from /generate and crash the whole cell's run_open_loop, not
+    just that one request.
+
+    Uses a conservative 4-chars-per-token estimate (no tokenizer available
+    client-side) and reserves max_new_tokens + a fixed safety margin for
+    chat-template/special-token overhead observed in practice (a request
+    logged as failing needed 2088 total against a 2048 cap while its raw
+    prompt char count implied fewer tokens than that by the 4-char
+    estimate alone -- the margin absorbs that gap). This is deliberately
+    conservative: some requests just under the real limit may still be
+    dropped, which is fine here since the trace only needs to be
+    representative, not exhaustive of the corpus.
+    """
+    safety_margin_tokens = 100
+    budget_chars = max(0, context_length - max_new_tokens - safety_margin_tokens) * 4
+    kept = [r for r in trace if len(r.prompt) <= budget_chars]
+    dropped = len(trace) - len(kept)
+    if dropped:
+        print(f".. dropped {dropped}/{len(trace)} overlong prompts "
+              f"(> ~{budget_chars} chars) to fit context_length={context_length}",
+              flush=True)
+    return kept
+
+
 def wait_for_server(port: int, proc: subprocess.Popen, timeout_s: int = 900) -> None:
     deadline = time.time() + timeout_s
     while time.time() < deadline:
@@ -199,6 +229,7 @@ def run_cell(model_path, draft_path, num_steps, topk, num_draft_tokens,
         wait_for_server(port, proc)
         trace = homogeneous(rtype=rtype, rate=rate, duration=duration, seed=0,
                             use_real_corpus=True)
+        trace = filter_overlong(trace, context_length, max_new_tokens)
         # warm up CUDA graphs / radix cache with one throwaway request
         send_one(port, trace[0].prompt, 8)
         rows = run_open_loop(port, trace, max_new_tokens)

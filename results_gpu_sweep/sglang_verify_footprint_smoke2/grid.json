@@ -1,0 +1,21 @@
+{
+  "steps3_topk4_B16_rate4_code": {
+    "num_steps": 3,
+    "eagle_topk": 4,
+    "B": 16,
+    "rate": 4.0,
+    "rtype": "code",
+    "n": 54,
+    "wall_p50": 0.6850563762709498,
+    "wall_p95": 1.0056326990947124,
+    "per_token_s_p50": 0.010826048004673794,
+    "mean_accept_rate": 0.16199032509886188,
+    "mean_accept_length": 2.906772493408375,
+    "verify_layer_calls": 26256,
+    "mean_verify_batch_tokens": 29.636197440585008,
+    "mean_distinct_experts": 46.740326020719074,
+    "p95_distinct_experts": 81.0,
+    "mean_max_tokens_per_expert": 24.020262035344302,
+    "mean_imbalance": 4.406670410912299
+  }
+}

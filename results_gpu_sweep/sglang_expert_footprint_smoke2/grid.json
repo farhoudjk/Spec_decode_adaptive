@@ -1,0 +1,15 @@
+{
+  "steps3_topk4_B16_rate4_code": {
+    "num_steps": 3,
+    "eagle_topk": 4,
+    "B": 16,
+    "rate": 4.0,
+    "rtype": "code",
+    "n": 54,
+    "wall_p50": 0.7886070841923356,
+    "wall_p95": 1.6295371755026278,
+    "per_token_s_p50": 0.012321985690505244,
+    "mean_accept_rate": 0.16324622855069648,
+    "mean_accept_length": 2.9304113143690036
+  }
+}
