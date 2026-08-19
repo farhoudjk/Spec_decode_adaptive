@@ -65,7 +65,8 @@ def launch_server_with_verify_hook(model_path: str, draft_path: str, num_steps: 
                                     topk: int, num_draft_tokens: int, context_length: int,
                                     max_running_requests: int, port: int, log_path: str,
                                     hook_out_path: str, cell_tag: str, num_layers: int,
-                                    topk_size: int, dtype: str = "bfloat16") -> subprocess.Popen:
+                                    topk_size: int, dtype: str = "bfloat16",
+                                    moe_runner_backend: str = None) -> subprocess.Popen:
     """Same launch as sweep_sglang_depth_width.launch_server, plus the env
     vars verify_batch_expert_hooks.py / sitecustomize.py need. See
     specloop_rt/sglang_patch/sitecustomize.py's docstring for why both
@@ -105,6 +106,14 @@ def launch_server_with_verify_hook(model_path: str, draft_path: str, num_steps: 
         "--host", "0.0.0.0",
         "--enable-return-routed-experts",  # constructs the capturer at all
     ]
+    if moe_runner_backend:
+        # some architectures (e.g. gpt-oss's mxfp4 config) auto-select a
+        # kernel path (triton_kernel) whose TopK.forward_cuda early-returns
+        # before capture_routed_experts_if_allowed() ever fires, leaving the
+        # capturer's device buffer at its zeros-init value for every layer --
+        # forcing a backend that routes through select_experts() restores
+        # correct capture. See AXIS8.md's gpt-oss section for the trace.
+        cmd += ["--moe-runner-backend", moe_runner_backend]
     logf = open(log_path, "w")
     return subprocess.Popen(cmd, stdout=logf, stderr=subprocess.STDOUT, env=env,
                             start_new_session=True)
@@ -148,7 +157,8 @@ def aggregate_hook_log(hook_out_path: str) -> dict:
 
 def run_cell(model_path, draft_path, num_steps, topk, num_draft_tokens,
              context_length, batch, rate, duration, rtype, max_new_tokens,
-             port, out_dir, tag, num_layers, topk_size, dtype="bfloat16"):
+             port, out_dir, tag, num_layers, topk_size, dtype="bfloat16",
+             request_timeout_s=180, moe_runner_backend=None):
     effective_draft_tokens = min(num_draft_tokens, num_steps * topk + 1)
     log_path = os.path.join(out_dir, f"server_{tag}.log")
     hook_out_path = os.path.join(out_dir, f"hooklog_{tag}.jsonl")
@@ -157,14 +167,15 @@ def run_cell(model_path, draft_path, num_steps, topk, num_draft_tokens,
     proc = launch_server_with_verify_hook(model_path, draft_path, num_steps, topk,
                                           effective_draft_tokens, context_length, batch,
                                           port, log_path, hook_out_path, tag,
-                                          num_layers, topk_size, dtype=dtype)
+                                          num_layers, topk_size, dtype=dtype,
+                                          moe_runner_backend=moe_runner_backend)
     try:
         wait_for_server(port, proc)
         trace = homogeneous(rtype=rtype, rate=rate, duration=duration, seed=0,
                             use_real_corpus=True)
         trace = filter_overlong(trace, context_length, max_new_tokens)
-        send_one(port, trace[0].prompt, 8)
-        rows = run_open_loop(port, trace, max_new_tokens)
+        send_one(port, trace[0].prompt, 8, request_timeout_s=request_timeout_s)
+        rows = run_open_loop(port, trace, max_new_tokens, request_timeout_s=request_timeout_s)
         summary = summarize(rows)
     finally:
         stop_server(proc, port)
@@ -206,6 +217,14 @@ def main(argv=None):
     p.add_argument("--duration", type=float, default=30.0)
     p.add_argument("--rtype", default="code")
     p.add_argument("--max-new-tokens", type=int, default=128)
+    p.add_argument("--request-timeout", type=float, default=180,
+                   help="per-request HTTP client timeout in seconds; raise for "
+                        "low-accept-rate drafts where queues drain slowly")
+    p.add_argument("--moe-runner-backend", default=None,
+                   help="force a specific SGLang MoE kernel backend (e.g. 'triton'). "
+                        "Needed for architectures whose auto-selected backend (e.g. "
+                        "gpt-oss's triton_kernel) bypasses select_experts() and never "
+                        "fires the expert-capture hook.")
     p.add_argument("--port", type=int, default=30030)
     p.add_argument("--out", default="results_gpu_sweep/sglang_verify_footprint_qwen3moe")
     a = p.parse_args(argv)
@@ -227,7 +246,9 @@ def main(argv=None):
                         m = run_cell(a.model_path, a.draft_path, steps, topk,
                                     a.num_draft_tokens, a.context_length, B, rate,
                                     a.duration, a.rtype, a.max_new_tokens, a.port,
-                                    a.out, key, a.num_layers, a.topk_size, dtype=a.dtype)
+                                    a.out, key, a.num_layers, a.topk_size, dtype=a.dtype,
+                                    request_timeout_s=a.request_timeout,
+                                    moe_runner_backend=a.moe_runner_backend)
                         grid[key] = {"num_steps": steps, "eagle_topk": topk, "B": B,
                                     "rate": rate, "rtype": a.rtype, **m}
                     except Exception as e:

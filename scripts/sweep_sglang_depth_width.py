@@ -142,13 +142,14 @@ def wait_for_port_free(port: int, timeout_s: int = 60) -> None:
     print(f"WARNING: port {port} still in use after {timeout_s}s", flush=True)
 
 
-def send_one(port: int, prompt: str, max_new_tokens: int, arrival_s: float = None) -> dict:
+def send_one(port: int, prompt: str, max_new_tokens: int, arrival_s: float = None,
+             request_timeout_s: float = 180) -> dict:
     submit_wall = time.monotonic()
     r = requests.post(
         f"http://localhost:{port}/generate",
         json={"text": prompt,
               "sampling_params": {"temperature": 0, "max_new_tokens": max_new_tokens}},
-        timeout=180,
+        timeout=request_timeout_s,
     )
     wall = time.monotonic() - submit_wall
     r.raise_for_status()
@@ -167,7 +168,8 @@ def send_one(port: int, prompt: str, max_new_tokens: int, arrival_s: float = Non
     }
 
 
-def run_open_loop(port: int, trace: list, max_new_tokens: int) -> list:
+def run_open_loop(port: int, trace: list, max_new_tokens: int,
+                   request_timeout_s: float = 180) -> list:
     """Dispatch requests paced to trace[i].arrival_s (open-loop, matching
     specloop_rt.replay's arrival-time pacing) rather than firing all at once.
     The pool is sized to the trace length so the client is never the
@@ -184,7 +186,8 @@ def run_open_loop(port: int, trace: list, max_new_tokens: int) -> list:
         if dt > 0:
             time.sleep(dt)
         n_tok = min(req.max_tokens, max_new_tokens)
-        results[i] = send_one(port, req.prompt, n_tok, arrival_s=req.arrival_s)
+        results[i] = send_one(port, req.prompt, n_tok, arrival_s=req.arrival_s,
+                               request_timeout_s=request_timeout_s)
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=max(1, len(trace))) as ex:
         futs = [ex.submit(submit_one, i, req) for i, req in enumerate(trace)]
@@ -214,7 +217,7 @@ def summarize(rows: list) -> dict:
 
 def run_cell(model_path, draft_path, num_steps, topk, num_draft_tokens,
              context_length, batch, rate, duration, rtype, max_new_tokens,
-             port, out_dir, tag, dtype="bfloat16"):
+             port, out_dir, tag, dtype="bfloat16", request_timeout_s=180):
     # organize_draft_results (eagle_utils.py) does
     # torch.topk(score_list, num_draft_token - 1) over a last dim of size
     # topk * num_steps (see _draft_reorganize_cache_loc's expected shape) --
@@ -231,8 +234,8 @@ def run_cell(model_path, draft_path, num_steps, topk, num_draft_tokens,
                             use_real_corpus=True)
         trace = filter_overlong(trace, context_length, max_new_tokens)
         # warm up CUDA graphs / radix cache with one throwaway request
-        send_one(port, trace[0].prompt, 8)
-        rows = run_open_loop(port, trace, max_new_tokens)
+        send_one(port, trace[0].prompt, 8, request_timeout_s=request_timeout_s)
+        rows = run_open_loop(port, trace, max_new_tokens, request_timeout_s=request_timeout_s)
         return summarize(rows)
     finally:
         stop_server(proc, port)
@@ -254,6 +257,9 @@ def main(argv=None):
                    help="seconds of trace per cell")
     p.add_argument("--rtype", default="code")
     p.add_argument("--max-new-tokens", type=int, default=128)
+    p.add_argument("--request-timeout", type=float, default=180,
+                   help="per-request HTTP client timeout in seconds; raise for "
+                        "low-accept-rate drafts where queues drain slowly")
     p.add_argument("--port", type=int, default=30010)
     p.add_argument("--out", default="results_gpu_sweep/sglang_depth_width")
     a = p.parse_args(argv)
@@ -275,7 +281,8 @@ def main(argv=None):
                         m = run_cell(a.model_path, a.draft_path, steps, topk,
                                     a.num_draft_tokens, a.context_length, B, rate,
                                     a.duration, a.rtype, a.max_new_tokens, a.port,
-                                    a.out, key, dtype=a.dtype)
+                                    a.out, key, dtype=a.dtype,
+                                    request_timeout_s=a.request_timeout)
                         grid[key] = {"num_steps": steps, "eagle_topk": topk, "B": B,
                                     "rate": rate, "rtype": a.rtype, **m}
                     except Exception as e:
