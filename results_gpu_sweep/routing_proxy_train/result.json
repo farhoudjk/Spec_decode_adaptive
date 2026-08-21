@@ -1,0 +1,610 @@
+{
+  "config": {
+    "n_prompts_per_workload": 150,
+    "holdout_workload": "reason",
+    "context_tokens": 512,
+    "train_frac": 0.85,
+    "epochs": 60,
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "topk": 8,
+    "seed": 0,
+    "out_dir": "results_gpu_sweep/routing_proxy_train",
+    "hf_home": "/root/hf_cache"
+  },
+  "n_train": 56206,
+  "in_distribution": {
+    "n_tokens": 9919,
+    "mean_probe_jaccard": 0.4587392935689098,
+    "mean_freq_baseline_jaccard": 0.10272469434432058,
+    "mean_random_baseline_jaccard": 0.034395169582687825,
+    "per_layer": [
+      {
+        "layer": 0,
+        "probe_jaccard": 0.4116389060637556,
+        "freq_baseline_jaccard": 0.0754512282085684,
+        "random_baseline_jaccard": 0.03388996660495739
+      },
+      {
+        "layer": 1,
+        "probe_jaccard": 0.43609179296244804,
+        "freq_baseline_jaccard": 0.07798766411530465,
+        "random_baseline_jaccard": 0.03452359718112248
+      },
+      {
+        "layer": 2,
+        "probe_jaccard": 0.4339096755872674,
+        "freq_baseline_jaccard": 0.09622967011817454,
+        "random_baseline_jaccard": 0.033900749920509274
+      },
+      {
+        "layer": 3,
+        "probe_jaccard": 0.4384090419779521,
+        "freq_baseline_jaccard": 0.0861072455789742,
+        "random_baseline_jaccard": 0.03508248313168099
+      },
+      {
+        "layer": 4,
+        "probe_jaccard": 0.4690616280695856,
+        "freq_baseline_jaccard": 0.10170562710134254,
+        "random_baseline_jaccard": 0.03429892015434843
+      },
+      {
+        "layer": 5,
+        "probe_jaccard": 0.4513466773170329,
+        "freq_baseline_jaccard": 0.09423235970267814,
+        "random_baseline_jaccard": 0.03526284516303603
+      },
+      {
+        "layer": 6,
+        "probe_jaccard": 0.4894334485623803,
+        "freq_baseline_jaccard": 0.11576534498200562,
+        "random_baseline_jaccard": 0.034117080956479404
+      },
+      {
+        "layer": 7,
+        "probe_jaccard": 0.5082450678780831,
+        "freq_baseline_jaccard": 0.13106339840889963,
+        "random_baseline_jaccard": 0.03429360235489822
+      },
+      {
+        "layer": 8,
+        "probe_jaccard": 0.47163677469151033,
+        "freq_baseline_jaccard": 0.0909592541410344,
+        "random_baseline_jaccard": 0.034307783153432234
+      },
+      {
+        "layer": 9,
+        "probe_jaccard": 0.4916856642030437,
+        "freq_baseline_jaccard": 0.11816455211959379,
+        "random_baseline_jaccard": 0.034956259253062706
+      },
+      {
+        "layer": 10,
+        "probe_jaccard": 0.44462791523987016,
+        "freq_baseline_jaccard": 0.08976950394432837,
+        "random_baseline_jaccard": 0.034254605158929585
+      },
+      {
+        "layer": 11,
+        "probe_jaccard": 0.4413203402214378,
+        "freq_baseline_jaccard": 0.07610650598855581,
+        "random_baseline_jaccard": 0.03437610210470311
+      },
+      {
+        "layer": 12,
+        "probe_jaccard": 0.4489587190262641,
+        "freq_baseline_jaccard": 0.11082580087520699,
+        "random_baseline_jaccard": 0.03477482291878839
+      },
+      {
+        "layer": 13,
+        "probe_jaccard": 0.449055703960432,
+        "freq_baseline_jaccard": 0.09328854877801984,
+        "random_baseline_jaccard": 0.0345966027788786
+      },
+      {
+        "layer": 14,
+        "probe_jaccard": 0.456503183612769,
+        "freq_baseline_jaccard": 0.10893005908633331,
+        "random_baseline_jaccard": 0.0332753176184967
+      },
+      {
+        "layer": 15,
+        "probe_jaccard": 0.45906287146331226,
+        "freq_baseline_jaccard": 0.10298805606801442,
+        "random_baseline_jaccard": 0.03371743355612624
+      },
+      {
+        "layer": 16,
+        "probe_jaccard": 0.4662461531702323,
+        "freq_baseline_jaccard": 0.12458659396859242,
+        "random_baseline_jaccard": 0.03345915099115958
+      },
+      {
+        "layer": 17,
+        "probe_jaccard": 0.45726225695980416,
+        "freq_baseline_jaccard": 0.11098708731535295,
+        "random_baseline_jaccard": 0.03442529174961808
+      },
+      {
+        "layer": 18,
+        "probe_jaccard": 0.5050285915090663,
+        "freq_baseline_jaccard": 0.11954502465643314,
+        "random_baseline_jaccard": 0.034176980058620694
+      },
+      {
+        "layer": 19,
+        "probe_jaccard": 0.5158265824865095,
+        "freq_baseline_jaccard": 0.12570849522155575,
+        "random_baseline_jaccard": 0.03425116738958796
+      },
+      {
+        "layer": 20,
+        "probe_jaccard": 0.47271584706809266,
+        "freq_baseline_jaccard": 0.09631897826273111,
+        "random_baseline_jaccard": 0.035528808993875435
+      },
+      {
+        "layer": 21,
+        "probe_jaccard": 0.4842212620415943,
+        "freq_baseline_jaccard": 0.12002041712698423,
+        "random_baseline_jaccard": 0.034525812930893414
+      },
+      {
+        "layer": 22,
+        "probe_jaccard": 0.4306567266341488,
+        "freq_baseline_jaccard": 0.09337051361449866,
+        "random_baseline_jaccard": 0.03413222191324754
+      },
+      {
+        "layer": 23,
+        "probe_jaccard": 0.4243242861248764,
+        "freq_baseline_jaccard": 0.07751910689707514,
+        "random_baseline_jaccard": 0.034361478156214834
+      },
+      {
+        "layer": 24,
+        "probe_jaccard": 0.44353332813863033,
+        "freq_baseline_jaccard": 0.11227870828637611,
+        "random_baseline_jaccard": 0.03489872361734384
+      },
+      {
+        "layer": 25,
+        "probe_jaccard": 0.4349618277231977,
+        "freq_baseline_jaccard": 0.10152182730064441,
+        "random_baseline_jaccard": 0.0333103264648777
+      },
+      {
+        "layer": 26,
+        "probe_jaccard": 0.4632886599012166,
+        "freq_baseline_jaccard": 0.09858873189855352,
+        "random_baseline_jaccard": 0.03380392165551886
+      },
+      {
+        "layer": 27,
+        "probe_jaccard": 0.45686022371172064,
+        "freq_baseline_jaccard": 0.1006994484159605,
+        "random_baseline_jaccard": 0.03529556440132041
+      },
+      {
+        "layer": 28,
+        "probe_jaccard": 0.4695306351521629,
+        "freq_baseline_jaccard": 0.1222289489251932,
+        "random_baseline_jaccard": 0.03428710282223679
+      },
+      {
+        "layer": 29,
+        "probe_jaccard": 0.46188473622690207,
+        "freq_baseline_jaccard": 0.10650569311725525,
+        "random_baseline_jaccard": 0.03430726614515237
+      },
+      {
+        "layer": 30,
+        "probe_jaccard": 0.4942450431914968,
+        "freq_baseline_jaccard": 0.10634149934483522,
+        "random_baseline_jaccard": 0.034126682538820216
+      },
+      {
+        "layer": 31,
+        "probe_jaccard": 0.5068584673383414,
+        "freq_baseline_jaccard": 0.11785867122091118,
+        "random_baseline_jaccard": 0.03399839062708236
+      },
+      {
+        "layer": 32,
+        "probe_jaccard": 0.4711720536299546,
+        "freq_baseline_jaccard": 0.09098307009387627,
+        "random_baseline_jaccard": 0.03441509930067183
+      },
+      {
+        "layer": 33,
+        "probe_jaccard": 0.4861725766252326,
+        "freq_baseline_jaccard": 0.10977257443635799,
+        "random_baseline_jaccard": 0.03436871627213329
+      },
+      {
+        "layer": 34,
+        "probe_jaccard": 0.4381315472957782,
+        "freq_baseline_jaccard": 0.10156668616191883,
+        "random_baseline_jaccard": 0.034978376464412674
+      },
+      {
+        "layer": 35,
+        "probe_jaccard": 0.4325571349263281,
+        "freq_baseline_jaccard": 0.072362264881678,
+        "random_baseline_jaccard": 0.03426819509085798
+      },
+      {
+        "layer": 36,
+        "probe_jaccard": 0.45890747354604244,
+        "freq_baseline_jaccard": 0.10341384931566247,
+        "random_baseline_jaccard": 0.03451923953990624
+      },
+      {
+        "layer": 37,
+        "probe_jaccard": 0.449135871577649,
+        "freq_baseline_jaccard": 0.09927575532980058,
+        "random_baseline_jaccard": 0.035080932106841343
+      },
+      {
+        "layer": 38,
+        "probe_jaccard": 0.467252121471292,
+        "freq_baseline_jaccard": 0.11039947047609883,
+        "random_baseline_jaccard": 0.03464871318485532
+      },
+      {
+        "layer": 39,
+        "probe_jaccard": 0.45427109100866125,
+        "freq_baseline_jaccard": 0.08712777292271835,
+        "random_baseline_jaccard": 0.03489347967621929
+      },
+      {
+        "layer": 40,
+        "probe_jaccard": 0.4601181838403281,
+        "freq_baseline_jaccard": 0.10583910158464803,
+        "random_baseline_jaccard": 0.034410076934524345
+      },
+      {
+        "layer": 41,
+        "probe_jaccard": 0.46489072755833066,
+        "freq_baseline_jaccard": 0.10872614296347301,
+        "random_baseline_jaccard": 0.03402475804935666
+      },
+      {
+        "layer": 42,
+        "probe_jaccard": 0.43610813803373766,
+        "freq_baseline_jaccard": 0.09287301736138094,
+        "random_baseline_jaccard": 0.03441421300076338
+      },
+      {
+        "layer": 43,
+        "probe_jaccard": 0.448116109674731,
+        "freq_baseline_jaccard": 0.09949582628281081,
+        "random_baseline_jaccard": 0.03431487355269929
+      },
+      {
+        "layer": 44,
+        "probe_jaccard": 0.45770633126212995,
+        "freq_baseline_jaccard": 0.1036471610521501,
+        "random_baseline_jaccard": 0.034504320158115206
+      },
+      {
+        "layer": 45,
+        "probe_jaccard": 0.4626277554596904,
+        "freq_baseline_jaccard": 0.12266408860824093,
+        "random_baseline_jaccard": 0.034404242126794105
+      },
+      {
+        "layer": 46,
+        "probe_jaccard": 0.4213316251021735,
+        "freq_baseline_jaccard": 0.11718077041195002,
+        "random_baseline_jaccard": 0.034557719727595075
+      },
+      {
+        "layer": 47,
+        "probe_jaccard": 0.4225553120804732,
+        "freq_baseline_jaccard": 0.10180321185463524,
+        "random_baseline_jaccard": 0.034648122318249694
+      }
+    ]
+  },
+  "cross_workload_holdout": {
+    "n_tokens": 73808,
+    "mean_probe_jaccard": 0.40547396450318857,
+    "mean_freq_baseline_jaccard": 0.10259947127935981,
+    "mean_random_baseline_jaccard": 0.03425801502973982,
+    "per_layer": [
+      {
+        "layer": 0,
+        "probe_jaccard": 0.34105951013593244,
+        "freq_baseline_jaccard": 0.11268838376736967,
+        "random_baseline_jaccard": 0.03415511163451024
+      },
+      {
+        "layer": 1,
+        "probe_jaccard": 0.3733433931242564,
+        "freq_baseline_jaccard": 0.11202987885728627,
+        "random_baseline_jaccard": 0.034147553616980374
+      },
+      {
+        "layer": 2,
+        "probe_jaccard": 0.37630989244614854,
+        "freq_baseline_jaccard": 0.10699256484533957,
+        "random_baseline_jaccard": 0.034265551090278235
+      },
+      {
+        "layer": 3,
+        "probe_jaccard": 0.388502472609646,
+        "freq_baseline_jaccard": 0.0715854562375066,
+        "random_baseline_jaccard": 0.03419199125896877
+      },
+      {
+        "layer": 4,
+        "probe_jaccard": 0.39943645396414273,
+        "freq_baseline_jaccard": 0.06278230855782431,
+        "random_baseline_jaccard": 0.03428057328175835
+      },
+      {
+        "layer": 5,
+        "probe_jaccard": 0.3947741488222286,
+        "freq_baseline_jaccard": 0.056663899363872575,
+        "random_baseline_jaccard": 0.03424777765769866
+      },
+      {
+        "layer": 6,
+        "probe_jaccard": 0.4198969632984224,
+        "freq_baseline_jaccard": 0.052165146436759235,
+        "random_baseline_jaccard": 0.034313244382606266
+      },
+      {
+        "layer": 7,
+        "probe_jaccard": 0.40388487184196287,
+        "freq_baseline_jaccard": 0.02888472536206523,
+        "random_baseline_jaccard": 0.03429299582561357
+      },
+      {
+        "layer": 8,
+        "probe_jaccard": 0.4108630347056673,
+        "freq_baseline_jaccard": 0.041700444038928745,
+        "random_baseline_jaccard": 0.03398820541405979
+      },
+      {
+        "layer": 9,
+        "probe_jaccard": 0.42201927705903325,
+        "freq_baseline_jaccard": 0.050476872466357244,
+        "random_baseline_jaccard": 0.03415968289964954
+      },
+      {
+        "layer": 10,
+        "probe_jaccard": 0.41894356185727627,
+        "freq_baseline_jaccard": 0.10385467646736574,
+        "random_baseline_jaccard": 0.03430153107965107
+      },
+      {
+        "layer": 11,
+        "probe_jaccard": 0.41713133014314185,
+        "freq_baseline_jaccard": 0.14366462715695913,
+        "random_baseline_jaccard": 0.03428357086225385
+      },
+      {
+        "layer": 12,
+        "probe_jaccard": 0.4272413062161214,
+        "freq_baseline_jaccard": 0.07230192219080141,
+        "random_baseline_jaccard": 0.03450874221521658
+      },
+      {
+        "layer": 13,
+        "probe_jaccard": 0.4682114995220799,
+        "freq_baseline_jaccard": 0.24995780136968884,
+        "random_baseline_jaccard": 0.034284499372287586
+      },
+      {
+        "layer": 14,
+        "probe_jaccard": 0.4219786292539104,
+        "freq_baseline_jaccard": 0.1770700278478001,
+        "random_baseline_jaccard": 0.03432302577110013
+      },
+      {
+        "layer": 15,
+        "probe_jaccard": 0.45544911798663484,
+        "freq_baseline_jaccard": 0.16842458249901404,
+        "random_baseline_jaccard": 0.03428346167885872
+      },
+      {
+        "layer": 16,
+        "probe_jaccard": 0.4065539441647472,
+        "freq_baseline_jaccard": 0.11481292661379362,
+        "random_baseline_jaccard": 0.03414608370168008
+      },
+      {
+        "layer": 17,
+        "probe_jaccard": 0.43030316084150155,
+        "freq_baseline_jaccard": 0.08405787795553392,
+        "random_baseline_jaccard": 0.03420618961210036
+      },
+      {
+        "layer": 18,
+        "probe_jaccard": 0.42735068391601166,
+        "freq_baseline_jaccard": 0.06199454043318717,
+        "random_baseline_jaccard": 0.03433008840281037
+      },
+      {
+        "layer": 19,
+        "probe_jaccard": 0.4047644138742326,
+        "freq_baseline_jaccard": 0.053112907938938324,
+        "random_baseline_jaccard": 0.03452024076074926
+      },
+      {
+        "layer": 20,
+        "probe_jaccard": 0.41448023879164486,
+        "freq_baseline_jaccard": 0.05032468164105221,
+        "random_baseline_jaccard": 0.033889860049618685
+      },
+      {
+        "layer": 21,
+        "probe_jaccard": 0.41645993497521394,
+        "freq_baseline_jaccard": 0.05677962383739246,
+        "random_baseline_jaccard": 0.03409017187739634
+      },
+      {
+        "layer": 22,
+        "probe_jaccard": 0.40475229722437317,
+        "freq_baseline_jaccard": 0.12861911554737548,
+        "random_baseline_jaccard": 0.03441564306781465
+      },
+      {
+        "layer": 23,
+        "probe_jaccard": 0.38200729317388277,
+        "freq_baseline_jaccard": 0.09179372997112903,
+        "random_baseline_jaccard": 0.034081357799646786
+      },
+      {
+        "layer": 24,
+        "probe_jaccard": 0.39877736313325113,
+        "freq_baseline_jaccard": 0.08991590279794623,
+        "random_baseline_jaccard": 0.0342843405600759
+      },
+      {
+        "layer": 25,
+        "probe_jaccard": 0.4132868345010392,
+        "freq_baseline_jaccard": 0.17178101693335976,
+        "random_baseline_jaccard": 0.03422051248844375
+      },
+      {
+        "layer": 26,
+        "probe_jaccard": 0.4024832427848245,
+        "freq_baseline_jaccard": 0.13662649764428986,
+        "random_baseline_jaccard": 0.03425795788140615
+      },
+      {
+        "layer": 27,
+        "probe_jaccard": 0.44704310971884503,
+        "freq_baseline_jaccard": 0.19827022912065093,
+        "random_baseline_jaccard": 0.034387914997055714
+      },
+      {
+        "layer": 28,
+        "probe_jaccard": 0.41329934006035646,
+        "freq_baseline_jaccard": 0.13053313205330314,
+        "random_baseline_jaccard": 0.03432833154271819
+      },
+      {
+        "layer": 29,
+        "probe_jaccard": 0.41370524301882816,
+        "freq_baseline_jaccard": 0.07378985726317587,
+        "random_baseline_jaccard": 0.03412427770220242
+      },
+      {
+        "layer": 30,
+        "probe_jaccard": 0.42082390987353896,
+        "freq_baseline_jaccard": 0.048406398861631644,
+        "random_baseline_jaccard": 0.03411126502660557
+      },
+      {
+        "layer": 31,
+        "probe_jaccard": 0.4097420328421889,
+        "freq_baseline_jaccard": 0.047130035041907464,
+        "random_baseline_jaccard": 0.034312528825311404
+      },
+      {
+        "layer": 32,
+        "probe_jaccard": 0.39748159685266393,
+        "freq_baseline_jaccard": 0.06021184357948719,
+        "random_baseline_jaccard": 0.034358396679546856
+      },
+      {
+        "layer": 33,
+        "probe_jaccard": 0.4252593863608134,
+        "freq_baseline_jaccard": 0.05781729290291652,
+        "random_baseline_jaccard": 0.034146357111340224
+      },
+      {
+        "layer": 34,
+        "probe_jaccard": 0.40004391398250044,
+        "freq_baseline_jaccard": 0.1563438380152579,
+        "random_baseline_jaccard": 0.03428854908368584
+      },
+      {
+        "layer": 35,
+        "probe_jaccard": 0.38444939788132126,
+        "freq_baseline_jaccard": 0.09560504258365639,
+        "random_baseline_jaccard": 0.03441951952952736
+      },
+      {
+        "layer": 36,
+        "probe_jaccard": 0.4102027377441681,
+        "freq_baseline_jaccard": 0.10271940917667617,
+        "random_baseline_jaccard": 0.03404750643531631
+      },
+      {
+        "layer": 37,
+        "probe_jaccard": 0.40349258522602205,
+        "freq_baseline_jaccard": 0.11512366616688272,
+        "random_baseline_jaccard": 0.034163166842543884
+      },
+      {
+        "layer": 38,
+        "probe_jaccard": 0.4135495986295013,
+        "freq_baseline_jaccard": 0.12501490759403172,
+        "random_baseline_jaccard": 0.034558361105611786
+      },
+      {
+        "layer": 39,
+        "probe_jaccard": 0.3965363715334054,
+        "freq_baseline_jaccard": 0.11790412329919346,
+        "random_baseline_jaccard": 0.034434328768269094
+      },
+      {
+        "layer": 40,
+        "probe_jaccard": 0.3665338825130282,
+        "freq_baseline_jaccard": 0.09871234517340448,
+        "random_baseline_jaccard": 0.034277808505527224
+      },
+      {
+        "layer": 41,
+        "probe_jaccard": 0.3865304237755195,
+        "freq_baseline_jaccard": 0.08982175332433237,
+        "random_baseline_jaccard": 0.03407759593538187
+      },
+      {
+        "layer": 42,
+        "probe_jaccard": 0.39133895526133883,
+        "freq_baseline_jaccard": 0.10746427140310126,
+        "random_baseline_jaccard": 0.03410630124264792
+      },
+      {
+        "layer": 43,
+        "probe_jaccard": 0.37895640320830626,
+        "freq_baseline_jaccard": 0.12605146677876514,
+        "random_baseline_jaccard": 0.034471202978674634
+      },
+      {
+        "layer": 44,
+        "probe_jaccard": 0.38493082687456814,
+        "freq_baseline_jaccard": 0.08649147658466459,
+        "random_baseline_jaccard": 0.03434440586510086
+      },
+      {
+        "layer": 45,
+        "probe_jaccard": 0.40150592386367795,
+        "freq_baseline_jaccard": 0.06502916387751823,
+        "random_baseline_jaccard": 0.03432826657408628
+      },
+      {
+        "layer": 46,
+        "probe_jaccard": 0.3820218413350017,
+        "freq_baseline_jaccard": 0.17407813030249533,
+        "random_baseline_jaccard": 0.03430146250165036
+      },
+      {
+        "layer": 47,
+        "probe_jaccard": 0.3950379452301245,
+        "freq_baseline_jaccard": 0.19719409952728156,
+        "random_baseline_jaccard": 0.034327209931473035
+      }
+    ]
+  },
+  "generalization_gap": 0.053265329065721234,
+  "checkpoint_path": "results_gpu_sweep/routing_proxy_train/routing_proxy_head.pt"
+}

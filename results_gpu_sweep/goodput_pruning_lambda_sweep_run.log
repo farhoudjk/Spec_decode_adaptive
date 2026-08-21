@@ -1,0 +1,22 @@
+>> B8_rate2_baseline_seed0
+>> B8_rate2_baseline_seed1
+>> B8_rate2_baseline_seed2
+>> B8_rate2_lam0.05_seed0
+>> B8_rate2_lam0.05_seed1
+>> B8_rate2_lam0.05_seed2
+>> B8_rate2_lam0.1_seed0
+>> B8_rate2_lam0.1_seed1
+>> B8_rate2_lam0.1_seed2
+>> B8_rate2_lam0.2_seed0
+>> B8_rate2_lam0.2_seed1
+>> B8_rate2_lam0.2_seed2
+>> B8_rate2_lam0.5_seed0
+>> B8_rate2_lam0.5_seed1
+>> B8_rate2_lam0.5_seed2
+
+=== goodput_tok_per_s by (B, rate, config), mean across seeds ===
+B=8 rate=2   baseline: 96.39 +/-5.46 tok/s (n_seeds=3)  verify_ct=40.688900189281576
+B=8 rate=2    lam0.05: 99.66 +/-5.18 tok/s (n_seeds=3)  verify_ct=40.369494589937
+B=8 rate=2     lam0.1: 97.62 +/-4.37 tok/s (n_seeds=3)  verify_ct=40.409300223182754
+B=8 rate=2     lam0.2: 97.89 +/-4.24 tok/s (n_seeds=3)  verify_ct=40.67908297313332
+B=8 rate=2     lam0.5: 94.00 +/-3.73 tok/s (n_seeds=3)  verify_ct=40.954205158629264

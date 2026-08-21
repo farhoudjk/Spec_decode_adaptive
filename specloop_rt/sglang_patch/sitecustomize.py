@@ -27,28 +27,36 @@ the REPO ROOT on PYTHONPATH too. The sweep script is responsible for
 prepending both `<repo_root>` and `<repo_root>/specloop_rt/sglang_patch`
 to PYTHONPATH in the launched server's env.
 
-TWO INDEPENDENT HOOKS LIVE HERE, both installed unconditionally below, both
-individually env-gated so either or neither can be active per-process:
+THREE INDEPENDENT HOOKS LIVE HERE, all installed unconditionally below, all
+individually env-gated so any subset can be active per-process:
 - moe_expert_hooks.py (CAVEMAN_MOE_HOOK_OUT): take-1, patches TopK.forward.
   DEAD -- never fires on real traffic (CUDA graph replay bypasses it, see
   that module's docstring and AXIS7.md#2). Kept for the record.
 - verify_batch_expert_hooks.py (CAVEMAN_VERIFY_HOOK_OUT): take-3, patches
   ModelRunner.forward, reads the un-finalized TopkCaptureOutput before
   finalize() narrows it to accepted-only tokens. This is the live one --
-  see that module's docstring and AXIS7.md#10.
-Both stay cheap to have unconditionally on PYTHONPATH even in processes
-that never touch MoE at all (e.g. a co-located dense-model run), since
-install() no-ops immediately when its own env var is unset.
+  see that module's docstring and AXIS7.md#10. Written for sglang 0.5.17.
+- install_footprint_pruning.py (CAVEMAN_PRUNING_HOOK_OUT): idea-1 footprint-
+  aware draft pruning canary. Patches eagle_worker.select_top_k_tokens.
+  Written for sglang 0.4.10 (this repo's A100-compatible environment --
+  see that module's docstring for why 0.5.17's sgl-kernel doesn't support
+  this GPU architecture). Currently computes but does not yet act on the
+  pruned selection -- see that module's docstring.
+All three stay cheap to have unconditionally on PYTHONPATH even in
+processes that never touch MoE/EAGLE at all, since each install() no-ops
+immediately when its own env var is unset.
 """
 import os as _os
 import sys as _sys
 print(f"[caveman-canary] sitecustomize.py loaded, pid={_os.getpid()}, "
       f"CAVEMAN_MOE_HOOK_OUT={_os.environ.get('CAVEMAN_MOE_HOOK_OUT')!r}, "
-      f"CAVEMAN_VERIFY_HOOK_OUT={_os.environ.get('CAVEMAN_VERIFY_HOOK_OUT')!r}",
+      f"CAVEMAN_VERIFY_HOOK_OUT={_os.environ.get('CAVEMAN_VERIFY_HOOK_OUT')!r}, "
+      f"CAVEMAN_PRUNING_HOOK_OUT={_os.environ.get('CAVEMAN_PRUNING_HOOK_OUT')!r}",
       file=_sys.stderr, flush=True)
 
 from specloop_rt.sglang_patch import moe_expert_hooks as _moe_expert_hooks
 from specloop_rt.sglang_patch import verify_batch_expert_hooks as _verify_batch_expert_hooks
+from specloop_rt.sglang_patch import install_footprint_pruning as _install_footprint_pruning
 
 _moe_expert_hooks.install()
 
@@ -57,7 +65,10 @@ _topk_size = _os.environ.get("CAVEMAN_VERIFY_HOOK_TOPK_SIZE")
 if _num_layers and _topk_size:
     _verify_batch_expert_hooks.install(int(_num_layers), int(_topk_size))
 
+_install_footprint_pruning.install()
+
 print(f"[caveman-canary] install() done, pid={_os.getpid()}, "
       f"moe_installed={_moe_expert_hooks._installed}, "
-      f"verify_installed={_verify_batch_expert_hooks._installed}",
+      f"verify_installed={_verify_batch_expert_hooks._installed}, "
+      f"pruning_installed={_install_footprint_pruning._installed}",
       file=_sys.stderr, flush=True)

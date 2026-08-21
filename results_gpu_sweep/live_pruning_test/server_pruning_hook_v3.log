@@ -1,0 +1,1081 @@
+[caveman-canary] sitecustomize.py loaded, pid=58563, CAVEMAN_MOE_HOOK_OUT=None, CAVEMAN_VERIFY_HOOK_OUT=None, CAVEMAN_PRUNING_HOOK_OUT='1'
+/workspace/sglang_env_a100/venv/lib/python3.11/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+[caveman-canary] sitecustomize.py loaded, pid=58812, CAVEMAN_MOE_HOOK_OUT=None, CAVEMAN_VERIFY_HOOK_OUT=None, CAVEMAN_PRUNING_HOOK_OUT='1'
+/workspace/sglang_env_a100/venv/lib/python3.11/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+[caveman-pruning] installed on eagle_worker.select_top_k_tokens (checkpoint=/workspace/Spec_decode_adaptive/results_gpu_sweep/routing_proxy_train/routing_proxy_head.pt, lambda=1.0)
+[caveman-canary] install() done, pid=58563, moe_installed=False, verify_installed=False, pruning_installed=True
+WARNING:sglang.srt.mem_cache.storage.hf3fs.client_hf3fs:hf3fs_fuse.io is not available: No module named 'hf3fs_fuse'
+WARNING:sglang.srt.server_args:Overlap scheduler is disabled because of using eagle speculative decoding.
+[2026-08-20 21:07:43] server_args=ServerArgs(model_path='Qwen/Qwen3-30B-A3B-Instruct-2507', tokenizer_path='Qwen/Qwen3-30B-A3B-Instruct-2507', tokenizer_mode='auto', skip_tokenizer_init=False, load_format='auto', model_loader_extra_config='{}', trust_remote_code=False, context_length=2048, is_embedding=False, enable_multimodal=None, revision=None, model_impl='auto', host='0.0.0.0', port=30001, skip_server_warmup=False, warmups=None, nccl_port=None, dtype='bfloat16', quantization=None, quantization_param_path=None, kv_cache_dtype='auto', mem_fraction_static=0.85, max_running_requests=16, max_queued_requests=9223372036854775807, max_total_tokens=None, chunked_prefill_size=8192, max_prefill_tokens=16384, schedule_policy='fcfs', schedule_conservativeness=1.0, cpu_offload_gb=0, page_size=1, hybrid_kvcache_ratio=None, swa_full_tokens_ratio=0.8, disable_hybrid_swa_memory=False, device='cuda', tp_size=1, pp_size=1, max_micro_batch_size=None, stream_interval=1, stream_output=False, random_seed=1000948614, constrained_json_whitespace_pattern=None, watchdog_timeout=300, dist_timeout=None, download_dir=None, base_gpu_id=0, gpu_id_step=1, sleep_on_idle=False, log_level='info', log_level_http=None, log_requests=False, log_requests_level=0, crash_dump_folder=None, show_time_cost=False, enable_metrics=False, enable_metrics_for_all_schedulers=False, bucket_time_to_first_token=None, bucket_inter_token_latency=None, bucket_e2e_request_latency=None, collect_tokens_histogram=False, decode_log_interval=40, enable_request_time_stats_logging=False, kv_events_config=None, api_key=None, served_model_name='Qwen/Qwen3-30B-A3B-Instruct-2507', chat_template=None, completion_template=None, file_storage_path='sglang_storage', enable_cache_report=False, reasoning_parser=None, tool_call_parser=None, dp_size=1, load_balance_method='round_robin', dist_init_addr=None, nnodes=1, node_rank=0, json_model_override_args='{}', preferred_sampling_params=None, enable_lora=None, max_lora_rank=None, lora_target_modules=None, lora_paths=None, max_loras_per_batch=8, lora_backend='triton', attention_backend=None, decode_attention_backend=None, prefill_attention_backend=None, sampling_backend='flashinfer', grammar_backend='xgrammar', mm_attention_backend=None, speculative_algorithm='EAGLE3', speculative_draft_model_path='lmsys/SGLang-EAGLE3-Qwen3-30B-A3B-Instruct-2507-SpecForge-Nex', speculative_num_steps=3, speculative_eagle_topk=4, speculative_num_draft_tokens=8, speculative_accept_threshold_single=1.0, speculative_accept_threshold_acc=1.0, speculative_token_map=None, ep_size=1, enable_ep_moe=False, enable_deepep_moe=False, enable_flashinfer_cutlass_moe=False, enable_flashinfer_trtllm_moe=False, enable_flashinfer_allreduce_fusion=False, deepep_mode='auto', ep_num_redundant_experts=0, ep_dispatch_algorithm='static', init_expert_location='trivial', enable_eplb=False, eplb_algorithm='auto', eplb_rebalance_num_iterations=1000, eplb_rebalance_layers_per_chunk=None, expert_distribution_recorder_mode=None, expert_distribution_recorder_buffer_size=1000, enable_expert_distribution_metrics=False, deepep_config=None, moe_dense_tp_size=None, enable_hierarchical_cache=False, hicache_ratio=2.0, hicache_size=0, hicache_write_policy='write_through_selective', hicache_io_backend='', hicache_storage_backend=None, enable_double_sparsity=False, ds_channel_config_path=None, ds_heavy_channel_num=32, ds_heavy_token_num=256, ds_heavy_channel_type='qk', ds_sparse_decode_threshold=4096, disable_radix_cache=False, cuda_graph_max_bs=None, cuda_graph_bs=None, disable_cuda_graph=False, disable_cuda_graph_padding=False, enable_profile_cuda_graph=False, enable_nccl_nvls=False, enable_tokenizer_batch_encode=False, disable_outlines_disk_cache=False, disable_custom_all_reduce=False, enable_mscclpp=False, disable_overlap_schedule=True, enable_mixed_chunk=False, enable_dp_attention=False, enable_dp_lm_head=False, enable_two_batch_overlap=False, enable_torch_compile=False, torch_compile_max_bs=32, torchao_config='', enable_nan_detection=False, enable_p2p_check=False, triton_attention_reduce_in_fp32=False, triton_attention_num_kv_splits=8, num_continuous_decode_steps=1, delete_ckpt_after_loading=False, enable_memory_saver=False, allow_auto_truncate=False, enable_custom_logit_processor=False, flashinfer_mla_disable_ragged=False, disable_shared_experts_fusion=False, disable_chunked_prefix_cache=False, disable_fast_image_processor=False, enable_return_hidden_states=False, enable_triton_kernel_moe=False, debug_tensor_dump_output_folder=None, debug_tensor_dump_input_file=None, debug_tensor_dump_inject=False, debug_tensor_dump_prefill_only=False, disaggregation_mode='null', disaggregation_transfer_backend='mooncake', disaggregation_bootstrap_port=8998, disaggregation_decode_tp=None, disaggregation_decode_dp=None, disaggregation_prefill_pp=1, disaggregation_ib_device=None, num_reserved_decode_tokens=512, pdlb_url=None, custom_weight_loader=[], weight_loader_disable_mmap=False, enable_pdmux=False, sm_group_num=3)
+[caveman-canary] sitecustomize.py loaded, pid=58898, CAVEMAN_MOE_HOOK_OUT=None, CAVEMAN_VERIFY_HOOK_OUT=None, CAVEMAN_PRUNING_HOOK_OUT='1'
+[caveman-canary] sitecustomize.py loaded, pid=58899, CAVEMAN_MOE_HOOK_OUT=None, CAVEMAN_VERIFY_HOOK_OUT=None, CAVEMAN_PRUNING_HOOK_OUT='1'
+[caveman-canary] sitecustomize.py loaded, pid=58900, CAVEMAN_MOE_HOOK_OUT=None, CAVEMAN_VERIFY_HOOK_OUT=None, CAVEMAN_PRUNING_HOOK_OUT='1'
+[2026-08-20 21:07:43] Using default HuggingFace chat template with detected content format: string
+/workspace/sglang_env_a100/venv/lib/python3.11/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+/workspace/sglang_env_a100/venv/lib/python3.11/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+/workspace/sglang_env_a100/venv/lib/python3.11/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+[caveman-pruning] installed on eagle_worker.select_top_k_tokens (checkpoint=/workspace/Spec_decode_adaptive/results_gpu_sweep/routing_proxy_train/routing_proxy_head.pt, lambda=1.0)
+[caveman-canary] install() done, pid=58812, moe_installed=False, verify_installed=False, pruning_installed=True
+[caveman-canary] sitecustomize.py loaded, pid=59478, CAVEMAN_MOE_HOOK_OUT=None, CAVEMAN_VERIFY_HOOK_OUT=None, CAVEMAN_PRUNING_HOOK_OUT='1'
+[caveman-canary] sitecustomize.py loaded, pid=59525, CAVEMAN_MOE_HOOK_OUT=None, CAVEMAN_VERIFY_HOOK_OUT=None, CAVEMAN_PRUNING_HOOK_OUT='1'
+[caveman-canary] sitecustomize.py loaded, pid=59615, CAVEMAN_MOE_HOOK_OUT=None, CAVEMAN_VERIFY_HOOK_OUT=None, CAVEMAN_PRUNING_HOOK_OUT='1'
+/workspace/sglang_env_a100/venv/lib/python3.11/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+/workspace/sglang_env_a100/venv/lib/python3.11/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+/workspace/sglang_env_a100/venv/lib/python3.11/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+[caveman-pruning] installed on eagle_worker.select_top_k_tokens (checkpoint=/workspace/Spec_decode_adaptive/results_gpu_sweep/routing_proxy_train/routing_proxy_head.pt, lambda=1.0)
+[caveman-canary] install() done, pid=58898, moe_installed=False, verify_installed=False, pruning_installed=True
+[caveman-pruning] installed on eagle_worker.select_top_k_tokens (checkpoint=/workspace/Spec_decode_adaptive/results_gpu_sweep/routing_proxy_train/routing_proxy_head.pt, lambda=1.0)
+[caveman-canary] install() done, pid=58899, moe_installed=False, verify_installed=False, pruning_installed=True
+WARNING:sglang.srt.mem_cache.storage.hf3fs.client_hf3fs:hf3fs_fuse.io is not available: No module named 'hf3fs_fuse'
+[caveman-pruning] installed on eagle_worker.select_top_k_tokens (checkpoint=/workspace/Spec_decode_adaptive/results_gpu_sweep/routing_proxy_train/routing_proxy_head.pt, lambda=1.0)
+[caveman-canary] install() done, pid=58900, moe_installed=False, verify_installed=False, pruning_installed=True
+WARNING:sglang.srt.mem_cache.storage.hf3fs.client_hf3fs:hf3fs_fuse.io is not available: No module named 'hf3fs_fuse'
+[2026-08-20 21:08:22] Attention backend not explicitly specified. Use flashinfer backend by default.
+[2026-08-20 21:08:22] Init torch distributed begin.
+[2026-08-20 21:08:22] Init torch distributed ends. mem usage=0.00 GB
+[2026-08-20 21:08:24] Load weight begin. avail mem=76.36 GB
+[2026-08-20 21:08:24] Using model weights format ['*.safetensors']
+Loading safetensors checkpoint shards:   0% Completed | 0/16 [00:00<?, ?it/s]
+Loading safetensors checkpoint shards:   6% Completed | 1/16 [00:00<00:07,  1.98it/s]
+Loading safetensors checkpoint shards:  12% Completed | 2/16 [00:01<00:07,  1.91it/s]
+Loading safetensors checkpoint shards:  19% Completed | 3/16 [00:01<00:06,  1.91it/s]
+Loading safetensors checkpoint shards:  25% Completed | 4/16 [00:02<00:06,  1.93it/s]
+Loading safetensors checkpoint shards:  31% Completed | 5/16 [00:02<00:05,  1.88it/s]
+Loading safetensors checkpoint shards:  38% Completed | 6/16 [00:03<00:05,  1.87it/s]
+Loading safetensors checkpoint shards:  44% Completed | 7/16 [00:03<00:04,  1.85it/s]
+Loading safetensors checkpoint shards:  50% Completed | 8/16 [00:04<00:04,  1.79it/s]
+Loading safetensors checkpoint shards:  56% Completed | 9/16 [00:04<00:03,  2.25it/s]
+Loading safetensors checkpoint shards:  62% Completed | 10/16 [00:05<00:02,  2.03it/s]
+Loading safetensors checkpoint shards:  69% Completed | 11/16 [00:05<00:02,  1.83it/s]
+Loading safetensors checkpoint shards:  75% Completed | 12/16 [00:06<00:02,  1.72it/s]
+Loading safetensors checkpoint shards:  81% Completed | 13/16 [00:07<00:01,  1.65it/s]
+Loading safetensors checkpoint shards:  88% Completed | 14/16 [00:07<00:01,  1.59it/s]
+Loading safetensors checkpoint shards:  94% Completed | 15/16 [00:08<00:00,  1.54it/s]
+Loading safetensors checkpoint shards: 100% Completed | 16/16 [00:09<00:00,  1.52it/s]
+Loading safetensors checkpoint shards: 100% Completed | 16/16 [00:09<00:00,  1.75it/s]
+
+[2026-08-20 21:08:34] Load weight end. type=Qwen3MoeForCausalLM, dtype=torch.bfloat16, avail mem=19.32 GB, mem usage=57.04 GB.
+[2026-08-20 21:08:34] KV Cache is allocated. #tokens: 86319, K size: 3.95 GB, V size: 3.95 GB
+[2026-08-20 21:08:34] Memory pool end. avail mem=11.26 GB
+[2026-08-20 21:08:34] Capture cuda graph begin. This can take up to several minutes. avail mem=10.78 GB
+[2026-08-20 21:08:34] Capture cuda graph bs [1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 16]
+  0%|          | 0/12 [00:00<?, ?it/s]Capturing batches (bs=16 avail_mem=10.78 GB):   0%|          | 0/12 [00:00<?, ?it/s][2026-08-20 21:08:35] Using default MoE kernel config. Performance might be sub-optimal! Config file not found at /workspace/sglang_env_a100/venv/lib/python3.11/site-packages/sglang/srt/layers/moe/fused_moe_triton/configs/triton_3_3_1/E=128,N=768,device_name=NVIDIA_A100_80GB_PCIe.json, you can create them with https://github.com/sgl-project/sglang/tree/main/benchmark/kernels/fused_moe_triton
+Capturing batches (bs=16 avail_mem=10.78 GB):   8%|▊         | 1/12 [00:01<00:18,  1.67s/it]Capturing batches (bs=14 avail_mem=10.54 GB):   8%|▊         | 1/12 [00:01<00:18,  1.67s/it]Capturing batches (bs=14 avail_mem=10.54 GB):  17%|█▋        | 2/12 [00:02<00:09,  1.07it/s]Capturing batches (bs=12 avail_mem=10.39 GB):  17%|█▋        | 2/12 [00:02<00:09,  1.07it/s]Capturing batches (bs=12 avail_mem=10.39 GB):  25%|██▌       | 3/12 [00:02<00:06,  1.46it/s]Capturing batches (bs=10 avail_mem=10.26 GB):  25%|██▌       | 3/12 [00:02<00:06,  1.46it/s]Capturing batches (bs=10 avail_mem=10.26 GB):  33%|███▎      | 4/12 [00:02<00:04,  1.68it/s]Capturing batches (bs=8 avail_mem=10.12 GB):  33%|███▎      | 4/12 [00:02<00:04,  1.68it/s] Capturing batches (bs=8 avail_mem=10.12 GB):  42%|████▏     | 5/12 [00:03<00:03,  1.83it/s]Capturing batches (bs=7 avail_mem=10.01 GB):  42%|████▏     | 5/12 [00:03<00:03,  1.83it/s]Capturing batches (bs=7 avail_mem=10.01 GB):  50%|█████     | 6/12 [00:03<00:03,  1.93it/s]Capturing batches (bs=6 avail_mem=9.92 GB):  50%|█████     | 6/12 [00:03<00:03,  1.93it/s] Capturing batches (bs=6 avail_mem=9.92 GB):  58%|█████▊    | 7/12 [00:04<00:02,  2.11it/s]Capturing batches (bs=5 avail_mem=9.82 GB):  58%|█████▊    | 7/12 [00:04<00:02,  2.11it/s]Capturing batches (bs=5 avail_mem=9.82 GB):  67%|██████▋   | 8/12 [00:04<00:01,  2.14it/s]Capturing batches (bs=4 avail_mem=9.70 GB):  67%|██████▋   | 8/12 [00:04<00:01,  2.14it/s]Capturing batches (bs=4 avail_mem=9.70 GB):  75%|███████▌  | 9/12 [00:10<00:06,  2.18s/it]Capturing batches (bs=3 avail_mem=9.61 GB):  75%|███████▌  | 9/12 [00:10<00:06,  2.18s/it]Capturing batches (bs=3 avail_mem=9.61 GB):  83%|████████▎ | 10/12 [00:11<00:03,  1.72s/it]Capturing batches (bs=2 avail_mem=9.50 GB):  83%|████████▎ | 10/12 [00:11<00:03,  1.72s/it]Capturing batches (bs=2 avail_mem=9.50 GB):  92%|█████████▏| 11/12 [00:11<00:01,  1.30s/it]Capturing batches (bs=1 avail_mem=9.43 GB):  92%|█████████▏| 11/12 [00:11<00:01,  1.30s/it]Capturing batches (bs=1 avail_mem=9.43 GB): 100%|██████████| 12/12 [00:12<00:00,  1.02s/it]Capturing batches (bs=1 avail_mem=9.43 GB): 100%|██████████| 12/12 [00:12<00:00,  1.00s/it]
+[2026-08-20 21:08:46] Capture cuda graph end. Time elapsed: 12.08 s. mem usage=1.45 GB. avail mem=9.34 GB.
+[2026-08-20 21:08:46] Downcasting torch.float32 to torch.bfloat16.
+[2026-08-20 21:08:47] Downcasting torch.float32 to torch.bfloat16.
+[2026-08-20 21:08:47] Init torch distributed begin.
+[2026-08-20 21:08:47] Init torch distributed ends. mem usage=0.00 GB
+[2026-08-20 21:08:47] Load weight begin. avail mem=9.34 GB
+[2026-08-20 21:08:47] Using model weights format ['*.safetensors']
+[2026-08-20 21:08:47] No model.safetensors.index.json found in remote.
+Loading safetensors checkpoint shards:   0% Completed | 0/1 [00:00<?, ?it/s]
+Loading safetensors checkpoint shards: 100% Completed | 1/1 [00:00<00:00, 17.21it/s]
+
+[2026-08-20 21:08:47] Load weight end. type=LlamaForCausalLMEagle3, dtype=torch.bfloat16, avail mem=8.25 GB, mem usage=1.08 GB.
+[2026-08-20 21:08:47] KV Cache is allocated. #tokens: 86319, K size: 0.08 GB, V size: 0.08 GB
+[2026-08-20 21:08:47] Memory pool end. avail mem=8.09 GB
+[2026-08-20 21:08:47] Capture draft cuda graph begin. This can take up to several minutes. avail mem=8.40 GB
+  0%|          | 0/12 [00:00<?, ?it/s]Capturing batches (bs=16 avail_mem=8.40 GB):   0%|          | 0/12 [00:00<?, ?it/s][caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (64) must match the size of tensor b (16) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (64) must match the size of tensor b (16) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (256) must match the size of tensor b (64) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (256) must match the size of tensor b (64) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (256) must match the size of tensor b (64) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (256) must match the size of tensor b (64) at non-singleton dimension 0
+[caveman-pruning] installed on eagle_worker.select_top_k_tokens (checkpoint=/workspace/Spec_decode_adaptive/results_gpu_sweep/routing_proxy_train/routing_proxy_head.pt, lambda=1.0)
+[caveman-canary] install() done, pid=59478, moe_installed=False, verify_installed=False, pruning_installed=True
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (64) must match the size of tensor b (16) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (64) must match the size of tensor b (16) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (256) must match the size of tensor b (64) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (256) must match the size of tensor b (64) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (256) must match the size of tensor b (64) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (256) must match the size of tensor b (64) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (64) must match the size of tensor b (16) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (64) must match the size of tensor b (16) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (256) must match the size of tensor b (64) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (256) must match the size of tensor b (64) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (256) must match the size of tensor b (64) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (256) must match the size of tensor b (64) at non-singleton dimension 0
+Capturing batches (bs=16 avail_mem=8.40 GB):   8%|▊         | 1/12 [00:03<00:33,  3.08s/it]Capturing batches (bs=14 avail_mem=7.44 GB):   8%|▊         | 1/12 [00:03<00:33,  3.08s/it][caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (56) must match the size of tensor b (14) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (56) must match the size of tensor b (14) at non-singleton dimension 0
+[caveman-pruning] installed on eagle_worker.select_top_k_tokens (checkpoint=/workspace/Spec_decode_adaptive/results_gpu_sweep/routing_proxy_train/routing_proxy_head.pt, lambda=1.0)
+[caveman-canary] install() done, pid=59615, moe_installed=False, verify_installed=False, pruning_installed=True
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (224) must match the size of tensor b (56) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (224) must match the size of tensor b (56) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (224) must match the size of tensor b (56) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (224) must match the size of tensor b (56) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (56) must match the size of tensor b (14) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (56) must match the size of tensor b (14) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (224) must match the size of tensor b (56) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (224) must match the size of tensor b (56) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (224) must match the size of tensor b (56) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (224) must match the size of tensor b (56) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (56) must match the size of tensor b (14) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (56) must match the size of tensor b (14) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (224) must match the size of tensor b (56) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (224) must match the size of tensor b (56) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (224) must match the size of tensor b (56) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (224) must match the size of tensor b (56) at non-singleton dimension 0
+Capturing batches (bs=14 avail_mem=7.44 GB):  17%|█▋        | 2/12 [00:03<00:16,  1.61s/it]Capturing batches (bs=12 avail_mem=7.29 GB):  17%|█▋        | 2/12 [00:03<00:16,  1.61s/it][caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (48) must match the size of tensor b (12) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (48) must match the size of tensor b (12) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (192) must match the size of tensor b (48) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (192) must match the size of tensor b (48) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (192) must match the size of tensor b (48) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (192) must match the size of tensor b (48) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (48) must match the size of tensor b (12) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (48) must match the size of tensor b (12) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (192) must match the size of tensor b (48) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (192) must match the size of tensor b (48) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (192) must match the size of tensor b (48) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (192) must match the size of tensor b (48) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (48) must match the size of tensor b (12) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (48) must match the size of tensor b (12) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (192) must match the size of tensor b (48) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (192) must match the size of tensor b (48) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (192) must match the size of tensor b (48) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (192) must match the size of tensor b (48) at non-singleton dimension 0
+Capturing batches (bs=12 avail_mem=7.29 GB):  25%|██▌       | 3/12 [00:04<00:09,  1.05s/it]Capturing batches (bs=10 avail_mem=6.85 GB):  25%|██▌       | 3/12 [00:04<00:09,  1.05s/it][caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (40) must match the size of tensor b (10) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (40) must match the size of tensor b (10) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (160) must match the size of tensor b (40) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (160) must match the size of tensor b (40) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (160) must match the size of tensor b (40) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (160) must match the size of tensor b (40) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (40) must match the size of tensor b (10) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (40) must match the size of tensor b (10) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (160) must match the size of tensor b (40) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (160) must match the size of tensor b (40) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (160) must match the size of tensor b (40) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (160) must match the size of tensor b (40) at non-singleton dimension 0
+[caveman-pruning] installed on eagle_worker.select_top_k_tokens (checkpoint=/workspace/Spec_decode_adaptive/results_gpu_sweep/routing_proxy_train/routing_proxy_head.pt, lambda=1.0)
+[caveman-canary] install() done, pid=59525, moe_installed=False, verify_installed=False, pruning_installed=True
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (40) must match the size of tensor b (10) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (40) must match the size of tensor b (10) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (160) must match the size of tensor b (40) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (160) must match the size of tensor b (40) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (160) must match the size of tensor b (40) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (160) must match the size of tensor b (40) at non-singleton dimension 0
+Capturing batches (bs=10 avail_mem=6.85 GB):  33%|███▎      | 4/12 [00:04<00:06,  1.28it/s]Capturing batches (bs=8 avail_mem=6.66 GB):  33%|███▎      | 4/12 [00:04<00:06,  1.28it/s] [caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (32) must match the size of tensor b (8) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (32) must match the size of tensor b (8) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (128) must match the size of tensor b (32) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (128) must match the size of tensor b (32) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (128) must match the size of tensor b (32) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (128) must match the size of tensor b (32) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (32) must match the size of tensor b (8) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (32) must match the size of tensor b (8) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (128) must match the size of tensor b (32) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (128) must match the size of tensor b (32) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (128) must match the size of tensor b (32) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (128) must match the size of tensor b (32) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (32) must match the size of tensor b (8) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (32) must match the size of tensor b (8) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (128) must match the size of tensor b (32) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (128) must match the size of tensor b (32) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (128) must match the size of tensor b (32) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (128) must match the size of tensor b (32) at non-singleton dimension 0
+Capturing batches (bs=8 avail_mem=6.66 GB):  42%|████▏     | 5/12 [00:04<00:04,  1.57it/s]Capturing batches (bs=7 avail_mem=6.63 GB):  42%|████▏     | 5/12 [00:04<00:04,  1.57it/s][caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (28) must match the size of tensor b (7) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (28) must match the size of tensor b (7) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (112) must match the size of tensor b (28) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (112) must match the size of tensor b (28) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (112) must match the size of tensor b (28) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (112) must match the size of tensor b (28) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (28) must match the size of tensor b (7) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (28) must match the size of tensor b (7) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (112) must match the size of tensor b (28) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (112) must match the size of tensor b (28) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (112) must match the size of tensor b (28) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (112) must match the size of tensor b (28) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (28) must match the size of tensor b (7) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (28) must match the size of tensor b (7) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (112) must match the size of tensor b (28) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (112) must match the size of tensor b (28) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (112) must match the size of tensor b (28) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (112) must match the size of tensor b (28) at non-singleton dimension 0
+Capturing batches (bs=7 avail_mem=6.63 GB):  50%|█████     | 6/12 [00:05<00:03,  1.83it/s]Capturing batches (bs=6 avail_mem=6.60 GB):  50%|█████     | 6/12 [00:05<00:03,  1.83it/s][caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (24) must match the size of tensor b (6) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (24) must match the size of tensor b (6) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (96) must match the size of tensor b (24) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (96) must match the size of tensor b (24) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (96) must match the size of tensor b (24) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (96) must match the size of tensor b (24) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (24) must match the size of tensor b (6) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (24) must match the size of tensor b (6) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (96) must match the size of tensor b (24) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (96) must match the size of tensor b (24) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (96) must match the size of tensor b (24) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (96) must match the size of tensor b (24) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (24) must match the size of tensor b (6) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (24) must match the size of tensor b (6) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (96) must match the size of tensor b (24) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (96) must match the size of tensor b (24) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (96) must match the size of tensor b (24) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (96) must match the size of tensor b (24) at non-singleton dimension 0
+Capturing batches (bs=6 avail_mem=6.60 GB):  58%|█████▊    | 7/12 [00:05<00:02,  2.02it/s]Capturing batches (bs=5 avail_mem=6.57 GB):  58%|█████▊    | 7/12 [00:05<00:02,  2.02it/s][caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (20) must match the size of tensor b (5) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (20) must match the size of tensor b (5) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (80) must match the size of tensor b (20) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (80) must match the size of tensor b (20) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (80) must match the size of tensor b (20) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (80) must match the size of tensor b (20) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (20) must match the size of tensor b (5) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (20) must match the size of tensor b (5) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (80) must match the size of tensor b (20) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (80) must match the size of tensor b (20) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (80) must match the size of tensor b (20) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (80) must match the size of tensor b (20) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (20) must match the size of tensor b (5) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (20) must match the size of tensor b (5) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (80) must match the size of tensor b (20) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (80) must match the size of tensor b (20) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (80) must match the size of tensor b (20) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (80) must match the size of tensor b (20) at non-singleton dimension 0
+Capturing batches (bs=5 avail_mem=6.57 GB):  67%|██████▋   | 8/12 [00:05<00:01,  2.18it/s]Capturing batches (bs=4 avail_mem=6.55 GB):  67%|██████▋   | 8/12 [00:05<00:01,  2.18it/s][caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (16) must match the size of tensor b (4) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (16) must match the size of tensor b (4) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (64) must match the size of tensor b (16) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (64) must match the size of tensor b (16) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (64) must match the size of tensor b (16) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (64) must match the size of tensor b (16) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (16) must match the size of tensor b (4) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (16) must match the size of tensor b (4) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (64) must match the size of tensor b (16) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (64) must match the size of tensor b (16) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (64) must match the size of tensor b (16) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (64) must match the size of tensor b (16) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (16) must match the size of tensor b (4) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (16) must match the size of tensor b (4) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (64) must match the size of tensor b (16) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (64) must match the size of tensor b (16) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (64) must match the size of tensor b (16) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (64) must match the size of tensor b (16) at non-singleton dimension 0
+Capturing batches (bs=4 avail_mem=6.55 GB):  75%|███████▌  | 9/12 [00:06<00:01,  2.33it/s]Capturing batches (bs=3 avail_mem=6.52 GB):  75%|███████▌  | 9/12 [00:06<00:01,  2.33it/s][caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (12) must match the size of tensor b (3) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (12) must match the size of tensor b (3) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (48) must match the size of tensor b (12) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (48) must match the size of tensor b (12) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (48) must match the size of tensor b (12) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (48) must match the size of tensor b (12) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (12) must match the size of tensor b (3) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (12) must match the size of tensor b (3) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (48) must match the size of tensor b (12) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (48) must match the size of tensor b (12) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (48) must match the size of tensor b (12) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (48) must match the size of tensor b (12) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (12) must match the size of tensor b (3) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (12) must match the size of tensor b (3) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (48) must match the size of tensor b (12) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (48) must match the size of tensor b (12) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (48) must match the size of tensor b (12) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (48) must match the size of tensor b (12) at non-singleton dimension 0
+Capturing batches (bs=3 avail_mem=6.52 GB):  83%|████████▎ | 10/12 [00:06<00:00,  2.48it/s]Capturing batches (bs=2 avail_mem=6.49 GB):  83%|████████▎ | 10/12 [00:06<00:00,  2.48it/s][caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (8) must match the size of tensor b (2) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (8) must match the size of tensor b (2) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (32) must match the size of tensor b (8) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (32) must match the size of tensor b (8) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (32) must match the size of tensor b (8) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (32) must match the size of tensor b (8) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (8) must match the size of tensor b (2) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (8) must match the size of tensor b (2) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (32) must match the size of tensor b (8) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (32) must match the size of tensor b (8) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (32) must match the size of tensor b (8) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (32) must match the size of tensor b (8) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (8) must match the size of tensor b (2) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (8) must match the size of tensor b (2) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (32) must match the size of tensor b (8) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (32) must match the size of tensor b (8) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (32) must match the size of tensor b (8) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (32) must match the size of tensor b (8) at non-singleton dimension 0
+Capturing batches (bs=2 avail_mem=6.49 GB):  92%|█████████▏| 11/12 [00:07<00:00,  2.56it/s]Capturing batches (bs=1 avail_mem=6.47 GB):  92%|█████████▏| 11/12 [00:07<00:00,  2.56it/s][caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError("shape '[0, 4]' is invalid for input of size 4")
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 307, in footprint_aware_select_top_k_tokens
+    adjusted_score_by_req = adjusted_score.view(b, topk)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: shape '[0, 4]' is invalid for input of size 4
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (16) must match the size of tensor b (4) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (16) must match the size of tensor b (4) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (16) must match the size of tensor b (4) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (16) must match the size of tensor b (4) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError("shape '[0, 4]' is invalid for input of size 4")
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 307, in footprint_aware_select_top_k_tokens
+    adjusted_score_by_req = adjusted_score.view(b, topk)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: shape '[0, 4]' is invalid for input of size 4
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (16) must match the size of tensor b (4) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (16) must match the size of tensor b (4) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (16) must match the size of tensor b (4) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (16) must match the size of tensor b (4) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError("shape '[0, 4]' is invalid for input of size 4")
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 307, in footprint_aware_select_top_k_tokens
+    adjusted_score_by_req = adjusted_score.view(b, topk)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: shape '[0, 4]' is invalid for input of size 4
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (16) must match the size of tensor b (4) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (16) must match the size of tensor b (4) at non-singleton dimension 0
+[caveman-pruning] EXCEPTION in patched_select_top_k_tokens: RuntimeError('The size of tensor a (16) must match the size of tensor b (4) at non-singleton dimension 0')
+Traceback (most recent call last):
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/install_footprint_pruning.py", line 155, in patched_select_top_k_tokens
+    keep, predicted, marginal_cost = footprint_aware_select_top_k_tokens(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Spec_decode_adaptive/specloop_rt/sglang_patch/footprint_aware_pruning.py", line 297, in footprint_aware_select_top_k_tokens
+    adjusted_score = adjusted_score / (1.0 + lam * marginal_cost.to(adjusted_score.device))
+                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (16) must match the size of tensor b (4) at non-singleton dimension 0
+Capturing batches (bs=1 avail_mem=6.47 GB): 100%|██████████| 12/12 [00:09<00:00,  1.09s/it]Capturing batches (bs=1 avail_mem=6.47 GB): 100%|██████████| 12/12 [00:09<00:00,  1.24it/s]
+[2026-08-20 21:08:57] Capture draft cuda graph end. Time elapsed: 9.75 s. mem usage=1.96 GB. avail mem=6.44 GB.
+[2026-08-20 21:08:57] Capture draft extend cuda graph begin. This can take up to several minutes. avail mem=6.44 GB
+  0%|          | 0/12 [00:00<?, ?it/s]Capturing batches (bs=16 avail_mem=6.44 GB):   0%|          | 0/12 [00:00<?, ?it/s]Capturing batches (bs=16 avail_mem=6.44 GB):   8%|▊         | 1/12 [00:00<00:04,  2.34it/s]Capturing batches (bs=14 avail_mem=6.39 GB):   8%|▊         | 1/12 [00:00<00:04,  2.34it/s]Capturing batches (bs=14 avail_mem=6.39 GB):  17%|█▋        | 2/12 [00:00<00:03,  2.52it/s]Capturing batches (bs=12 avail_mem=6.37 GB):  17%|█▋        | 2/12 [00:00<00:03,  2.52it/s]Capturing batches (bs=12 avail_mem=6.37 GB):  25%|██▌       | 3/12 [00:01<00:03,  2.53it/s]Capturing batches (bs=10 avail_mem=6.37 GB):  25%|██▌       | 3/12 [00:01<00:03,  2.53it/s]Capturing batches (bs=10 avail_mem=6.37 GB):  33%|███▎      | 4/12 [00:01<00:03,  2.56it/s]Capturing batches (bs=8 avail_mem=6.35 GB):  33%|███▎      | 4/12 [00:01<00:03,  2.56it/s] Capturing batches (bs=8 avail_mem=6.35 GB):  42%|████▏     | 5/12 [00:01<00:02,  2.73it/s]Capturing batches (bs=7 avail_mem=6.35 GB):  42%|████▏     | 5/12 [00:01<00:02,  2.73it/s]Capturing batches (bs=7 avail_mem=6.35 GB):  50%|█████     | 6/12 [00:02<00:02,  2.67it/s]Capturing batches (bs=6 avail_mem=6.33 GB):  50%|█████     | 6/12 [00:02<00:02,  2.67it/s]Capturing batches (bs=6 avail_mem=6.33 GB):  58%|█████▊    | 7/12 [00:02<00:01,  2.66it/s]Capturing batches (bs=5 avail_mem=6.33 GB):  58%|█████▊    | 7/12 [00:02<00:01,  2.66it/s]Capturing batches (bs=5 avail_mem=6.33 GB):  67%|██████▋   | 8/12 [00:02<00:01,  2.80it/s]Capturing batches (bs=4 avail_mem=6.31 GB):  67%|██████▋   | 8/12 [00:02<00:01,  2.80it/s]Capturing batches (bs=4 avail_mem=6.31 GB):  75%|███████▌  | 9/12 [00:03<00:01,  2.87it/s]Capturing batches (bs=3 avail_mem=6.31 GB):  75%|███████▌  | 9/12 [00:03<00:01,  2.87it/s]Capturing batches (bs=3 avail_mem=6.31 GB):  83%|████████▎ | 10/12 [00:03<00:00,  2.78it/s]Capturing batches (bs=2 avail_mem=6.29 GB):  83%|████████▎ | 10/12 [00:03<00:00,  2.78it/s]Capturing batches (bs=2 avail_mem=6.29 GB):  92%|█████████▏| 11/12 [00:04<00:00,  2.79it/s]Capturing batches (bs=1 avail_mem=6.28 GB):  92%|█████████▏| 11/12 [00:04<00:00,  2.79it/s]Capturing batches (bs=1 avail_mem=6.28 GB): 100%|██████████| 12/12 [00:04<00:00,  2.90it/s]Capturing batches (bs=1 avail_mem=6.28 GB): 100%|██████████| 12/12 [00:04<00:00,  2.75it/s]
+[2026-08-20 21:09:02] Capture draft extend cuda graph end. Time elapsed: 4.40 s. mem usage=0.17 GB. avail mem=6.27 GB.
+[2026-08-20 21:09:02] max_total_num_tokens=86319, chunked_prefill_size=8192, max_prefill_tokens=16384, max_running_requests=16, context_len=2048, available_gpu_mem=6.27 GB
+[2026-08-20 21:09:02] INFO:     Started server process [58563]
+[2026-08-20 21:09:02] INFO:     Waiting for application startup.
+[2026-08-20 21:09:02] INFO:     Application startup complete.
+[2026-08-20 21:09:02] INFO:     Uvicorn running on http://0.0.0.0:30001 (Press CTRL+C to quit)
+[2026-08-20 21:09:03] INFO:     127.0.0.1:55184 - "GET /get_model_info HTTP/1.1" 200 OK
+[2026-08-20 21:09:03] Prefill batch. #new-seq: 1, #new-token: 6, #cached-token: 0, token usage: 0.00, #running-req: 0, #queue-req: 0, 
+[2026-08-20 21:09:03] INFO:     127.0.0.1:55192 - "POST /generate HTTP/1.1" 200 OK
+[2026-08-20 21:09:03] The server is fired up and ready to roll!
+[2026-08-20 21:09:04] INFO:     127.0.0.1:55204 - "GET /health HTTP/1.1" 200 OK
+[2026-08-20 21:09:35] SIGTERM received. signum=None frame=None. Draining requests and shutting down...
+[2026-08-20 21:09:38] Gracefully exiting... remaining number of requests 0

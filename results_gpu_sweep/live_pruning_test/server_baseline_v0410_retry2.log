@@ -1,0 +1,270 @@
+/workspace/sglang_env_a100/venv/lib/python3.11/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+/workspace/sglang_env_a100/venv/lib/python3.11/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+WARNING:sglang.srt.mem_cache.storage.hf3fs.client_hf3fs:hf3fs_fuse.io is not available: No module named 'hf3fs_fuse'
+WARNING:sglang.srt.server_args:Overlap scheduler is disabled because of using eagle speculative decoding.
+[2026-08-20 20:38:49] server_args=ServerArgs(model_path='Qwen/Qwen3-30B-A3B-Instruct-2507', tokenizer_path='Qwen/Qwen3-30B-A3B-Instruct-2507', tokenizer_mode='auto', skip_tokenizer_init=False, load_format='auto', model_loader_extra_config='{}', trust_remote_code=False, context_length=2048, is_embedding=False, enable_multimodal=None, revision=None, model_impl='auto', host='0.0.0.0', port=30001, skip_server_warmup=False, warmups=None, nccl_port=None, dtype='bfloat16', quantization=None, quantization_param_path=None, kv_cache_dtype='auto', mem_fraction_static=0.85, max_running_requests=16, max_queued_requests=9223372036854775807, max_total_tokens=None, chunked_prefill_size=8192, max_prefill_tokens=16384, schedule_policy='fcfs', schedule_conservativeness=1.0, cpu_offload_gb=0, page_size=1, hybrid_kvcache_ratio=None, swa_full_tokens_ratio=0.8, disable_hybrid_swa_memory=False, device='cuda', tp_size=1, pp_size=1, max_micro_batch_size=None, stream_interval=1, stream_output=False, random_seed=601937742, constrained_json_whitespace_pattern=None, watchdog_timeout=300, dist_timeout=None, download_dir=None, base_gpu_id=0, gpu_id_step=1, sleep_on_idle=False, log_level='info', log_level_http=None, log_requests=False, log_requests_level=0, crash_dump_folder=None, show_time_cost=False, enable_metrics=False, enable_metrics_for_all_schedulers=False, bucket_time_to_first_token=None, bucket_inter_token_latency=None, bucket_e2e_request_latency=None, collect_tokens_histogram=False, decode_log_interval=40, enable_request_time_stats_logging=False, kv_events_config=None, api_key=None, served_model_name='Qwen/Qwen3-30B-A3B-Instruct-2507', chat_template=None, completion_template=None, file_storage_path='sglang_storage', enable_cache_report=False, reasoning_parser=None, tool_call_parser=None, dp_size=1, load_balance_method='round_robin', dist_init_addr=None, nnodes=1, node_rank=0, json_model_override_args='{}', preferred_sampling_params=None, enable_lora=None, max_lora_rank=None, lora_target_modules=None, lora_paths=None, max_loras_per_batch=8, lora_backend='triton', attention_backend=None, decode_attention_backend=None, prefill_attention_backend=None, sampling_backend='flashinfer', grammar_backend='xgrammar', mm_attention_backend=None, speculative_algorithm='EAGLE3', speculative_draft_model_path='lmsys/SGLang-EAGLE3-Qwen3-30B-A3B-Instruct-2507-SpecForge-Nex', speculative_num_steps=3, speculative_eagle_topk=4, speculative_num_draft_tokens=8, speculative_accept_threshold_single=1.0, speculative_accept_threshold_acc=1.0, speculative_token_map=None, ep_size=1, enable_ep_moe=False, enable_deepep_moe=False, enable_flashinfer_cutlass_moe=False, enable_flashinfer_trtllm_moe=False, enable_flashinfer_allreduce_fusion=False, deepep_mode='auto', ep_num_redundant_experts=0, ep_dispatch_algorithm='static', init_expert_location='trivial', enable_eplb=False, eplb_algorithm='auto', eplb_rebalance_num_iterations=1000, eplb_rebalance_layers_per_chunk=None, expert_distribution_recorder_mode=None, expert_distribution_recorder_buffer_size=1000, enable_expert_distribution_metrics=False, deepep_config=None, moe_dense_tp_size=None, enable_hierarchical_cache=False, hicache_ratio=2.0, hicache_size=0, hicache_write_policy='write_through_selective', hicache_io_backend='', hicache_storage_backend=None, enable_double_sparsity=False, ds_channel_config_path=None, ds_heavy_channel_num=32, ds_heavy_token_num=256, ds_heavy_channel_type='qk', ds_sparse_decode_threshold=4096, disable_radix_cache=False, cuda_graph_max_bs=None, cuda_graph_bs=None, disable_cuda_graph=False, disable_cuda_graph_padding=False, enable_profile_cuda_graph=False, enable_nccl_nvls=False, enable_tokenizer_batch_encode=False, disable_outlines_disk_cache=False, disable_custom_all_reduce=False, enable_mscclpp=False, disable_overlap_schedule=True, enable_mixed_chunk=False, enable_dp_attention=False, enable_dp_lm_head=False, enable_two_batch_overlap=False, enable_torch_compile=False, torch_compile_max_bs=32, torchao_config='', enable_nan_detection=False, enable_p2p_check=False, triton_attention_reduce_in_fp32=False, triton_attention_num_kv_splits=8, num_continuous_decode_steps=1, delete_ckpt_after_loading=False, enable_memory_saver=False, allow_auto_truncate=False, enable_custom_logit_processor=False, flashinfer_mla_disable_ragged=False, disable_shared_experts_fusion=False, disable_chunked_prefix_cache=False, disable_fast_image_processor=False, enable_return_hidden_states=False, enable_triton_kernel_moe=False, debug_tensor_dump_output_folder=None, debug_tensor_dump_input_file=None, debug_tensor_dump_inject=False, debug_tensor_dump_prefill_only=False, disaggregation_mode='null', disaggregation_transfer_backend='mooncake', disaggregation_bootstrap_port=8998, disaggregation_decode_tp=None, disaggregation_decode_dp=None, disaggregation_prefill_pp=1, disaggregation_ib_device=None, num_reserved_decode_tokens=512, pdlb_url=None, custom_weight_loader=[], weight_loader_disable_mmap=False, enable_pdmux=False, sm_group_num=3)
+[2026-08-20 20:38:50] Using default HuggingFace chat template with detected content format: string
+/workspace/sglang_env_a100/venv/lib/python3.11/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+/workspace/sglang_env_a100/venv/lib/python3.11/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+/workspace/sglang_env_a100/venv/lib/python3.11/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+/workspace/sglang_env_a100/venv/lib/python3.11/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+WARNING:sglang.srt.mem_cache.storage.hf3fs.client_hf3fs:hf3fs_fuse.io is not available: No module named 'hf3fs_fuse'
+[2026-08-20 20:39:24] Attention backend not explicitly specified. Use flashinfer backend by default.
+[2026-08-20 20:39:24] Init torch distributed begin.
+[2026-08-20 20:39:24] Init torch distributed ends. mem usage=0.00 GB
+WARNING:sglang.srt.mem_cache.storage.hf3fs.client_hf3fs:hf3fs_fuse.io is not available: No module named 'hf3fs_fuse'
+[2026-08-20 20:39:27] Load weight begin. avail mem=78.75 GB
+[2026-08-20 20:39:27] Using model weights format ['*.safetensors']
+Loading safetensors checkpoint shards:   0% Completed | 0/16 [00:00<?, ?it/s]
+Loading safetensors checkpoint shards:   6% Completed | 1/16 [00:00<00:09,  1.65it/s]
+Loading safetensors checkpoint shards:  12% Completed | 2/16 [00:01<00:08,  1.64it/s]
+Loading safetensors checkpoint shards:  19% Completed | 3/16 [00:01<00:07,  1.65it/s]
+Loading safetensors checkpoint shards:  25% Completed | 4/16 [00:02<00:07,  1.66it/s]
+Loading safetensors checkpoint shards:  31% Completed | 5/16 [00:03<00:06,  1.66it/s]
+Loading safetensors checkpoint shards:  38% Completed | 6/16 [00:03<00:06,  1.66it/s]
+Loading safetensors checkpoint shards:  44% Completed | 7/16 [00:04<00:05,  1.62it/s]
+Loading safetensors checkpoint shards:  50% Completed | 8/16 [00:04<00:05,  1.55it/s]
+Loading safetensors checkpoint shards:  56% Completed | 9/16 [00:05<00:03,  1.97it/s]
+Loading safetensors checkpoint shards:  62% Completed | 10/16 [00:05<00:03,  1.80it/s]
+Loading safetensors checkpoint shards:  69% Completed | 11/16 [00:06<00:03,  1.63it/s]
+Loading safetensors checkpoint shards:  75% Completed | 12/16 [00:07<00:02,  1.55it/s]
+Loading safetensors checkpoint shards:  81% Completed | 13/16 [00:08<00:02,  1.50it/s]
+Loading safetensors checkpoint shards:  88% Completed | 14/16 [00:08<00:01,  1.46it/s]
+Loading safetensors checkpoint shards:  94% Completed | 15/16 [00:09<00:00,  1.44it/s]
+Loading safetensors checkpoint shards: 100% Completed | 16/16 [00:10<00:00,  1.42it/s]
+Loading safetensors checkpoint shards: 100% Completed | 16/16 [00:10<00:00,  1.57it/s]
+
+[2026-08-20 20:39:38] Load weight end. type=Qwen3MoeForCausalLM, dtype=torch.bfloat16, avail mem=21.70 GB, mem usage=57.04 GB.
+[2026-08-20 20:39:38] KV Cache is allocated. #tokens: 108294, K size: 4.96 GB, V size: 4.96 GB
+[2026-08-20 20:39:38] Memory pool end. avail mem=11.76 GB
+[2026-08-20 20:39:38] Capture cuda graph begin. This can take up to several minutes. avail mem=11.29 GB
+[2026-08-20 20:39:38] Capture cuda graph bs [1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 16]
+  0%|          | 0/12 [00:00<?, ?it/s]Capturing batches (bs=16 avail_mem=11.29 GB):   0%|          | 0/12 [00:00<?, ?it/s][2026-08-20 20:40:15] Using default MoE kernel config. Performance might be sub-optimal! Config file not found at /workspace/sglang_env_a100/venv/lib/python3.11/site-packages/sglang/srt/layers/moe/fused_moe_triton/configs/triton_3_3_1/E=128,N=768,device_name=NVIDIA_A100_80GB_PCIe.json, you can create them with https://github.com/sgl-project/sglang/tree/main/benchmark/kernels/fused_moe_triton
+Capturing batches (bs=16 avail_mem=11.29 GB):   8%|▊         | 1/12 [00:38<07:03, 38.54s/it]Capturing batches (bs=14 avail_mem=11.05 GB):   8%|▊         | 1/12 [00:38<07:03, 38.54s/it]Capturing batches (bs=14 avail_mem=11.05 GB):  17%|█▋        | 2/12 [00:38<02:40, 16.08s/it]Capturing batches (bs=12 avail_mem=10.89 GB):  17%|█▋        | 2/12 [00:38<02:40, 16.08s/it]Capturing batches (bs=12 avail_mem=10.89 GB):  25%|██▌       | 3/12 [00:39<01:19,  8.89s/it]Capturing batches (bs=10 avail_mem=10.77 GB):  25%|██▌       | 3/12 [00:39<01:19,  8.89s/it]Capturing batches (bs=10 avail_mem=10.77 GB):  33%|███▎      | 4/12 [00:39<00:44,  5.51s/it]Capturing batches (bs=8 avail_mem=10.63 GB):  33%|███▎      | 4/12 [00:39<00:44,  5.51s/it] Capturing batches (bs=8 avail_mem=10.63 GB):  42%|████▏     | 5/12 [00:39<00:25,  3.65s/it]Capturing batches (bs=7 avail_mem=10.52 GB):  42%|████▏     | 5/12 [00:39<00:25,  3.65s/it]Capturing batches (bs=7 avail_mem=10.52 GB):  50%|█████     | 6/12 [00:40<00:15,  2.55s/it]Capturing batches (bs=6 avail_mem=10.43 GB):  50%|█████     | 6/12 [00:40<00:15,  2.55s/it]Capturing batches (bs=6 avail_mem=10.43 GB):  58%|█████▊    | 7/12 [00:40<00:09,  1.82s/it]Capturing batches (bs=5 avail_mem=10.32 GB):  58%|█████▊    | 7/12 [00:40<00:09,  1.82s/it]Capturing batches (bs=5 avail_mem=10.32 GB):  67%|██████▋   | 8/12 [00:40<00:05,  1.35s/it]Capturing batches (bs=4 avail_mem=10.21 GB):  67%|██████▋   | 8/12 [00:40<00:05,  1.35s/it]Capturing batches (bs=4 avail_mem=10.21 GB):  75%|███████▌  | 9/12 [00:50<00:11,  3.76s/it]Capturing batches (bs=3 avail_mem=10.11 GB):  75%|███████▌  | 9/12 [00:50<00:11,  3.76s/it]Capturing batches (bs=3 avail_mem=10.11 GB):  83%|████████▎ | 10/12 [00:51<00:05,  2.93s/it]Capturing batches (bs=2 avail_mem=10.01 GB):  83%|████████▎ | 10/12 [00:51<00:05,  2.93s/it]Capturing batches (bs=2 avail_mem=10.01 GB):  92%|█████████▏| 11/12 [00:51<00:02,  2.15s/it]Capturing batches (bs=1 avail_mem=9.93 GB):  92%|█████████▏| 11/12 [00:51<00:02,  2.15s/it] Capturing batches (bs=1 avail_mem=9.93 GB): 100%|██████████| 12/12 [00:51<00:00,  1.60s/it]Capturing batches (bs=1 avail_mem=9.93 GB): 100%|██████████| 12/12 [00:51<00:00,  4.32s/it]
+[2026-08-20 20:40:30] Capture cuda graph end. Time elapsed: 51.86 s. mem usage=1.45 GB. avail mem=9.84 GB.
+[2026-08-20 20:40:30] Downcasting torch.float32 to torch.bfloat16.
+[2026-08-20 20:40:30] Downcasting torch.float32 to torch.bfloat16.
+[2026-08-20 20:40:30] Init torch distributed begin.
+[2026-08-20 20:40:30] Init torch distributed ends. mem usage=0.00 GB
+[2026-08-20 20:40:30] Load weight begin. avail mem=9.84 GB
+[2026-08-20 20:40:30] Using model weights format ['*.safetensors']
+[2026-08-20 20:40:31] No model.safetensors.index.json found in remote.
+Loading safetensors checkpoint shards:   0% Completed | 0/1 [00:00<?, ?it/s]
+Loading safetensors checkpoint shards: 100% Completed | 1/1 [00:00<00:00,  3.86it/s]
+Loading safetensors checkpoint shards: 100% Completed | 1/1 [00:00<00:00,  3.86it/s]
+
+[2026-08-20 20:40:31] Load weight end. type=LlamaForCausalLMEagle3, dtype=torch.bfloat16, avail mem=8.92 GB, mem usage=0.92 GB.
+[2026-08-20 20:40:31] KV Cache is allocated. #tokens: 108294, K size: 0.10 GB, V size: 0.10 GB
+[2026-08-20 20:40:31] Memory pool end. avail mem=8.71 GB
+[2026-08-20 20:40:31] Capture draft cuda graph begin. This can take up to several minutes. avail mem=9.03 GB
+  0%|          | 0/12 [00:00<?, ?it/s]Capturing batches (bs=16 avail_mem=9.03 GB):   0%|          | 0/12 [00:00<?, ?it/s]Capturing batches (bs=16 avail_mem=9.03 GB):   8%|▊         | 1/12 [00:05<01:03,  5.79s/it]Capturing batches (bs=14 avail_mem=8.93 GB):   8%|▊         | 1/12 [00:05<01:03,  5.79s/it]Capturing batches (bs=14 avail_mem=8.93 GB):  17%|█▋        | 2/12 [00:06<00:29,  2.94s/it]Capturing batches (bs=12 avail_mem=8.93 GB):  17%|█▋        | 2/12 [00:06<00:29,  2.94s/it]Capturing batches (bs=12 avail_mem=8.93 GB):  25%|██▌       | 3/12 [00:07<00:15,  1.75s/it]Capturing batches (bs=10 avail_mem=8.90 GB):  25%|██▌       | 3/12 [00:07<00:15,  1.75s/it]Capturing batches (bs=10 avail_mem=8.90 GB):  33%|███▎      | 4/12 [00:07<00:09,  1.18s/it]Capturing batches (bs=8 avail_mem=8.88 GB):  33%|███▎      | 4/12 [00:07<00:09,  1.18s/it] Capturing batches (bs=8 avail_mem=8.88 GB):  42%|████▏     | 5/12 [00:07<00:06,  1.08it/s]Capturing batches (bs=7 avail_mem=8.86 GB):  42%|████▏     | 5/12 [00:07<00:06,  1.08it/s]Capturing batches (bs=7 avail_mem=8.86 GB):  50%|█████     | 6/12 [00:08<00:04,  1.33it/s]Capturing batches (bs=6 avail_mem=8.84 GB):  50%|█████     | 6/12 [00:08<00:04,  1.33it/s]Capturing batches (bs=6 avail_mem=8.84 GB):  58%|█████▊    | 7/12 [00:08<00:03,  1.64it/s]Capturing batches (bs=5 avail_mem=8.82 GB):  58%|█████▊    | 7/12 [00:08<00:03,  1.64it/s]Capturing batches (bs=5 avail_mem=8.82 GB):  67%|██████▋   | 8/12 [00:08<00:02,  1.93it/s]Capturing batches (bs=4 avail_mem=8.80 GB):  67%|██████▋   | 8/12 [00:08<00:02,  1.93it/s]Capturing batches (bs=4 avail_mem=8.80 GB):  75%|███████▌  | 9/12 [00:09<00:01,  2.02it/s]Capturing batches (bs=3 avail_mem=8.78 GB):  75%|███████▌  | 9/12 [00:09<00:01,  2.02it/s]Capturing batches (bs=3 avail_mem=8.78 GB):  83%|████████▎ | 10/12 [00:09<00:00,  2.26it/s]Capturing batches (bs=2 avail_mem=8.76 GB):  83%|████████▎ | 10/12 [00:09<00:00,  2.26it/s]Capturing batches (bs=2 avail_mem=8.76 GB):  92%|█████████▏| 11/12 [00:10<00:00,  2.22it/s]Capturing batches (bs=1 avail_mem=8.74 GB):  92%|█████████▏| 11/12 [00:10<00:00,  2.22it/s]Capturing batches (bs=1 avail_mem=8.74 GB): 100%|██████████| 12/12 [00:15<00:00,  1.80s/it]Capturing batches (bs=1 avail_mem=8.74 GB): 100%|██████████| 12/12 [00:15<00:00,  1.25s/it]
+[2026-08-20 20:40:46] Capture draft cuda graph end. Time elapsed: 15.04 s. mem usage=0.31 GB. avail mem=8.72 GB.
+[2026-08-20 20:40:46] Capture draft extend cuda graph begin. This can take up to several minutes. avail mem=8.72 GB
+  0%|          | 0/12 [00:00<?, ?it/s]Capturing batches (bs=16 avail_mem=8.71 GB):   0%|          | 0/12 [00:00<?, ?it/s]Capturing batches (bs=16 avail_mem=8.71 GB):   8%|▊         | 1/12 [00:00<00:04,  2.68it/s]Capturing batches (bs=14 avail_mem=8.67 GB):   8%|▊         | 1/12 [00:00<00:04,  2.68it/s]Capturing batches (bs=14 avail_mem=8.67 GB):  17%|█▋        | 2/12 [00:00<00:03,  2.58it/s]Capturing batches (bs=12 avail_mem=8.65 GB):  17%|█▋        | 2/12 [00:00<00:03,  2.58it/s]Capturing batches (bs=12 avail_mem=8.65 GB):  25%|██▌       | 3/12 [00:01<00:03,  2.36it/s]Capturing batches (bs=10 avail_mem=8.65 GB):  25%|██▌       | 3/12 [00:01<00:03,  2.36it/s]Capturing batches (bs=10 avail_mem=8.65 GB):  33%|███▎      | 4/12 [00:01<00:03,  2.53it/s]Capturing batches (bs=8 avail_mem=8.63 GB):  33%|███▎      | 4/12 [00:01<00:03,  2.53it/s] Capturing batches (bs=8 avail_mem=8.63 GB):  42%|████▏     | 5/12 [00:01<00:02,  2.68it/s]Capturing batches (bs=7 avail_mem=8.63 GB):  42%|████▏     | 5/12 [00:01<00:02,  2.68it/s]Capturing batches (bs=7 avail_mem=8.63 GB):  50%|█████     | 6/12 [00:02<00:02,  2.73it/s]Capturing batches (bs=6 avail_mem=8.61 GB):  50%|█████     | 6/12 [00:02<00:02,  2.73it/s]Capturing batches (bs=6 avail_mem=8.61 GB):  58%|█████▊    | 7/12 [00:02<00:01,  2.77it/s]Capturing batches (bs=5 avail_mem=8.60 GB):  58%|█████▊    | 7/12 [00:02<00:01,  2.77it/s]Capturing batches (bs=5 avail_mem=8.60 GB):  67%|██████▋   | 8/12 [00:03<00:01,  2.65it/s]Capturing batches (bs=4 avail_mem=8.58 GB):  67%|██████▋   | 8/12 [00:03<00:01,  2.65it/s]Capturing batches (bs=4 avail_mem=8.58 GB):  75%|███████▌  | 9/12 [00:03<00:01,  2.66it/s]Capturing batches (bs=3 avail_mem=8.58 GB):  75%|███████▌  | 9/12 [00:03<00:01,  2.66it/s]Capturing batches (bs=3 avail_mem=8.58 GB):  83%|████████▎ | 10/12 [00:03<00:00,  2.70it/s]Capturing batches (bs=2 avail_mem=8.56 GB):  83%|████████▎ | 10/12 [00:03<00:00,  2.70it/s]Capturing batches (bs=2 avail_mem=8.56 GB):  92%|█████████▏| 11/12 [00:04<00:00,  2.72it/s]Capturing batches (bs=1 avail_mem=8.56 GB):  92%|█████████▏| 11/12 [00:04<00:00,  2.72it/s]Capturing batches (bs=1 avail_mem=8.56 GB): 100%|██████████| 12/12 [00:04<00:00,  2.72it/s]Capturing batches (bs=1 avail_mem=8.56 GB): 100%|██████████| 12/12 [00:04<00:00,  2.67it/s]
+[2026-08-20 20:40:51] Capture draft extend cuda graph end. Time elapsed: 4.55 s. mem usage=0.17 GB. avail mem=8.54 GB.
+[2026-08-20 20:40:51] max_total_num_tokens=108294, chunked_prefill_size=8192, max_prefill_tokens=16384, max_running_requests=16, context_len=2048, available_gpu_mem=8.54 GB
+[2026-08-20 20:40:52] INFO:     Started server process [46327]
+[2026-08-20 20:40:52] INFO:     Waiting for application startup.
+[2026-08-20 20:40:52] INFO:     Application startup complete.
+[2026-08-20 20:40:52] INFO:     Uvicorn running on http://0.0.0.0:30001 (Press CTRL+C to quit)
+[2026-08-20 20:40:53] INFO:     127.0.0.1:46028 - "GET /get_model_info HTTP/1.1" 200 OK
+[2026-08-20 20:40:53] Prefill batch. #new-seq: 1, #new-token: 6, #cached-token: 0, token usage: 0.00, #running-req: 0, #queue-req: 0, 
+[2026-08-20 20:40:54] INFO:     127.0.0.1:46056 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:40:54] INFO:     127.0.0.1:46042 - "POST /generate HTTP/1.1" 200 OK
+[2026-08-20 20:40:54] The server is fired up and ready to roll!
+[2026-08-20 20:40:57] INFO:     127.0.0.1:46070 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:41:04] INFO:     127.0.0.1:53316 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:41:07] INFO:     127.0.0.1:53318 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:41:14] INFO:     127.0.0.1:56704 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:41:17] INFO:     127.0.0.1:56710 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:41:24] INFO:     127.0.0.1:41364 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:41:27] INFO:     127.0.0.1:41380 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:41:34] INFO:     127.0.0.1:40106 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:41:37] INFO:     127.0.0.1:40112 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:41:44] INFO:     127.0.0.1:60492 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:41:47] INFO:     127.0.0.1:60502 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:41:54] INFO:     127.0.0.1:43338 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:41:57] INFO:     127.0.0.1:43344 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:42:04] INFO:     127.0.0.1:50930 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:42:07] INFO:     127.0.0.1:50932 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:42:14] INFO:     127.0.0.1:33140 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:42:17] INFO:     127.0.0.1:43354 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:42:24] INFO:     127.0.0.1:43356 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:42:27] INFO:     127.0.0.1:53864 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:42:34] INFO:     127.0.0.1:53868 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:42:37] INFO:     127.0.0.1:59808 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:42:44] INFO:     127.0.0.1:59822 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:42:48] INFO:     127.0.0.1:38588 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:42:54] INFO:     127.0.0.1:38592 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:42:58] INFO:     127.0.0.1:56734 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:43:04] INFO:     127.0.0.1:56738 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:43:08] INFO:     127.0.0.1:40336 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:43:14] INFO:     127.0.0.1:40338 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:43:18] INFO:     127.0.0.1:48632 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:43:24] INFO:     127.0.0.1:48636 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:43:28] INFO:     127.0.0.1:47116 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:43:34] INFO:     127.0.0.1:47120 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:43:38] INFO:     127.0.0.1:59908 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:43:44] INFO:     127.0.0.1:59914 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:43:48] INFO:     127.0.0.1:56994 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:43:54] INFO:     127.0.0.1:57008 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:43:58] INFO:     127.0.0.1:36142 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:44:05] INFO:     127.0.0.1:36146 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:44:08] INFO:     127.0.0.1:37312 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:44:15] INFO:     127.0.0.1:37320 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:44:18] INFO:     127.0.0.1:45952 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:44:25] INFO:     127.0.0.1:45968 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:44:28] INFO:     127.0.0.1:55482 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:44:35] INFO:     127.0.0.1:55484 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:44:38] INFO:     127.0.0.1:60942 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:44:45] INFO:     127.0.0.1:60952 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:44:48] INFO:     127.0.0.1:51094 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:44:55] INFO:     127.0.0.1:51100 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:44:58] INFO:     127.0.0.1:59810 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:45:05] INFO:     127.0.0.1:59814 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:45:08] INFO:     127.0.0.1:52826 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:45:15] INFO:     127.0.0.1:52834 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:45:18] INFO:     127.0.0.1:49474 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:45:25] INFO:     127.0.0.1:49482 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:45:28] INFO:     127.0.0.1:52196 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:45:35] INFO:     127.0.0.1:52204 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:45:38] INFO:     127.0.0.1:44186 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:45:45] INFO:     127.0.0.1:44194 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:45:48] INFO:     127.0.0.1:50608 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:45:55] INFO:     127.0.0.1:50618 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:45:58] INFO:     127.0.0.1:40832 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:46:05] INFO:     127.0.0.1:40834 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:46:08] INFO:     127.0.0.1:46938 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:46:15] INFO:     127.0.0.1:46952 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:46:18] INFO:     127.0.0.1:57108 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:46:25] INFO:     127.0.0.1:57116 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:46:28] INFO:     127.0.0.1:60224 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:46:35] INFO:     127.0.0.1:60228 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:46:38] INFO:     127.0.0.1:47120 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:46:45] INFO:     127.0.0.1:47132 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:46:48] INFO:     127.0.0.1:41598 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:46:55] INFO:     127.0.0.1:41606 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:46:58] INFO:     127.0.0.1:38216 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:47:05] INFO:     127.0.0.1:38222 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:47:08] INFO:     127.0.0.1:36170 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:47:15] INFO:     127.0.0.1:36184 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:47:18] INFO:     127.0.0.1:33098 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:47:25] INFO:     127.0.0.1:33110 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:47:28] INFO:     127.0.0.1:46452 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:47:35] INFO:     127.0.0.1:46460 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:47:38] INFO:     127.0.0.1:54846 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:47:45] INFO:     127.0.0.1:54852 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:47:48] INFO:     127.0.0.1:39048 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:47:55] INFO:     127.0.0.1:39064 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:47:58] INFO:     127.0.0.1:41250 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:48:05] INFO:     127.0.0.1:41258 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:48:08] INFO:     127.0.0.1:44910 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:48:15] INFO:     127.0.0.1:44924 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:48:18] INFO:     127.0.0.1:46268 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:48:25] INFO:     127.0.0.1:46270 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:48:28] INFO:     127.0.0.1:36150 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:48:35] INFO:     127.0.0.1:36152 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:48:38] INFO:     127.0.0.1:51622 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:48:45] INFO:     127.0.0.1:51632 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:48:48] INFO:     127.0.0.1:59612 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:48:55] INFO:     127.0.0.1:59620 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:48:58] INFO:     127.0.0.1:52036 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:49:05] INFO:     127.0.0.1:52044 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:49:08] INFO:     127.0.0.1:37124 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:49:15] INFO:     127.0.0.1:37132 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:49:18] INFO:     127.0.0.1:33404 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:49:25] INFO:     127.0.0.1:33414 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:49:28] INFO:     127.0.0.1:50370 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:49:35] INFO:     127.0.0.1:50386 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:49:38] INFO:     127.0.0.1:46228 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:49:45] INFO:     127.0.0.1:46240 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:49:48] INFO:     127.0.0.1:47030 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:49:55] INFO:     127.0.0.1:47034 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:49:58] INFO:     127.0.0.1:58312 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:50:05] INFO:     127.0.0.1:58322 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:50:08] INFO:     127.0.0.1:52588 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:50:15] INFO:     127.0.0.1:52604 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:50:18] INFO:     127.0.0.1:51364 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:50:25] INFO:     127.0.0.1:51378 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:50:28] INFO:     127.0.0.1:42366 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:50:35] INFO:     127.0.0.1:42380 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:50:38] INFO:     127.0.0.1:41764 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:50:45] INFO:     127.0.0.1:41766 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:50:48] INFO:     127.0.0.1:51966 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:50:55] INFO:     127.0.0.1:51982 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:50:58] INFO:     127.0.0.1:58270 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:51:05] INFO:     127.0.0.1:58286 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:51:09] INFO:     127.0.0.1:40668 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:51:15] INFO:     127.0.0.1:40680 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:51:19] INFO:     127.0.0.1:38854 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:51:25] INFO:     127.0.0.1:38856 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:51:29] INFO:     127.0.0.1:40176 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:51:35] INFO:     127.0.0.1:40192 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:51:39] INFO:     127.0.0.1:54214 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:51:45] INFO:     127.0.0.1:54218 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:51:49] INFO:     127.0.0.1:54420 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:51:55] INFO:     127.0.0.1:54422 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:51:59] INFO:     127.0.0.1:52764 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:52:05] INFO:     127.0.0.1:52770 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:52:09] INFO:     127.0.0.1:54466 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:52:16] INFO:     127.0.0.1:54476 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:52:19] INFO:     127.0.0.1:55904 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:52:26] INFO:     127.0.0.1:55912 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:52:29] INFO:     127.0.0.1:42086 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:52:36] INFO:     127.0.0.1:42088 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:52:39] INFO:     127.0.0.1:58588 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:52:46] INFO:     127.0.0.1:58600 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:52:49] INFO:     127.0.0.1:38062 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:52:56] INFO:     127.0.0.1:38074 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:52:59] INFO:     127.0.0.1:37048 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:53:06] INFO:     127.0.0.1:37062 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:53:09] INFO:     127.0.0.1:39946 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:53:16] INFO:     127.0.0.1:39950 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:53:19] INFO:     127.0.0.1:44844 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:53:26] INFO:     127.0.0.1:44860 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:53:29] INFO:     127.0.0.1:35522 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:53:36] INFO:     127.0.0.1:35532 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:53:39] INFO:     127.0.0.1:50702 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:53:46] INFO:     127.0.0.1:50708 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:53:49] INFO:     127.0.0.1:56302 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:53:56] INFO:     127.0.0.1:56308 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:53:59] INFO:     127.0.0.1:45858 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:54:06] INFO:     127.0.0.1:45864 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:54:09] INFO:     127.0.0.1:56954 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:54:16] INFO:     127.0.0.1:56960 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:54:19] INFO:     127.0.0.1:55916 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:54:26] INFO:     127.0.0.1:55930 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:54:29] INFO:     127.0.0.1:32852 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:54:36] INFO:     127.0.0.1:32858 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:54:39] INFO:     127.0.0.1:57582 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:54:46] INFO:     127.0.0.1:57590 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:54:49] INFO:     127.0.0.1:48274 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:54:56] INFO:     127.0.0.1:48290 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:54:59] INFO:     127.0.0.1:57366 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:55:06] INFO:     127.0.0.1:57368 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:55:09] INFO:     127.0.0.1:37496 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:55:16] INFO:     127.0.0.1:37504 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:55:19] INFO:     127.0.0.1:39126 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:55:26] INFO:     127.0.0.1:39134 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:55:29] INFO:     127.0.0.1:40098 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:55:36] INFO:     127.0.0.1:40100 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:55:39] INFO:     127.0.0.1:41522 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:55:46] INFO:     127.0.0.1:41536 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:55:48] INFO:     127.0.0.1:36142 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:55:49] INFO:     127.0.0.1:36156 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:55:56] INFO:     127.0.0.1:36170 - "GET /health HTTP/1.1" 200 OK
+[2026-08-20 20:55:56] INFO:     127.0.0.1:36176 - "GET /get_model_info HTTP/1.1" 200 OK
+[2026-08-20 20:55:56] INFO:     127.0.0.1:36192 - "GET /get_model_info HTTP/1.1" 200 OK
+[2026-08-20 20:55:56] INFO:     127.0.0.1:36198 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:55:59] INFO:     127.0.0.1:58334 - "GET /model_info HTTP/1.1" 404 Not Found
+[2026-08-20 20:56:06] INFO:     127.0.0.1:58336 - "GET /health HTTP/1.1" 200 OK
+[2026-08-20 20:56:06] Prefill batch. #new-seq: 1, #new-token: 4, #cached-token: 0, token usage: 0.00, #running-req: 0, #queue-req: 0, 
+[2026-08-20 20:56:07] INFO:     127.0.0.1:58342 - "POST /generate HTTP/1.1" 200 OK
+[2026-08-20 20:56:15] SIGTERM received. signum=None frame=None. Draining requests and shutting down...
+[2026-08-20 20:56:18] Gracefully exiting... remaining number of requests 0

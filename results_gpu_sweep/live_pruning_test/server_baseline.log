@@ -1,0 +1,64 @@
+/workspace/sglang_env/venv/lib/python3.11/site-packages/sglang/launch_server.py:56: UserWarning: 'python -m sglang.launch_server' is still supported, but 'sglang serve' is the recommended entrypoint.
+  Example: sglang serve --model-path <model> [options]
+  warnings.warn(
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/workspace/sglang_env/venv/lib/python3.11/site-packages/sglang/launch_server.py", line 68, in <module>
+    server_args = prepare_server_args(sys.argv[1:])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sglang_env/venv/lib/python3.11/site-packages/sglang/srt/server_args.py", line 9380, in prepare_server_args
+    return ServerArgs.from_cli_args(raw_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sglang_env/venv/lib/python3.11/site-packages/sglang/srt/server_args.py", line 8470, in from_cli_args
+    return cls(**{attr: getattr(args, attr) for attr in attrs})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<string>", line 461, in __init__
+  File "/workspace/sglang_env/venv/lib/python3.11/site-packages/sglang/srt/server_args.py", line 3506, in __post_init__
+    self._apply_inkling_prefill_cuda_graph_default()
+  File "/workspace/sglang_env/venv/lib/python3.11/site-packages/sglang/srt/server_args.py", line 4224, in _apply_inkling_prefill_cuda_graph_default
+    arch = self.get_model_config().hf_config.architectures[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sglang_env/venv/lib/python3.11/site-packages/sglang/srt/server_args.py", line 8530, in get_model_config
+    from sglang.srt.configs.model_config import ModelConfig
+  File "/workspace/sglang_env/venv/lib/python3.11/site-packages/sglang/srt/configs/model_config.py", line 31, in <module>
+    from sglang.srt.layers.quantization import QUANTIZATION_METHODS
+  File "/workspace/sglang_env/venv/lib/python3.11/site-packages/sglang/srt/layers/quantization/__init__.py", line 26, in <module>
+    from sglang.srt.layers.quantization.compressed_tensors.compressed_tensors import (
+  File "/workspace/sglang_env/venv/lib/python3.11/site-packages/sglang/srt/layers/quantization/compressed_tensors/compressed_tensors.py", line 40, in <module>
+    from sglang.srt.layers.quantization.compressed_tensors.schemes import (
+  File "/workspace/sglang_env/venv/lib/python3.11/site-packages/sglang/srt/layers/quantization/compressed_tensors/schemes/__init__.py", line 8, in <module>
+    from .compressed_tensors_w4a4_nvfp4 import CompressedTensorsW4A4Fp4
+  File "/workspace/sglang_env/venv/lib/python3.11/site-packages/sglang/srt/layers/quantization/compressed_tensors/schemes/compressed_tensors_w4a4_nvfp4.py", line 20, in <module>
+    from sglang.srt.layers.quantization.modelopt_quant import (
+  File "/workspace/sglang_env/venv/lib/python3.11/site-packages/sglang/srt/layers/quantization/modelopt_quant.py", line 39, in <module>
+    from sglang.srt.layers.quantization.fp8 import Fp8Config, Fp8LinearMethod, Fp8MoEMethod
+  File "/workspace/sglang_env/venv/lib/python3.11/site-packages/sglang/srt/layers/quantization/fp8.py", line 55, in <module>
+    from sglang.srt.layers.quantization.fp8_utils import (
+  File "/workspace/sglang_env/venv/lib/python3.11/site-packages/sglang/srt/layers/quantization/fp8_utils.py", line 174, in <module>
+    from sgl_kernel import fp8_scaled_mm
+  File "/workspace/sglang_env/venv/lib/python3.11/site-packages/sgl_kernel/__init__.py", line 19, in <module>
+    common_ops = _load_architecture_specific_ops()
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sglang_env/venv/lib/python3.11/site-packages/sgl_kernel/load_utils.py", line 197, in _load_architecture_specific_ops
+    raise ImportError(error_msg)
+ImportError: 
+[sgl_kernel] CRITICAL: Could not load any common_ops library!
+
+Attempted locations:
+1. Architecture-specific pattern: /workspace/sglang_env/venv/lib/python3.11/site-packages/sgl_kernel/sm100/common_ops.* - found files: ['/workspace/sglang_env/venv/lib/python3.11/site-packages/sgl_kernel/sm100/common_ops.abi3.so']
+2. Fallback pattern: /workspace/sglang_env/venv/lib/python3.11/site-packages/sgl_kernel/common_ops.* - found files: []
+3. Standard Python import: common_ops - failed
+
+GPU Info:
+- Compute capability: 80
+- Expected variant: SM80 (precise math for compatibility)
+- CUDA version: 12.8
+
+Please ensure sgl_kernel is properly installed with:
+pip install sglang-kernel --index-url https://docs.sglang.ai/whl/cu129/
+
+Error details from previous import attempts:
+- ImportError: libnvrtc.so.13: cannot open shared object file: No such file or directory
+- ModuleNotFoundError: No module named 'common_ops'
+
