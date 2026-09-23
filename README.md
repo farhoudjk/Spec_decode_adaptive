@@ -124,3 +124,102 @@ on this page and needs hardware validation before it is quoted.
    internal state and quantize only at actuation.
 3. Multiplying a setpoint by the gain then truncating drove DSDE's per-request
    gamma to 0. Gain smooths the approach to a setpoint; it never scales it.
+
+---
+
+# Real-hardware MoE speculative decoding: B0–B4
+
+Measurement on live SGLang + EAGLE3 speculative decoding against two MoE
+targets (Qwen3-30B-A3B and gpt-oss-20b), across a 12-point (batch admission
+cap `B` × arrival rate `λ`) load grid.
+
+## The five policies (B0–B4)
+
+| | policy | what it does |
+|---|---|---|
+| **B0** | static default | one fixed `(D,W)` tree shape, same at every load point |
+| **B1** | architecture-blind budget | greedy marginal-utility picker fit on a `D+W`-only cost model |
+| **B2** | expert-footprint budget (this work) | same greedy picker, cost model adds the fitted expert-activation (`E`) term |
+| **B3** | SGLang's shipped adaptive controller | `--speculative-adaptive`, `D`-switching on `ema_accept_len` |
+| **B4** | EcoSpec | cost-aware draft-candidate selection within a fixed tree, greedy `P(t)/ΔCost(t\|buffer)` (arXiv 2607.12696) |
+
+B4 needs `W ≥ 2` (W=1 has no branching to select over). B4's baseline uses
+`P(t)=1` for every candidate and ground-truth (not predicted) routing,
+reported as an oracle upper bound rather than a live-serving policy.
+
+## Prerequisites
+
+- An SGLang server environment (`sglang[all]`, `ninja`) with a CUDA toolkit
+  matching the driver — see `scripts/rebuild_env_gptoss.sh`.
+- `CUDA_HOME` set to that toolkit's path.
+- For gpt-oss-20b: the published EAGLE3 draft (`nebius/EAGLE3-gpt-oss-20b`)
+  needs its config patched before SGLang can load it.
+  `rebuild_env_gptoss.sh` downloads it, patches it, and prints the
+  `GPTOSS_DRAFT_PATH` to export. Qwen needs no patch (its published draft,
+  `lmsys/SGLang-EAGLE3-Qwen3-30B-A3B-Instruct-2507-SpecForge-Nex`, loads as-is).
+- gpt-oss-20b requires `--moe-runner-backend triton --mem-fraction-static 0.94`
+  on every launch.
+
+## Running each policy
+
+All scripts live in `scripts/` and write to `results_gpu_sweep/<name>/`.
+Each is idempotent to rerun and safe to background (`setsid ... & disown`)
+for a multi-hour unattended grid.
+
+```bash
+export CUDA_HOME=/mnt/data/venv/lib/python3.12/site-packages/nvidia/cu13
+export HF_HOME=/mnt/data/hf_cache               # optional, defaults shown
+
+# gpt-oss-20b only, once per fresh environment:
+scripts/rebuild_env_gptoss.sh
+export GPTOSS_DRAFT_PATH=/mnt/data/eagle3-gptoss-20b-sglang   # printed by the rebuild script
+```
+
+**B0 / B1 / B2 / oracle**
+
+```bash
+scripts/run_qwen_4x3.sh
+python3 scripts/pick_tree.py --B 8 --rate 2
+
+scripts/run_gptoss_4x3.sh
+python3 scripts/compute_gptoss_b0_b1_b2.py
+```
+
+**B3**
+
+```bash
+scripts/run_qwen_adaptive_4x3.sh
+scripts/run_gptoss_adaptive_4x3.sh
+```
+
+**B4 (EcoSpec)**
+
+```bash
+scripts/run_ecospec_gptoss_4x3.sh
+```
+
+**End-to-end**
+
+```bash
+scripts/chain_gptoss_full.sh
+```
+
+## Reading the output
+
+- `results_gpu_sweep/<grid>/grid.json` — raw per-`(D,W,B,rate)` cell:
+  throughput, acceptance length, `mean_distinct_experts`.
+- `*/b0_b1_b2_full.json` (gpt-oss) or `pick_tree.py`'s stdout (Qwen) —
+  per-load-point shape choice and goodput for B0/B1/B2/oracle.
+- `*_adaptive_4x3/result.json` — per-load-point static-arm sweep and the
+  adaptive arm's settled depth, switch count, and goodput (B3).
+- `ecospec_4x3/summary.json` — per-load-point mean distinct-experts under
+  confidence-only vs. EcoSpec selection, and the resulting reduction (B4).
+
+## Limitations
+
+- B4 reports an expert-footprint reduction, not a throughput number.
+- B4's candidate pool is treated as unordered within each verify step
+  rather than as a tree; this likely understates its real effect.
+- B4 is evaluated on gpt-oss-20b only.
+- gpt-oss's rate values are not numerically comparable to Qwen's; both are
+  chosen to keep each model decode-bound rather than queue-bound.

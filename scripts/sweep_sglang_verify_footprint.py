@@ -1,40 +1,3 @@
-"""Axis-7 / C1, take 3: FULL verify-batch expert-footprint sweep (proposed
-draft tokens, accepted AND rejected). See AXIS7.md#10 for the full trace of
-why this exists -- takes 1 and 2 are both documented dead ends/partial
-results:
-
-- take 1 (specloop_rt/sglang_patch/moe_expert_hooks.py, TopK.forward patch):
-  never fires on real traffic, CUDA graph replay bypasses it (AXIS7.md#2).
-- take 2 (scripts/sweep_sglang_expert_footprint.py, native
-  --enable-return-routed-experts): works, but is target-model,
-  ACCEPTED-TOKEN-ONLY -- confirmed live, and a clean 9-cell GPU grid found
-  the resulting distinct-experts/imbalance stats are flat across D and W
-  (AXIS7.md#6), which is a real but INCONCLUSIVE result on the design
-  brief's actual hypothesis (which is about the rejected-inclusive
-  verify-batch footprint, since rejected candidates still cost GEMM
-  compute during verify).
-
-THIS SWEEP uses specloop_rt/sglang_patch/verify_batch_expert_hooks.py,
-which patches ModelRunner.forward (not TopK.forward) to intercept the
-verify-batch's routed_experts BEFORE finalize() narrows it to
-accepted-only KV-cache positions. Unlike take 1, this patch point is
-naturally CUDA-graph-safe: on_forward_end() (which the patch wraps around,
-by wrapping the whole forward() call) runs strictly after graph replay
-completes for that step, in eager Python -- see that module's docstring
-for the exact code-path trace confirming this.
-
-Needs its own PYTHONPATH + env wiring (like take 1 did, unlike take 2's
-client-side-only flag) since this is a real monkeypatch that must install
-inside SGLang's spawned scheduler subprocess via sitecustomize.py.
-
-Separate sweep from both sweep_sglang_depth_width.py (axis6) and
-sweep_sglang_expert_footprint.py (take 2), for the same reasons take 1's
-version gave: unknown sync/latency cost (a per-verify-step .to("cpu") call,
-smaller than take 1's per-MoE-layer sync since it's now one copy per
-verify step covering all layers at once, but still not free -- not yet
-measured, see AXIS7.md#10's open items) and no B x rate load axis needed
-(routing structure, not load-dependent, per the same reasoning as take 2).
-"""
 from __future__ import annotations
 
 import argparse
@@ -57,7 +20,7 @@ from sweep_sglang_depth_width import (
 )
 from specloop_rt.workload import homogeneous
 
-HF_HOME = "/root/spec_decode_env/hf_cache"
+HF_HOME = os.environ.get("HF_HOME") or "/root/spec_decode_env/hf_cache"
 HOOK_SHIM_DIR = os.path.join(_REPO_ROOT, "specloop_rt", "sglang_patch")
 
 
@@ -66,19 +29,10 @@ def launch_server_with_verify_hook(model_path: str, draft_path: str, num_steps: 
                                     max_running_requests: int, port: int, log_path: str,
                                     hook_out_path: str, cell_tag: str, num_layers: int,
                                     topk_size: int, dtype: str = "bfloat16",
-                                    moe_runner_backend: str = None) -> subprocess.Popen:
-    """Same launch as sweep_sglang_depth_width.launch_server, plus the env
-    vars verify_batch_expert_hooks.py / sitecustomize.py need. See
-    specloop_rt/sglang_patch/sitecustomize.py's docstring for why both
-    REPO_ROOT and HOOK_SHIM_DIR must be on PYTHONPATH.
-
-    Deliberately does NOT pass --enable-return-routed-experts (take 2's
-    flag) -- that flag controls the NATIVE capturer's client-facing return
-    path, which this sweep doesn't use at all; it reads the capturer's
-    internal device buffer directly via the ModelRunner.forward patch.
-    Whether the native capturer even needs to be constructed for this
-    patch to see routed_experts_output is confirmed live in the smoke
-    test, not assumed here -- see AXIS7.md#10 if this needs revisiting."""
+                                    moe_runner_backend: str = None,
+                                    attention_backend: str = None,
+                                    sampling_backend: str = None,
+                                    mem_fraction_static: float = 0.85) -> subprocess.Popen:
     env = os.environ.copy()
     env["HF_HOME"] = HF_HOME
     env["HUGGINGFACE_HUB_CACHE"] = f"{HF_HOME}/hub"
@@ -99,31 +53,43 @@ def launch_server_with_verify_hook(model_path: str, draft_path: str, num_steps: 
         "--speculative-eagle-topk", str(topk),
         "--speculative-num-draft-tokens", str(num_draft_tokens),
         "--context-length", str(context_length),
-        "--mem-fraction-static", "0.85",
+        "--mem-fraction-static", str(mem_fraction_static),
         "--dtype", dtype,
         "--max-running-requests", str(max_running_requests),
         "--port", str(port),
         "--host", "0.0.0.0",
-        "--enable-return-routed-experts",  # constructs the capturer at all
+        "--enable-return-routed-experts",
     ]
+    if attention_backend:
+        cmd += ["--attention-backend", attention_backend]
+    if sampling_backend:
+        cmd += ["--sampling-backend", sampling_backend]
     if moe_runner_backend:
-        # some architectures (e.g. gpt-oss's mxfp4 config) auto-select a
-        # kernel path (triton_kernel) whose TopK.forward_cuda early-returns
-        # before capture_routed_experts_if_allowed() ever fires, leaving the
-        # capturer's device buffer at its zeros-init value for every layer --
-        # forcing a backend that routes through select_experts() restores
-        # correct capture. See AXIS8.md's gpt-oss section for the trace.
         cmd += ["--moe-runner-backend", moe_runner_backend]
     logf = open(log_path, "w")
     return subprocess.Popen(cmd, stdout=logf, stderr=subprocess.STDOUT, env=env,
                             start_new_session=True)
 
 
+def _wait_for_gpu_drain(timeout_s: float = 120.0, idle_mib: int = 2000) -> None:
+    import subprocess as _sp
+    import time as _t
+    deadline = _t.time() + timeout_s
+    while _t.time() < deadline:
+        try:
+            out = _sp.run(["nvidia-smi", "--query-gpu=memory.used",
+                           "--format=csv,noheader,nounits"],
+                          capture_output=True, text=True, timeout=10).stdout.strip()
+            if out and int(out.splitlines()[0]) < idle_mib:
+                return
+        except (OSError, ValueError, _sp.SubprocessError):
+            return
+        _t.sleep(3)
+    print(f"    WARNING: GPU still busy after {timeout_s}s; continuing anyway",
+          flush=True)
+
+
 def aggregate_hook_log(hook_out_path: str) -> dict:
-    """Fold a cell's raw per-(verify-step, layer) JSONL into summary
-    stats. Returns {} if missing/empty -- the expected outcome for a dense
-    control or a broken hook, not silently treated as success either way
-    (run_cell()'s WARNING check catches the latter)."""
     if not os.path.exists(hook_out_path):
         return {}
     distinct_experts, max_per_expert, tokens_routed, batch_sizes = [], [], [], []
@@ -158,7 +124,9 @@ def aggregate_hook_log(hook_out_path: str) -> dict:
 def run_cell(model_path, draft_path, num_steps, topk, num_draft_tokens,
              context_length, batch, rate, duration, rtype, max_new_tokens,
              port, out_dir, tag, num_layers, topk_size, dtype="bfloat16",
-             request_timeout_s=180, moe_runner_backend=None):
+             request_timeout_s=180, moe_runner_backend=None,
+             attention_backend=None, sampling_backend=None,
+             mem_fraction_static=0.85):
     effective_draft_tokens = min(num_draft_tokens, num_steps * topk + 1)
     log_path = os.path.join(out_dir, f"server_{tag}.log")
     hook_out_path = os.path.join(out_dir, f"hooklog_{tag}.jsonl")
@@ -168,7 +136,10 @@ def run_cell(model_path, draft_path, num_steps, topk, num_draft_tokens,
                                           effective_draft_tokens, context_length, batch,
                                           port, log_path, hook_out_path, tag,
                                           num_layers, topk_size, dtype=dtype,
-                                          moe_runner_backend=moe_runner_backend)
+                                          moe_runner_backend=moe_runner_backend,
+                                          attention_backend=attention_backend,
+                                          sampling_backend=sampling_backend,
+                                          mem_fraction_static=mem_fraction_static)
     try:
         wait_for_server(port, proc)
         trace = homogeneous(rtype=rtype, rate=rate, duration=duration, seed=0,
@@ -179,52 +150,34 @@ def run_cell(model_path, draft_path, num_steps, topk, num_draft_tokens,
         summary = summarize(rows)
     finally:
         stop_server(proc, port)
-        # verify_batch_expert_hooks._record() writes to hook_out_path
-        # WRITE-THROUGH (one open+append+close per verify step), not
-        # buffered-and-atexit -- the original atexit-based design didn't
-        # survive stop_server()'s SIGTERM (raw SIGTERM doesn't run atexit
-        # handlers, confirmed live: canaries showed real verify-batch data
-        # arriving at the hook, but nothing reached disk under the old
-        # buffered design -- see verify_batch_expert_hooks.py's _record()
-        # docstring and AXIS7.md#10). stop_server() waiting for the
-        # process to exit is still correct here, just no longer load-
-        # bearing for data completeness the way it was meant to be.
+        _wait_for_gpu_drain()
     footprint = aggregate_hook_log(hook_out_path)
     if not footprint:
-        print(f"WARNING: {tag} produced no verify-batch expert rows "
-              f"(hook not firing? check server_{tag}.log for canary prints "
-              f"and import errors)", flush=True)
+        print(f"WARNING: {tag} produced no verify-batch expert rows", flush=True)
     return {**summary, **footprint}
 
 
 def main(argv=None):
-    p = argparse.ArgumentParser("SGLang FULL verify-batch expert-footprint sweep "
-                                "(Axis-7 C1, take 3)")
+    p = argparse.ArgumentParser()
     p.add_argument("--model-path", required=True)
     p.add_argument("--draft-path", required=True)
-    p.add_argument("--num-layers", type=int, required=True,
-                   help="target model's num_hidden_layers -- check config.json, don't "
-                        "assume a default is current")
-    p.add_argument("--topk-size", type=int, required=True,
-                   help="target model's num_experts_per_tok")
+    p.add_argument("--num-layers", type=int, required=True)
+    p.add_argument("--topk-size", type=int, required=True)
     p.add_argument("--steps", type=int, nargs="+", default=[1, 2, 3, 4, 6, 8])
     p.add_argument("--topks", type=int, nargs="+", default=[1, 2, 4, 8])
     p.add_argument("--num-draft-tokens", type=int, default=16)
     p.add_argument("--dtype", default="bfloat16")
+    p.add_argument("--attention-backend", default=None)
     p.add_argument("--context-length", type=int, default=2048)
     p.add_argument("--Bs", type=int, nargs="+", default=[16])
     p.add_argument("--rates", type=float, nargs="+", default=[4.0])
     p.add_argument("--duration", type=float, default=30.0)
     p.add_argument("--rtype", default="code")
     p.add_argument("--max-new-tokens", type=int, default=128)
-    p.add_argument("--request-timeout", type=float, default=180,
-                   help="per-request HTTP client timeout in seconds; raise for "
-                        "low-accept-rate drafts where queues drain slowly")
-    p.add_argument("--moe-runner-backend", default=None,
-                   help="force a specific SGLang MoE kernel backend (e.g. 'triton'). "
-                        "Needed for architectures whose auto-selected backend (e.g. "
-                        "gpt-oss's triton_kernel) bypasses select_experts() and never "
-                        "fires the expert-capture hook.")
+    p.add_argument("--request-timeout", type=float, default=180)
+    p.add_argument("--moe-runner-backend", default=None)
+    p.add_argument("--sampling-backend", default=None)
+    p.add_argument("--mem-fraction-static", type=float, default=0.85)
     p.add_argument("--port", type=int, default=30030)
     p.add_argument("--out", default="results_gpu_sweep/sglang_verify_footprint_qwen3moe")
     a = p.parse_args(argv)
@@ -248,7 +201,10 @@ def main(argv=None):
                                     a.duration, a.rtype, a.max_new_tokens, a.port,
                                     a.out, key, a.num_layers, a.topk_size, dtype=a.dtype,
                                     request_timeout_s=a.request_timeout,
-                                    moe_runner_backend=a.moe_runner_backend)
+                                    moe_runner_backend=a.moe_runner_backend,
+                                    attention_backend=a.attention_backend,
+                                    sampling_backend=a.sampling_backend,
+                                    mem_fraction_static=a.mem_fraction_static)
                         grid[key] = {"num_steps": steps, "eagle_topk": topk, "B": B,
                                     "rate": rate, "rtype": a.rtype, **m}
                     except Exception as e:

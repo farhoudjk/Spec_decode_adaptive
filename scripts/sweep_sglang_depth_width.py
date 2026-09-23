@@ -1,29 +1,3 @@
-"""Depth (num_steps) x width (eagle_topk) x batch cap x arrival-rate sweep on
-SGLang EAGLE3.
-
-Companion to sweep_roofline_moe.py (vLLM, ngram, depth-only) but on SGLang,
-which exposes a real tree-width knob (--speculative-eagle-topk) that vLLM
-0.9.2 does not have at all (AXIS5_ROOFLINE_MOE.md#4; confirmed no vLLM
-version through 0.26.0 supports tree speculation, GitHub issue #18327 closed
-"not planned"). Width is launch-time-static in SGLang too -- confirmed by
-reading adaptive_spec_params.py's adaptive_unsupported_reason(), which
-hard-refuses --speculative-adaptive unless eagle_topk in (None, 1) -- so
-this sweep, like sweep_roofline_moe.py, restarts the server per cell rather
-than trying to actuate width live.
-
-Each cell: launch an SGLang server with a given (num_steps, eagle_topk),
-`B` becomes --max-running-requests (the admission cap, matching this repo's
-vLLM harness's admit_kw.max_num_seqs role) rather than a synchronous batch
-size. Load is driven by an OPEN-LOOP Poisson arrival trace at the given
---rate (req/s), built with specloop_rt.workload.homogeneous -- the same
-arrival-process generator specloop_rt.replay uses for the vLLM harness, so
-"rate" here means the same thing it means in that harness's --rate flag: a
-client-side arrival intensity, not a request count. Real HumanEval prompts
-via specloop_rt.real_corpus/workload's use_real_corpus path. Collects
-per-request e2e latency and the spec_accept_rate/spec_accept_length
-telemetry SGLang reports natively in every response's meta_info (no custom
-patch layer needed here, unlike vLLM's freeze-bug workaround).
-"""
 from __future__ import annotations
 
 import argparse
@@ -39,7 +13,7 @@ import requests
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from specloop_rt.workload import homogeneous
 
-HF_HOME = "/root/spec_decode_env/hf_cache"
+HF_HOME = os.environ.get("HF_HOME") or "/root/spec_decode_env/hf_cache"
 
 
 def filter_overlong(trace: list, context_length: int, max_new_tokens: int) -> list:
@@ -90,7 +64,8 @@ def wait_for_server(port: int, proc: subprocess.Popen, timeout_s: int = 900) -> 
 
 def launch_server(model_path: str, draft_path: str, num_steps: int, topk: int,
                    num_draft_tokens: int, context_length: int, max_running_requests: int,
-                   port: int, log_path: str, dtype: str = "bfloat16") -> subprocess.Popen:
+                   port: int, log_path: str, dtype: str = "bfloat16",
+                   attention_backend: str = None) -> subprocess.Popen:
     env = os.environ.copy()
     env["HF_HOME"] = HF_HOME
     env["HUGGINGFACE_HUB_CACHE"] = f"{HF_HOME}/hub"
@@ -109,6 +84,8 @@ def launch_server(model_path: str, draft_path: str, num_steps: int, topk: int,
         "--port", str(port),
         "--host", "0.0.0.0",
     ]
+    if attention_backend:
+        cmd += ["--attention-backend", attention_backend]
     logf = open(log_path, "w")
     return subprocess.Popen(cmd, stdout=logf, stderr=subprocess.STDOUT, env=env,
                             start_new_session=True)
@@ -217,23 +194,18 @@ def summarize(rows: list) -> dict:
 
 def run_cell(model_path, draft_path, num_steps, topk, num_draft_tokens,
              context_length, batch, rate, duration, rtype, max_new_tokens,
-             port, out_dir, tag, dtype="bfloat16", request_timeout_s=180):
-    # organize_draft_results (eagle_utils.py) does
-    # torch.topk(score_list, num_draft_token - 1) over a last dim of size
-    # topk * num_steps (see _draft_reorganize_cache_loc's expected shape) --
-    # requesting more than that crashes with "selected index k out of
-    # range". Cap the per-cell draft-token budget so every (steps, topk)
-    # combination stays valid instead of crashing on small trees.
+             port, out_dir, tag, dtype="bfloat16", request_timeout_s=180,
+             attention_backend=None):
     effective_draft_tokens = min(num_draft_tokens, num_steps * topk + 1)
     log_path = os.path.join(out_dir, f"server_{tag}.log")
     proc = launch_server(model_path, draft_path, num_steps, topk, effective_draft_tokens,
-                         context_length, batch, port, log_path, dtype=dtype)
+                         context_length, batch, port, log_path, dtype=dtype,
+                         attention_backend=attention_backend)
     try:
         wait_for_server(port, proc)
         trace = homogeneous(rtype=rtype, rate=rate, duration=duration, seed=0,
                             use_real_corpus=True)
         trace = filter_overlong(trace, context_length, max_new_tokens)
-        # warm up CUDA graphs / radix cache with one throwaway request
         send_one(port, trace[0].prompt, 8, request_timeout_s=request_timeout_s)
         rows = run_open_loop(port, trace, max_new_tokens, request_timeout_s=request_timeout_s)
         return summarize(rows)
@@ -249,6 +221,11 @@ def main(argv=None):
     p.add_argument("--topks", type=int, nargs="+", default=[1, 2, 4, 8])
     p.add_argument("--num-draft-tokens", type=int, default=16)
     p.add_argument("--dtype", default="bfloat16")
+    p.add_argument("--attention-backend", default=None,
+                   help="Passed through to sglang.launch_server when set. Leave "
+                        "unset to reproduce the published grids exactly. Use "
+                        "'triton' on boxes where the default FlashInfer backend "
+                        "fails to JIT-compile (CCCL/nvcc header mismatch).")
     p.add_argument("--context-length", type=int, default=2048)
     p.add_argument("--Bs", type=int, nargs="+", default=[8, 32])
     p.add_argument("--rates", type=float, nargs="+", default=[8.0],
@@ -282,7 +259,8 @@ def main(argv=None):
                                     a.num_draft_tokens, a.context_length, B, rate,
                                     a.duration, a.rtype, a.max_new_tokens, a.port,
                                     a.out, key, dtype=a.dtype,
-                                    request_timeout_s=a.request_timeout)
+                                    request_timeout_s=a.request_timeout,
+                                    attention_backend=a.attention_backend)
                         grid[key] = {"num_steps": steps, "eagle_topk": topk, "B": B,
                                     "rate": rate, "rtype": a.rtype, **m}
                     except Exception as e:
