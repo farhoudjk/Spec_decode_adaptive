@@ -1,8 +1,0 @@
->> B8_rate2_baseline
->> B8_rate2_lam0.1
->> B8_rate2_lam0.5
-
-=== goodput_tok_per_s by (B, rate, config) ===
-B=8 rate=2   baseline: 97.81 tok/s  (accept_len=None, verify_ct=41.4390243902439)
-B=8 rate=2     lam0.1: 102.29 tok/s  (accept_len=None, verify_ct=41.329268292682926)
-B=8 rate=2     lam0.5: 91.84 tok/s  (accept_len=None, verify_ct=41.86585365853659)

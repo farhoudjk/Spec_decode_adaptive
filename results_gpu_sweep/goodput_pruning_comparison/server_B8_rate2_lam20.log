@@ -1,312 +1,0 @@
-[caveman-canary] sitecustomize.py loaded, pid=84890, CAVEMAN_MOE_HOOK_OUT=None, CAVEMAN_VERIFY_HOOK_OUT=None, CAVEMAN_PRUNING_HOOK_OUT='1'
-/workspace/sglang_env_a100/venv/lib/python3.11/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
-  import pynvml  # type: ignore[import]
-[caveman-canary] sitecustomize.py loaded, pid=85116, CAVEMAN_MOE_HOOK_OUT=None, CAVEMAN_VERIFY_HOOK_OUT=None, CAVEMAN_PRUNING_HOOK_OUT='1'
-/workspace/sglang_env_a100/venv/lib/python3.11/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
-  import pynvml  # type: ignore[import]
-[caveman-pruning] installed on eagle_worker.select_top_k_tokens (checkpoint=/workspace/Spec_decode_adaptive/results_gpu_sweep/routing_proxy_train/routing_proxy_head.pt, lambda=20.0)
-[caveman-canary] install() done, pid=84890, moe_installed=False, verify_installed=False, pruning_installed=True
-WARNING:sglang.srt.mem_cache.storage.hf3fs.client_hf3fs:hf3fs_fuse.io is not available: No module named 'hf3fs_fuse'
-WARNING:sglang.srt.server_args:Overlap scheduler is disabled because of using eagle speculative decoding.
-[2026-08-20 21:57:00] server_args=ServerArgs(model_path='Qwen/Qwen3-30B-A3B-Instruct-2507', tokenizer_path='Qwen/Qwen3-30B-A3B-Instruct-2507', tokenizer_mode='auto', skip_tokenizer_init=False, load_format='auto', model_loader_extra_config='{}', trust_remote_code=False, context_length=2048, is_embedding=False, enable_multimodal=None, revision=None, model_impl='auto', host='0.0.0.0', port=30001, skip_server_warmup=False, warmups=None, nccl_port=None, dtype='bfloat16', quantization=None, quantization_param_path=None, kv_cache_dtype='auto', mem_fraction_static=0.85, max_running_requests=8, max_queued_requests=9223372036854775807, max_total_tokens=None, chunked_prefill_size=8192, max_prefill_tokens=16384, schedule_policy='fcfs', schedule_conservativeness=1.0, cpu_offload_gb=0, page_size=1, hybrid_kvcache_ratio=None, swa_full_tokens_ratio=0.8, disable_hybrid_swa_memory=False, device='cuda', tp_size=1, pp_size=1, max_micro_batch_size=None, stream_interval=1, stream_output=False, random_seed=481200515, constrained_json_whitespace_pattern=None, watchdog_timeout=300, dist_timeout=None, download_dir=None, base_gpu_id=0, gpu_id_step=1, sleep_on_idle=False, log_level='info', log_level_http=None, log_requests=False, log_requests_level=0, crash_dump_folder=None, show_time_cost=False, enable_metrics=False, enable_metrics_for_all_schedulers=False, bucket_time_to_first_token=None, bucket_inter_token_latency=None, bucket_e2e_request_latency=None, collect_tokens_histogram=False, decode_log_interval=40, enable_request_time_stats_logging=False, kv_events_config=None, api_key=None, served_model_name='Qwen/Qwen3-30B-A3B-Instruct-2507', chat_template=None, completion_template=None, file_storage_path='sglang_storage', enable_cache_report=False, reasoning_parser=None, tool_call_parser=None, dp_size=1, load_balance_method='round_robin', dist_init_addr=None, nnodes=1, node_rank=0, json_model_override_args='{}', preferred_sampling_params=None, enable_lora=None, max_lora_rank=None, lora_target_modules=None, lora_paths=None, max_loras_per_batch=8, lora_backend='triton', attention_backend=None, decode_attention_backend=None, prefill_attention_backend=None, sampling_backend='flashinfer', grammar_backend='xgrammar', mm_attention_backend=None, speculative_algorithm='EAGLE3', speculative_draft_model_path='lmsys/SGLang-EAGLE3-Qwen3-30B-A3B-Instruct-2507-SpecForge-Nex', speculative_num_steps=3, speculative_eagle_topk=4, speculative_num_draft_tokens=8, speculative_accept_threshold_single=1.0, speculative_accept_threshold_acc=1.0, speculative_token_map=None, ep_size=1, enable_ep_moe=False, enable_deepep_moe=False, enable_flashinfer_cutlass_moe=False, enable_flashinfer_trtllm_moe=False, enable_flashinfer_allreduce_fusion=False, deepep_mode='auto', ep_num_redundant_experts=0, ep_dispatch_algorithm='static', init_expert_location='trivial', enable_eplb=False, eplb_algorithm='auto', eplb_rebalance_num_iterations=1000, eplb_rebalance_layers_per_chunk=None, expert_distribution_recorder_mode=None, expert_distribution_recorder_buffer_size=1000, enable_expert_distribution_metrics=False, deepep_config=None, moe_dense_tp_size=None, enable_hierarchical_cache=False, hicache_ratio=2.0, hicache_size=0, hicache_write_policy='write_through_selective', hicache_io_backend='', hicache_storage_backend=None, enable_double_sparsity=False, ds_channel_config_path=None, ds_heavy_channel_num=32, ds_heavy_token_num=256, ds_heavy_channel_type='qk', ds_sparse_decode_threshold=4096, disable_radix_cache=False, cuda_graph_max_bs=None, cuda_graph_bs=None, disable_cuda_graph=False, disable_cuda_graph_padding=False, enable_profile_cuda_graph=False, enable_nccl_nvls=False, enable_tokenizer_batch_encode=False, disable_outlines_disk_cache=False, disable_custom_all_reduce=False, enable_mscclpp=False, disable_overlap_schedule=True, enable_mixed_chunk=False, enable_dp_attention=False, enable_dp_lm_head=False, enable_two_batch_overlap=False, enable_torch_compile=False, torch_compile_max_bs=32, torchao_config='', enable_nan_detection=False, enable_p2p_check=False, triton_attention_reduce_in_fp32=False, triton_attention_num_kv_splits=8, num_continuous_decode_steps=1, delete_ckpt_after_loading=False, enable_memory_saver=False, allow_auto_truncate=False, enable_custom_logit_processor=False, flashinfer_mla_disable_ragged=False, disable_shared_experts_fusion=False, disable_chunked_prefix_cache=False, disable_fast_image_processor=False, enable_return_hidden_states=False, enable_triton_kernel_moe=False, debug_tensor_dump_output_folder=None, debug_tensor_dump_input_file=None, debug_tensor_dump_inject=False, debug_tensor_dump_prefill_only=False, disaggregation_mode='null', disaggregation_transfer_backend='mooncake', disaggregation_bootstrap_port=8998, disaggregation_decode_tp=None, disaggregation_decode_dp=None, disaggregation_prefill_pp=1, disaggregation_ib_device=None, num_reserved_decode_tokens=512, pdlb_url=None, custom_weight_loader=[], weight_loader_disable_mmap=False, enable_pdmux=False, sm_group_num=3)
-[caveman-canary] sitecustomize.py loaded, pid=85202, CAVEMAN_MOE_HOOK_OUT=None, CAVEMAN_VERIFY_HOOK_OUT=None, CAVEMAN_PRUNING_HOOK_OUT='1'
-[caveman-canary] sitecustomize.py loaded, pid=85203, CAVEMAN_MOE_HOOK_OUT=None, CAVEMAN_VERIFY_HOOK_OUT=None, CAVEMAN_PRUNING_HOOK_OUT='1'
-[caveman-canary] sitecustomize.py loaded, pid=85204, CAVEMAN_MOE_HOOK_OUT=None, CAVEMAN_VERIFY_HOOK_OUT=None, CAVEMAN_PRUNING_HOOK_OUT='1'
-[2026-08-20 21:57:01] Using default HuggingFace chat template with detected content format: string
-/workspace/sglang_env_a100/venv/lib/python3.11/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
-  import pynvml  # type: ignore[import]
-/workspace/sglang_env_a100/venv/lib/python3.11/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
-  import pynvml  # type: ignore[import]
-/workspace/sglang_env_a100/venv/lib/python3.11/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
-  import pynvml  # type: ignore[import]
-[caveman-pruning] installed on eagle_worker.select_top_k_tokens (checkpoint=/workspace/Spec_decode_adaptive/results_gpu_sweep/routing_proxy_train/routing_proxy_head.pt, lambda=20.0)
-[caveman-canary] install() done, pid=85116, moe_installed=False, verify_installed=False, pruning_installed=True
-[caveman-canary] sitecustomize.py loaded, pid=85831, CAVEMAN_MOE_HOOK_OUT=None, CAVEMAN_VERIFY_HOOK_OUT=None, CAVEMAN_PRUNING_HOOK_OUT='1'
-[caveman-canary] sitecustomize.py loaded, pid=85848, CAVEMAN_MOE_HOOK_OUT=None, CAVEMAN_VERIFY_HOOK_OUT=None, CAVEMAN_PRUNING_HOOK_OUT='1'
-/workspace/sglang_env_a100/venv/lib/python3.11/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
-  import pynvml  # type: ignore[import]
-[caveman-canary] sitecustomize.py loaded, pid=85914, CAVEMAN_MOE_HOOK_OUT=None, CAVEMAN_VERIFY_HOOK_OUT=None, CAVEMAN_PRUNING_HOOK_OUT='1'
-/workspace/sglang_env_a100/venv/lib/python3.11/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
-  import pynvml  # type: ignore[import]
-/workspace/sglang_env_a100/venv/lib/python3.11/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
-  import pynvml  # type: ignore[import]
-[caveman-pruning] installed on eagle_worker.select_top_k_tokens (checkpoint=/workspace/Spec_decode_adaptive/results_gpu_sweep/routing_proxy_train/routing_proxy_head.pt, lambda=20.0)
-[caveman-canary] install() done, pid=85202, moe_installed=False, verify_installed=False, pruning_installed=True
-[caveman-pruning] installed on eagle_worker.select_top_k_tokens (checkpoint=/workspace/Spec_decode_adaptive/results_gpu_sweep/routing_proxy_train/routing_proxy_head.pt, lambda=20.0)
-[caveman-canary] install() done, pid=85204, moe_installed=False, verify_installed=False, pruning_installed=True
-WARNING:sglang.srt.mem_cache.storage.hf3fs.client_hf3fs:hf3fs_fuse.io is not available: No module named 'hf3fs_fuse'
-[caveman-pruning] installed on eagle_worker.select_top_k_tokens (checkpoint=/workspace/Spec_decode_adaptive/results_gpu_sweep/routing_proxy_train/routing_proxy_head.pt, lambda=20.0)
-[caveman-canary] install() done, pid=85203, moe_installed=False, verify_installed=False, pruning_installed=True
-WARNING:sglang.srt.mem_cache.storage.hf3fs.client_hf3fs:hf3fs_fuse.io is not available: No module named 'hf3fs_fuse'
-[2026-08-20 21:57:43] Attention backend not explicitly specified. Use flashinfer backend by default.
-[2026-08-20 21:57:43] Init torch distributed begin.
-[2026-08-20 21:57:43] Init torch distributed ends. mem usage=0.00 GB
-[2026-08-20 21:57:45] Load weight begin. avail mem=76.36 GB
-[2026-08-20 21:57:45] Using model weights format ['*.safetensors']
-Loading safetensors checkpoint shards:   0% Completed | 0/16 [00:00<?, ?it/s]
-Loading safetensors checkpoint shards:   6% Completed | 1/16 [00:00<00:07,  2.01it/s]
-Loading safetensors checkpoint shards:  12% Completed | 2/16 [00:01<00:07,  1.94it/s]
-Loading safetensors checkpoint shards:  19% Completed | 3/16 [00:01<00:07,  1.75it/s]
-Loading safetensors checkpoint shards:  25% Completed | 4/16 [00:02<00:06,  1.81it/s]
-Loading safetensors checkpoint shards:  31% Completed | 5/16 [00:02<00:05,  1.84it/s]
-Loading safetensors checkpoint shards:  38% Completed | 6/16 [00:03<00:05,  1.86it/s]
-Loading safetensors checkpoint shards:  44% Completed | 7/16 [00:03<00:04,  1.85it/s]
-Loading safetensors checkpoint shards:  50% Completed | 8/16 [00:04<00:04,  1.78it/s]
-Loading safetensors checkpoint shards:  56% Completed | 9/16 [00:04<00:03,  2.24it/s]
-Loading safetensors checkpoint shards:  62% Completed | 10/16 [00:05<00:02,  2.00it/s]
-Loading safetensors checkpoint shards:  69% Completed | 11/16 [00:05<00:02,  1.81it/s]
-Loading safetensors checkpoint shards:  75% Completed | 12/16 [00:06<00:02,  1.70it/s]
-Loading safetensors checkpoint shards:  81% Completed | 13/16 [00:07<00:01,  1.61it/s]
-Loading safetensors checkpoint shards:  88% Completed | 14/16 [00:08<00:01,  1.47it/s]
-Loading safetensors checkpoint shards:  94% Completed | 15/16 [00:08<00:00,  1.44it/s]
-Loading safetensors checkpoint shards: 100% Completed | 16/16 [00:09<00:00,  1.41it/s]
-Loading safetensors checkpoint shards: 100% Completed | 16/16 [00:09<00:00,  1.68it/s]
-
-[2026-08-20 21:57:55] Load weight end. type=Qwen3MoeForCausalLM, dtype=torch.bfloat16, avail mem=19.32 GB, mem usage=57.04 GB.
-[2026-08-20 21:57:55] KV Cache is allocated. #tokens: 86159, K size: 3.94 GB, V size: 3.94 GB
-[2026-08-20 21:57:55] Memory pool end. avail mem=11.26 GB
-[2026-08-20 21:57:55] Capture cuda graph begin. This can take up to several minutes. avail mem=10.78 GB
-[2026-08-20 21:57:55] Capture cuda graph bs [1, 2, 3, 4, 5, 6, 7, 8]
-  0%|          | 0/8 [00:00<?, ?it/s]Capturing batches (bs=8 avail_mem=10.78 GB):   0%|          | 0/8 [00:00<?, ?it/s][2026-08-20 21:57:57] Using default MoE kernel config. Performance might be sub-optimal! Config file not found at /workspace/sglang_env_a100/venv/lib/python3.11/site-packages/sglang/srt/layers/moe/fused_moe_triton/configs/triton_3_3_1/E=128,N=768,device_name=NVIDIA_A100_80GB_PCIe.json, you can create them with https://github.com/sgl-project/sglang/tree/main/benchmark/kernels/fused_moe_triton
-Capturing batches (bs=8 avail_mem=10.78 GB):  12%|█▎        | 1/8 [00:01<00:12,  1.82s/it]Capturing batches (bs=7 avail_mem=10.62 GB):  12%|█▎        | 1/8 [00:01<00:12,  1.82s/it]Capturing batches (bs=7 avail_mem=10.62 GB):  25%|██▌       | 2/8 [00:02<00:05,  1.04it/s]Capturing batches (bs=6 avail_mem=10.50 GB):  25%|██▌       | 2/8 [00:02<00:05,  1.04it/s]Capturing batches (bs=6 avail_mem=10.50 GB):  38%|███▊      | 3/8 [00:02<00:03,  1.45it/s]Capturing batches (bs=5 avail_mem=10.40 GB):  38%|███▊      | 3/8 [00:02<00:03,  1.45it/s]Capturing batches (bs=5 avail_mem=10.40 GB):  50%|█████     | 4/8 [00:02<00:02,  1.78it/s]Capturing batches (bs=4 avail_mem=10.28 GB):  50%|█████     | 4/8 [00:02<00:02,  1.78it/s]Capturing batches (bs=4 avail_mem=10.28 GB):  62%|██████▎   | 5/8 [00:09<00:08,  2.88s/it]Capturing batches (bs=3 avail_mem=10.19 GB):  62%|██████▎   | 5/8 [00:09<00:08,  2.88s/it]Capturing batches (bs=3 avail_mem=10.19 GB):  75%|███████▌  | 6/8 [00:10<00:04,  2.08s/it]Capturing batches (bs=2 avail_mem=10.08 GB):  75%|███████▌  | 6/8 [00:10<00:04,  2.08s/it]Capturing batches (bs=2 avail_mem=10.08 GB):  88%|████████▊ | 7/8 [00:10<00:01,  1.52s/it]Capturing batches (bs=1 avail_mem=10.01 GB):  88%|████████▊ | 7/8 [00:10<00:01,  1.52s/it]Capturing batches (bs=1 avail_mem=10.01 GB): 100%|██████████| 8/8 [00:11<00:00,  1.15s/it]Capturing batches (bs=1 avail_mem=10.01 GB): 100%|██████████| 8/8 [00:11<00:00,  1.40s/it]
-[2026-08-20 21:58:07] Capture cuda graph end. Time elapsed: 11.20 s. mem usage=0.87 GB. avail mem=9.91 GB.
-[2026-08-20 21:58:07] Downcasting torch.float32 to torch.bfloat16.
-[2026-08-20 21:58:07] Downcasting torch.float32 to torch.bfloat16.
-[2026-08-20 21:58:07] Init torch distributed begin.
-[2026-08-20 21:58:07] Init torch distributed ends. mem usage=0.00 GB
-[2026-08-20 21:58:07] Load weight begin. avail mem=9.91 GB
-[2026-08-20 21:58:07] Using model weights format ['*.safetensors']
-[2026-08-20 21:58:08] No model.safetensors.index.json found in remote.
-Loading safetensors checkpoint shards:   0% Completed | 0/1 [00:00<?, ?it/s]
-Loading safetensors checkpoint shards: 100% Completed | 1/1 [00:00<00:00, 21.43it/s]
-
-[2026-08-20 21:58:08] Load weight end. type=LlamaForCausalLMEagle3, dtype=torch.bfloat16, avail mem=8.83 GB, mem usage=1.08 GB.
-[2026-08-20 21:58:08] KV Cache is allocated. #tokens: 86159, K size: 0.08 GB, V size: 0.08 GB
-[2026-08-20 21:58:08] Memory pool end. avail mem=8.66 GB
-[2026-08-20 21:58:08] Capture draft cuda graph begin. This can take up to several minutes. avail mem=8.98 GB
-  0%|          | 0/8 [00:00<?, ?it/s]Capturing batches (bs=8 avail_mem=8.98 GB):   0%|          | 0/8 [00:00<?, ?it/s]Capturing batches (bs=8 avail_mem=8.98 GB):  12%|█▎        | 1/8 [00:03<00:21,  3.01s/it]Capturing batches (bs=7 avail_mem=9.06 GB):  12%|█▎        | 1/8 [00:03<00:21,  3.01s/it]Capturing batches (bs=7 avail_mem=9.06 GB):  25%|██▌       | 2/8 [00:03<00:09,  1.55s/it]Capturing batches (bs=6 avail_mem=9.04 GB):  25%|██▌       | 2/8 [00:03<00:09,  1.55s/it]Capturing batches (bs=6 avail_mem=9.04 GB):  38%|███▊      | 3/8 [00:03<00:04,  1.02it/s]Capturing batches (bs=5 avail_mem=9.02 GB):  38%|███▊      | 3/8 [00:03<00:04,  1.02it/s]Capturing batches (bs=5 avail_mem=9.02 GB):  50%|█████     | 4/8 [00:04<00:02,  1.42it/s]Capturing batches (bs=4 avail_mem=8.99 GB):  50%|█████     | 4/8 [00:04<00:02,  1.42it/s]Capturing batches (bs=4 avail_mem=8.99 GB):  62%|██████▎   | 5/8 [00:04<00:01,  1.78it/s]Capturing batches (bs=3 avail_mem=8.97 GB):  62%|██████▎   | 5/8 [00:04<00:01,  1.78it/s]Capturing batches (bs=3 avail_mem=8.97 GB):  75%|███████▌  | 6/8 [00:04<00:00,  2.11it/s]Capturing batches (bs=2 avail_mem=8.94 GB):  75%|███████▌  | 6/8 [00:04<00:00,  2.11it/s]Capturing batches (bs=2 avail_mem=8.94 GB):  88%|████████▊ | 7/8 [00:05<00:00,  2.28it/s]Capturing batches (bs=1 avail_mem=8.92 GB):  88%|████████▊ | 7/8 [00:05<00:00,  2.28it/s][caveman-pruning] installed on eagle_worker.select_top_k_tokens (checkpoint=/workspace/Spec_decode_adaptive/results_gpu_sweep/routing_proxy_train/routing_proxy_head.pt, lambda=20.0)
-[caveman-canary] install() done, pid=85831, moe_installed=False, verify_installed=False, pruning_installed=True
-[caveman-pruning] installed on eagle_worker.select_top_k_tokens (checkpoint=/workspace/Spec_decode_adaptive/results_gpu_sweep/routing_proxy_train/routing_proxy_head.pt, lambda=20.0)
-[caveman-canary] install() done, pid=85848, moe_installed=False, verify_installed=False, pruning_installed=True
-Capturing batches (bs=1 avail_mem=8.92 GB): 100%|██████████| 8/8 [00:07<00:00,  1.10s/it]Capturing batches (bs=1 avail_mem=8.92 GB): 100%|██████████| 8/8 [00:07<00:00,  1.05it/s]
-[2026-08-20 21:58:16] Capture draft cuda graph end. Time elapsed: 7.66 s. mem usage=1.74 GB. avail mem=7.23 GB.
-[2026-08-20 21:58:16] Capture draft extend cuda graph begin. This can take up to several minutes. avail mem=7.23 GB
-[caveman-pruning] installed on eagle_worker.select_top_k_tokens (checkpoint=/workspace/Spec_decode_adaptive/results_gpu_sweep/routing_proxy_train/routing_proxy_head.pt, lambda=20.0)
-[caveman-canary] install() done, pid=85914, moe_installed=False, verify_installed=False, pruning_installed=True
-  0%|          | 0/8 [00:00<?, ?it/s]Capturing batches (bs=8 avail_mem=7.16 GB):   0%|          | 0/8 [00:00<?, ?it/s]Capturing batches (bs=8 avail_mem=7.16 GB):  12%|█▎        | 1/8 [00:00<00:01,  3.55it/s]Capturing batches (bs=7 avail_mem=7.11 GB):  12%|█▎        | 1/8 [00:00<00:01,  3.55it/s]Capturing batches (bs=7 avail_mem=7.11 GB):  25%|██▌       | 2/8 [00:00<00:01,  3.48it/s]Capturing batches (bs=6 avail_mem=7.09 GB):  25%|██▌       | 2/8 [00:00<00:01,  3.48it/s]Capturing batches (bs=6 avail_mem=7.09 GB):  38%|███▊      | 3/8 [00:00<00:01,  3.49it/s]Capturing batches (bs=5 avail_mem=7.09 GB):  38%|███▊      | 3/8 [00:00<00:01,  3.49it/s]Capturing batches (bs=5 avail_mem=7.09 GB):  50%|█████     | 4/8 [00:01<00:01,  3.53it/s]Capturing batches (bs=4 avail_mem=7.07 GB):  50%|█████     | 4/8 [00:01<00:01,  3.53it/s]Capturing batches (bs=4 avail_mem=7.07 GB):  62%|██████▎   | 5/8 [00:01<00:00,  3.59it/s]Capturing batches (bs=3 avail_mem=7.07 GB):  62%|██████▎   | 5/8 [00:01<00:00,  3.59it/s]Capturing batches (bs=3 avail_mem=7.07 GB):  75%|███████▌  | 6/8 [00:01<00:00,  3.60it/s]Capturing batches (bs=2 avail_mem=7.05 GB):  75%|███████▌  | 6/8 [00:01<00:00,  3.60it/s]Capturing batches (bs=2 avail_mem=7.05 GB):  88%|████████▊ | 7/8 [00:01<00:00,  3.62it/s]Capturing batches (bs=1 avail_mem=7.05 GB):  88%|████████▊ | 7/8 [00:01<00:00,  3.62it/s]Capturing batches (bs=1 avail_mem=7.05 GB): 100%|██████████| 8/8 [00:02<00:00,  3.60it/s]Capturing batches (bs=1 avail_mem=7.05 GB): 100%|██████████| 8/8 [00:02<00:00,  3.58it/s]
-[2026-08-20 21:58:18] Capture draft extend cuda graph end. Time elapsed: 2.26 s. mem usage=0.21 GB. avail mem=7.03 GB.
-[2026-08-20 21:58:18] max_total_num_tokens=86159, chunked_prefill_size=8192, max_prefill_tokens=16384, max_running_requests=8, context_len=2048, available_gpu_mem=7.03 GB
-[2026-08-20 21:58:19] INFO:     Started server process [84890]
-[2026-08-20 21:58:19] INFO:     Waiting for application startup.
-[2026-08-20 21:58:19] INFO:     Application startup complete.
-[2026-08-20 21:58:19] INFO:     Uvicorn running on http://0.0.0.0:30001 (Press CTRL+C to quit)
-[2026-08-20 21:58:20] INFO:     127.0.0.1:59376 - "GET /get_model_info HTTP/1.1" 200 OK
-[2026-08-20 21:58:20] Prefill batch. #new-seq: 1, #new-token: 6, #cached-token: 0, token usage: 0.00, #running-req: 0, #queue-req: 0, 
-[2026-08-20 21:58:20] INFO:     127.0.0.1:59380 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:20] The server is fired up and ready to roll!
-[2026-08-20 21:58:20] INFO:     127.0.0.1:59392 - "GET /get_model_info HTTP/1.1" 200 OK
-[2026-08-20 21:58:20] Prefill batch. #new-seq: 1, #new-token: 71, #cached-token: 0, token usage: 0.00, #running-req: 0, #queue-req: 0, 
-[2026-08-20 21:58:20] INFO:     127.0.0.1:59404 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:21] Prefill batch. #new-seq: 1, #new-token: 1, #cached-token: 70, token usage: 0.00, #running-req: 0, #queue-req: 0, 
-[2026-08-20 21:58:21] Prefill batch. #new-seq: 2, #new-token: 344, #cached-token: 10, token usage: 0.00, #running-req: 1, #queue-req: 0, 
-[2026-08-20 21:58:22] Decode batch. #running-req: 3, #token: 644, token usage: 0.01, accept len: 2.28, cuda graph: True, gen throughput (token/s): 61.34, #queue-req: 0, 
-[2026-08-20 21:58:22] INFO:     127.0.0.1:59428 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:23] INFO:     127.0.0.1:59418 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:23] INFO:     127.0.0.1:59432 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:24] Prefill batch. #new-seq: 1, #new-token: 113, #cached-token: 6, token usage: 0.00, #running-req: 0, #queue-req: 0, 
-[2026-08-20 21:58:24] Decode batch. #running-req: 1, #token: 171, token usage: 0.00, accept len: 2.43, cuda graph: True, gen throughput (token/s): 81.52, #queue-req: 0, 
-[2026-08-20 21:58:25] INFO:     127.0.0.1:59446 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:25] Prefill batch. #new-seq: 1, #new-token: 228, #cached-token: 6, token usage: 0.00, #running-req: 0, #queue-req: 0, 
-[2026-08-20 21:58:26] Decode batch. #running-req: 1, #token: 273, token usage: 0.00, accept len: 2.80, cuda graph: True, gen throughput (token/s): 95.22, #queue-req: 0, 
-[2026-08-20 21:58:26] Prefill batch. #new-seq: 1, #new-token: 282, #cached-token: 6, token usage: 0.00, #running-req: 1, #queue-req: 0, 
-[2026-08-20 21:58:26] Prefill batch. #new-seq: 1, #new-token: 143, #cached-token: 6, token usage: 0.01, #running-req: 2, #queue-req: 0, 
-[2026-08-20 21:58:26] Prefill batch. #new-seq: 1, #new-token: 106, #cached-token: 6, token usage: 0.01, #running-req: 3, #queue-req: 0, 
-[2026-08-20 21:58:26] INFO:     127.0.0.1:59460 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:27] Prefill batch. #new-seq: 1, #new-token: 130, #cached-token: 6, token usage: 0.01, #running-req: 3, #queue-req: 0, 
-[2026-08-20 21:58:27] Decode batch. #running-req: 4, #token: 991, token usage: 0.01, accept len: 2.67, cuda graph: True, gen throughput (token/s): 270.96, #queue-req: 0, 
-[2026-08-20 21:58:27] INFO:     127.0.0.1:59462 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:27] INFO:     127.0.0.1:59474 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:27] INFO:     127.0.0.1:59466 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:28] INFO:     127.0.0.1:59486 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:28] Prefill batch. #new-seq: 1, #new-token: 99, #cached-token: 7, token usage: 0.00, #running-req: 0, #queue-req: 0, 
-[2026-08-20 21:58:28] Decode batch. #running-req: 1, #token: 128, token usage: 0.00, accept len: 3.05, cuda graph: True, gen throughput (token/s): 181.85, #queue-req: 0, 
-[2026-08-20 21:58:29] Prefill batch. #new-seq: 1, #new-token: 180, #cached-token: 6, token usage: 0.00, #running-req: 1, #queue-req: 0, 
-[2026-08-20 21:58:29] INFO:     127.0.0.1:56470 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:29] Decode batch. #running-req: 1, #token: 200, token usage: 0.00, accept len: 2.93, cuda graph: True, gen throughput (token/s): 141.48, #queue-req: 0, 
-[2026-08-20 21:58:29] Prefill batch. #new-seq: 1, #new-token: 48, #cached-token: 6, token usage: 0.00, #running-req: 1, #queue-req: 0, 
-[2026-08-20 21:58:30] INFO:     127.0.0.1:56478 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:30] Decode batch. #running-req: 1, #token: 111, token usage: 0.00, accept len: 3.23, cuda graph: True, gen throughput (token/s): 188.77, #queue-req: 0, 
-[2026-08-20 21:58:30] Prefill batch. #new-seq: 1, #new-token: 389, #cached-token: 6, token usage: 0.00, #running-req: 1, #queue-req: 0, 
-[2026-08-20 21:58:30] Prefill batch. #new-seq: 1, #new-token: 80, #cached-token: 6, token usage: 0.01, #running-req: 2, #queue-req: 0, 
-[2026-08-20 21:58:31] INFO:     127.0.0.1:56486 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:31] Prefill batch. #new-seq: 1, #new-token: 223, #cached-token: 6, token usage: 0.01, #running-req: 2, #queue-req: 0, 
-[2026-08-20 21:58:31] Decode batch. #running-req: 3, #token: 896, token usage: 0.01, accept len: 2.45, cuda graph: True, gen throughput (token/s): 224.88, #queue-req: 0, 
-[2026-08-20 21:58:31] Prefill batch. #new-seq: 1, #new-token: 1, #cached-token: 85, token usage: 0.01, #running-req: 3, #queue-req: 0, 
-[2026-08-20 21:58:31] INFO:     127.0.0.1:56500 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:31] Prefill batch. #new-seq: 1, #new-token: 46, #cached-token: 6, token usage: 0.01, #running-req: 4, #queue-req: 0, 
-[2026-08-20 21:58:32] Prefill batch. #new-seq: 1, #new-token: 113, #cached-token: 6, token usage: 0.01, #running-req: 4, #queue-req: 0, 
-[2026-08-20 21:58:32] INFO:     127.0.0.1:56504 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:32] Prefill batch. #new-seq: 1, #new-token: 120, #cached-token: 5, token usage: 0.01, #running-req: 4, #queue-req: 0, 
-[2026-08-20 21:58:32] Prefill batch. #new-seq: 1, #new-token: 131, #cached-token: 6, token usage: 0.01, #running-req: 5, #queue-req: 0, 
-[2026-08-20 21:58:32] Decode batch. #running-req: 6, #token: 1087, token usage: 0.01, accept len: 2.38, cuda graph: True, gen throughput (token/s): 296.46, #queue-req: 0, 
-[2026-08-20 21:58:33] INFO:     127.0.0.1:56510 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:33] INFO:     127.0.0.1:56546 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:33] INFO:     127.0.0.1:56538 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:33] Prefill batch. #new-seq: 1, #new-token: 122, #cached-token: 6, token usage: 0.01, #running-req: 3, #queue-req: 0, 
-[2026-08-20 21:58:33] INFO:     127.0.0.1:56526 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:33] INFO:     127.0.0.1:56556 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:33] INFO:     127.0.0.1:56570 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:34] Prefill batch. #new-seq: 1, #new-token: 116, #cached-token: 6, token usage: 0.00, #running-req: 1, #queue-req: 0, 
-[2026-08-20 21:58:34] Decode batch. #running-req: 2, #token: 303, token usage: 0.00, accept len: 2.83, cuda graph: True, gen throughput (token/s): 349.53, #queue-req: 0, 
-[2026-08-20 21:58:34] Prefill batch. #new-seq: 1, #new-token: 140, #cached-token: 6, token usage: 0.00, #running-req: 2, #queue-req: 0, 
-[2026-08-20 21:58:34] Prefill batch. #new-seq: 1, #new-token: 123, #cached-token: 4, token usage: 0.01, #running-req: 3, #queue-req: 0, 
-[2026-08-20 21:58:34] Prefill batch. #new-seq: 1, #new-token: 81, #cached-token: 6, token usage: 0.01, #running-req: 4, #queue-req: 0, 
-[2026-08-20 21:58:35] Prefill batch. #new-seq: 1, #new-token: 140, #cached-token: 6, token usage: 0.01, #running-req: 5, #queue-req: 0, 
-[2026-08-20 21:58:35] INFO:     127.0.0.1:56578 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:35] Prefill batch. #new-seq: 1, #new-token: 216, #cached-token: 6, token usage: 0.01, #running-req: 6, #queue-req: 0, 
-[2026-08-20 21:58:35] Prefill batch. #new-seq: 1, #new-token: 142, #cached-token: 6, token usage: 0.01, #running-req: 6, #queue-req: 0, 
-[2026-08-20 21:58:35] Prefill batch. #new-seq: 1, #new-token: 1, #cached-token: 126, token usage: 0.01, #running-req: 7, #queue-req: 0, 
-[2026-08-20 21:58:35] Decode batch. #running-req: 8, #token: 1506, token usage: 0.02, accept len: 2.69, cuda graph: True, gen throughput (token/s): 372.38, #queue-req: 1, 
-[2026-08-20 21:58:35] INFO:     127.0.0.1:56596 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:35] Prefill batch. #new-seq: 1, #new-token: 117, #cached-token: 6, token usage: 0.02, #running-req: 7, #queue-req: 0, 
-[2026-08-20 21:58:36] INFO:     127.0.0.1:56580 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:36] INFO:     127.0.0.1:56598 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:36] Prefill batch. #new-seq: 1, #new-token: 144, #cached-token: 6, token usage: 0.02, #running-req: 6, #queue-req: 0, 
-[2026-08-20 21:58:36] INFO:     127.0.0.1:56620 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:36] INFO:     127.0.0.1:56626 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:36] INFO:     127.0.0.1:56612 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:37] INFO:     127.0.0.1:56652 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:37] INFO:     127.0.0.1:56642 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:37] Decode batch. #running-req: 2, #token: 442, token usage: 0.01, accept len: 2.88, cuda graph: True, gen throughput (token/s): 438.85, #queue-req: 0, 
-[2026-08-20 21:58:37] INFO:     127.0.0.1:56668 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:37] INFO:     127.0.0.1:56678 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:38] Prefill batch. #new-seq: 1, #new-token: 113, #cached-token: 7, token usage: 0.00, #running-req: 0, #queue-req: 0, 
-[2026-08-20 21:58:38] Decode batch. #running-req: 1, #token: 131, token usage: 0.00, accept len: 2.17, cuda graph: True, gen throughput (token/s): 91.96, #queue-req: 0, 
-[2026-08-20 21:58:39] Decode batch. #running-req: 1, #token: 232, token usage: 0.00, accept len: 2.52, cuda graph: True, gen throughput (token/s): 129.57, #queue-req: 0, 
-[2026-08-20 21:58:39] INFO:     127.0.0.1:38276 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:39] Prefill batch. #new-seq: 1, #new-token: 101, #cached-token: 6, token usage: 0.00, #running-req: 0, #queue-req: 0, 
-[2026-08-20 21:58:39] Prefill batch. #new-seq: 1, #new-token: 99, #cached-token: 6, token usage: 0.00, #running-req: 1, #queue-req: 0, 
-[2026-08-20 21:58:39] Prefill batch. #new-seq: 1, #new-token: 77, #cached-token: 6, token usage: 0.00, #running-req: 2, #queue-req: 0, 
-[2026-08-20 21:58:40] Decode batch. #running-req: 3, #token: 464, token usage: 0.01, accept len: 2.86, cuda graph: True, gen throughput (token/s): 187.73, #queue-req: 0, 
-[2026-08-20 21:58:40] Prefill batch. #new-seq: 1, #new-token: 207, #cached-token: 6, token usage: 0.00, #running-req: 3, #queue-req: 0, 
-[2026-08-20 21:58:40] INFO:     127.0.0.1:38300 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:40] INFO:     127.0.0.1:38288 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:41] Prefill batch. #new-seq: 1, #new-token: 1, #cached-token: 135, token usage: 0.01, #running-req: 2, #queue-req: 0, 
-[2026-08-20 21:58:41] Decode batch. #running-req: 3, #token: 645, token usage: 0.01, accept len: 2.80, cuda graph: True, gen throughput (token/s): 235.75, #queue-req: 0, 
-[2026-08-20 21:58:41] Prefill batch. #new-seq: 1, #new-token: 175, #cached-token: 6, token usage: 0.01, #running-req: 3, #queue-req: 0, 
-[2026-08-20 21:58:41] INFO:     127.0.0.1:38316 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:41] INFO:     127.0.0.1:38324 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:41] Prefill batch. #new-seq: 1, #new-token: 154, #cached-token: 6, token usage: 0.01, #running-req: 2, #queue-req: 0, 
-[2026-08-20 21:58:42] INFO:     127.0.0.1:38338 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:42] Prefill batch. #new-seq: 1, #new-token: 1, #cached-token: 118, token usage: 0.01, #running-req: 2, #queue-req: 0, 
-[2026-08-20 21:58:42] Decode batch. #running-req: 3, #token: 618, token usage: 0.01, accept len: 3.16, cuda graph: True, gen throughput (token/s): 267.46, #queue-req: 0, 
-[2026-08-20 21:58:42] Prefill batch. #new-seq: 1, #new-token: 61, #cached-token: 6, token usage: 0.00, #running-req: 3, #queue-req: 0, 
-[2026-08-20 21:58:42] INFO:     127.0.0.1:38352 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:42] Prefill batch. #new-seq: 1, #new-token: 99, #cached-token: 6, token usage: 0.01, #running-req: 3, #queue-req: 0, 
-[2026-08-20 21:58:42] INFO:     127.0.0.1:38358 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:43] INFO:     127.0.0.1:38370 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:43] Prefill batch. #new-seq: 1, #new-token: 107, #cached-token: 11, token usage: 0.00, #running-req: 2, #queue-req: 0, 
-[2026-08-20 21:58:43] Decode batch. #running-req: 3, #token: 467, token usage: 0.01, accept len: 2.98, cuda graph: True, gen throughput (token/s): 307.26, #queue-req: 0, 
-[2026-08-20 21:58:43] Prefill batch. #new-seq: 1, #new-token: 36, #cached-token: 6, token usage: 0.01, #running-req: 3, #queue-req: 0, 
-[2026-08-20 21:58:43] INFO:     127.0.0.1:38388 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:44] INFO:     127.0.0.1:38374 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:44] INFO:     127.0.0.1:38392 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:44] Decode batch. #running-req: 1, #token: 118, token usage: 0.00, accept len: 2.42, cuda graph: True, gen throughput (token/s): 234.58, #queue-req: 0, 
-[2026-08-20 21:58:45] Prefill batch. #new-seq: 1, #new-token: 92, #cached-token: 6, token usage: 0.00, #running-req: 1, #queue-req: 0, 
-[2026-08-20 21:58:45] INFO:     127.0.0.1:38406 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:45] Decode batch. #running-req: 1, #token: 141, token usage: 0.00, accept len: 2.11, cuda graph: True, gen throughput (token/s): 114.92, #queue-req: 0, 
-[2026-08-20 21:58:45] Prefill batch. #new-seq: 1, #new-token: 200, #cached-token: 6, token usage: 0.00, #running-req: 1, #queue-req: 0, 
-[2026-08-20 21:58:45] Prefill batch. #new-seq: 1, #new-token: 112, #cached-token: 11, token usage: 0.00, #running-req: 2, #queue-req: 0, 
-[2026-08-20 21:58:46] INFO:     127.0.0.1:38414 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:46] INFO:     127.0.0.1:38418 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:46] Decode batch. #running-req: 1, #token: 194, token usage: 0.00, accept len: 2.90, cuda graph: True, gen throughput (token/s): 192.97, #queue-req: 0, 
-[2026-08-20 21:58:46] Prefill batch. #new-seq: 1, #new-token: 1, #cached-token: 106, token usage: 0.00, #running-req: 1, #queue-req: 0, 
-[2026-08-20 21:58:47] INFO:     127.0.0.1:38432 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:47] Prefill batch. #new-seq: 1, #new-token: 241, #cached-token: 7, token usage: 0.00, #running-req: 1, #queue-req: 0, 
-[2026-08-20 21:58:47] Decode batch. #running-req: 2, #token: 476, token usage: 0.01, accept len: 2.64, cuda graph: True, gen throughput (token/s): 181.33, #queue-req: 0, 
-[2026-08-20 21:58:47] INFO:     127.0.0.1:38444 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:47] Prefill batch. #new-seq: 1, #new-token: 47, #cached-token: 7, token usage: 0.00, #running-req: 1, #queue-req: 0, 
-[2026-08-20 21:58:48] INFO:     127.0.0.1:38446 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:48] Decode batch. #running-req: 1, #token: 134, token usage: 0.00, accept len: 3.06, cuda graph: True, gen throughput (token/s): 215.26, #queue-req: 0, 
-[2026-08-20 21:58:48] INFO:     127.0.0.1:38458 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:48] Prefill batch. #new-seq: 1, #new-token: 103, #cached-token: 6, token usage: 0.00, #running-req: 0, #queue-req: 0, 
-[2026-08-20 21:58:49] Prefill batch. #new-seq: 1, #new-token: 37, #cached-token: 6, token usage: 0.00, #running-req: 1, #queue-req: 0, 
-[2026-08-20 21:58:49] Decode batch. #running-req: 2, #token: 247, token usage: 0.00, accept len: 2.47, cuda graph: True, gen throughput (token/s): 126.98, #queue-req: 0, 
-[2026-08-20 21:58:50] INFO:     127.0.0.1:40828 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:50] Prefill batch. #new-seq: 1, #new-token: 63, #cached-token: 6, token usage: 0.00, #running-req: 1, #queue-req: 0, 
-[2026-08-20 21:58:50] INFO:     127.0.0.1:40830 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:50] Decode batch. #running-req: 1, #token: 98, token usage: 0.00, accept len: 2.57, cuda graph: True, gen throughput (token/s): 186.12, #queue-req: 0, 
-[2026-08-20 21:58:50] Prefill batch. #new-seq: 1, #new-token: 61, #cached-token: 9, token usage: 0.00, #running-req: 1, #queue-req: 0, 
-[2026-08-20 21:58:50] INFO:     127.0.0.1:40840 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:51] Prefill batch. #new-seq: 1, #new-token: 114, #cached-token: 6, token usage: 0.00, #running-req: 1, #queue-req: 0, 
-[2026-08-20 21:58:51] Prefill batch. #new-seq: 1, #new-token: 85, #cached-token: 6, token usage: 0.00, #running-req: 2, #queue-req: 0, 
-[2026-08-20 21:58:51] Decode batch. #running-req: 3, #token: 412, token usage: 0.00, accept len: 2.25, cuda graph: True, gen throughput (token/s): 155.03, #queue-req: 0, 
-[2026-08-20 21:58:51] Prefill batch. #new-seq: 1, #new-token: 66, #cached-token: 22, token usage: 0.00, #running-req: 3, #queue-req: 0, 
-[2026-08-20 21:58:52] INFO:     127.0.0.1:40854 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:52] INFO:     127.0.0.1:40858 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:52] INFO:     127.0.0.1:40864 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:52] Prefill batch. #new-seq: 1, #new-token: 77, #cached-token: 6, token usage: 0.00, #running-req: 1, #queue-req: 0, 
-[2026-08-20 21:58:52] Decode batch. #running-req: 2, #token: 302, token usage: 0.00, accept len: 2.72, cuda graph: True, gen throughput (token/s): 276.64, #queue-req: 0, 
-[2026-08-20 21:58:52] INFO:     127.0.0.1:40868 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:52] Prefill batch. #new-seq: 1, #new-token: 90, #cached-token: 6, token usage: 0.00, #running-req: 1, #queue-req: 0, 
-[2026-08-20 21:58:52] Prefill batch. #new-seq: 1, #new-token: 80, #cached-token: 7, token usage: 0.00, #running-req: 2, #queue-req: 0, 
-[2026-08-20 21:58:53] INFO:     127.0.0.1:40876 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:53] Prefill batch. #new-seq: 1, #new-token: 1, #cached-token: 41, token usage: 0.00, #running-req: 2, #queue-req: 0, 
-[2026-08-20 21:58:53] Prefill batch. #new-seq: 1, #new-token: 156, #cached-token: 9, token usage: 0.00, #running-req: 3, #queue-req: 0, 
-[2026-08-20 21:58:53] Decode batch. #running-req: 4, #token: 469, token usage: 0.01, accept len: 2.68, cuda graph: True, gen throughput (token/s): 253.76, #queue-req: 0, 
-[2026-08-20 21:58:53] INFO:     127.0.0.1:40888 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:54] INFO:     127.0.0.1:40896 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:54] INFO:     127.0.0.1:40908 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:54] Prefill batch. #new-seq: 1, #new-token: 263, #cached-token: 6, token usage: 0.00, #running-req: 1, #queue-req: 0, 
-[2026-08-20 21:58:54] Decode batch. #running-req: 2, #token: 430, token usage: 0.00, accept len: 2.07, cuda graph: True, gen throughput (token/s): 135.47, #queue-req: 0, 
-[2026-08-20 21:58:54] INFO:     127.0.0.1:40900 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:55] Prefill batch. #new-seq: 1, #new-token: 1, #cached-token: 233, token usage: 0.01, #running-req: 1, #queue-req: 0, 
-[2026-08-20 21:58:55] INFO:     127.0.0.1:40924 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:55] Decode batch. #running-req: 1, #token: 282, token usage: 0.00, accept len: 2.86, cuda graph: True, gen throughput (token/s): 189.07, #queue-req: 0, 
-[2026-08-20 21:58:55] Prefill batch. #new-seq: 1, #new-token: 134, #cached-token: 6, token usage: 0.00, #running-req: 1, #queue-req: 0, 
-[2026-08-20 21:58:56] INFO:     127.0.0.1:40940 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:56] Prefill batch. #new-seq: 1, #new-token: 41, #cached-token: 6, token usage: 0.00, #running-req: 1, #queue-req: 0, 
-[2026-08-20 21:58:56] INFO:     127.0.0.1:40964 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:56] Decode batch. #running-req: 1, #token: 230, token usage: 0.00, accept len: 2.65, cuda graph: True, gen throughput (token/s): 180.83, #queue-req: 0, 
-[2026-08-20 21:58:56] Prefill batch. #new-seq: 1, #new-token: 1, #cached-token: 111, token usage: 0.00, #running-req: 1, #queue-req: 0, 
-[2026-08-20 21:58:57] INFO:     127.0.0.1:40954 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:57] Prefill batch. #new-seq: 1, #new-token: 1, #cached-token: 212, token usage: 0.00, #running-req: 1, #queue-req: 0, 
-[2026-08-20 21:58:57] Prefill batch. #new-seq: 1, #new-token: 186, #cached-token: 6, token usage: 0.00, #running-req: 2, #queue-req: 0, 
-[2026-08-20 21:58:57] Decode batch. #running-req: 3, #token: 633, token usage: 0.01, accept len: 2.71, cuda graph: True, gen throughput (token/s): 165.02, #queue-req: 0, 
-[2026-08-20 21:58:57] Prefill batch. #new-seq: 1, #new-token: 98, #cached-token: 7, token usage: 0.01, #running-req: 3, #queue-req: 0, 
-[2026-08-20 21:58:58] INFO:     127.0.0.1:40978 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:58] Prefill batch. #new-seq: 1, #new-token: 1, #cached-token: 104, token usage: 0.01, #running-req: 3, #queue-req: 0, 
-[2026-08-20 21:58:58] Prefill batch. #new-seq: 1, #new-token: 1, #cached-token: 53, token usage: 0.01, #running-req: 4, #queue-req: 0, 
-[2026-08-20 21:58:58] INFO:     127.0.0.1:40988 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:59] INFO:     127.0.0.1:40980 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:59] Decode batch. #running-req: 3, #token: 385, token usage: 0.00, accept len: 2.73, cuda graph: True, gen throughput (token/s): 306.44, #queue-req: 0, 
-[2026-08-20 21:58:59] Prefill batch. #new-seq: 1, #new-token: 69, #cached-token: 7, token usage: 0.00, #running-req: 3, #queue-req: 0, 
-[2026-08-20 21:58:59] Prefill batch. #new-seq: 1, #new-token: 1, #cached-token: 82, token usage: 0.01, #running-req: 4, #queue-req: 0, 
-[2026-08-20 21:58:59] INFO:     127.0.0.1:41000 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:58:59] Prefill batch. #new-seq: 1, #new-token: 1, #cached-token: 127, token usage: 0.01, #running-req: 4, #queue-req: 0, 
-[2026-08-20 21:59:00] Prefill batch. #new-seq: 1, #new-token: 1, #cached-token: 104, token usage: 0.01, #running-req: 5, #queue-req: 0, 
-[2026-08-20 21:59:00] INFO:     127.0.0.1:40086 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:59:00] INFO:     127.0.0.1:40090 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:59:00] Prefill batch. #new-seq: 1, #new-token: 83, #cached-token: 6, token usage: 0.01, #running-req: 4, #queue-req: 0, 
-[2026-08-20 21:59:00] Decode batch. #running-req: 5, #token: 727, token usage: 0.01, accept len: 2.81, cuda graph: True, gen throughput (token/s): 361.02, #queue-req: 0, 
-[2026-08-20 21:59:00] INFO:     127.0.0.1:40098 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:59:00] INFO:     127.0.0.1:40114 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:59:01] INFO:     127.0.0.1:40106 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:59:01] Prefill batch. #new-seq: 1, #new-token: 150, #cached-token: 6, token usage: 0.00, #running-req: 2, #queue-req: 0, 
-[2026-08-20 21:59:01] INFO:     127.0.0.1:40130 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:59:01] INFO:     127.0.0.1:40116 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:59:01] INFO:     127.0.0.1:40136 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:59:02] Prefill batch. #new-seq: 1, #new-token: 1, #cached-token: 180, token usage: 0.00, #running-req: 0, #queue-req: 0, 
-[2026-08-20 21:59:02] Decode batch. #running-req: 1, #token: 200, token usage: 0.00, accept len: 3.05, cuda graph: True, gen throughput (token/s): 175.24, #queue-req: 0, 
-[2026-08-20 21:59:03] Prefill batch. #new-seq: 1, #new-token: 1, #cached-token: 41, token usage: 0.00, #running-req: 1, #queue-req: 0, 
-[2026-08-20 21:59:03] Decode batch. #running-req: 2, #token: 343, token usage: 0.00, accept len: 2.52, cuda graph: True, gen throughput (token/s): 129.58, #queue-req: 0, 
-[2026-08-20 21:59:03] INFO:     127.0.0.1:40140 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:59:03] Prefill batch. #new-seq: 1, #new-token: 223, #cached-token: 6, token usage: 0.00, #running-req: 1, #queue-req: 0, 
-[2026-08-20 21:59:04] Decode batch. #running-req: 2, #token: 398, token usage: 0.00, accept len: 2.01, cuda graph: True, gen throughput (token/s): 142.79, #queue-req: 0, 
-[2026-08-20 21:59:04] Prefill batch. #new-seq: 1, #new-token: 1, #cached-token: 70, token usage: 0.01, #running-req: 2, #queue-req: 0, 
-[2026-08-20 21:59:04] INFO:     127.0.0.1:40148 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:59:04] INFO:     127.0.0.1:40158 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:59:05] Decode batch. #running-req: 1, #token: 137, token usage: 0.00, accept len: 2.38, cuda graph: True, gen throughput (token/s): 193.58, #queue-req: 0, 
-[2026-08-20 21:59:05] INFO:     127.0.0.1:40162 - "POST /generate HTTP/1.1" 200 OK
-[2026-08-20 21:59:05] SIGTERM received. signum=None frame=None. Draining requests and shutting down...
-[2026-08-20 21:59:10] Gracefully exiting... remaining number of requests 0
